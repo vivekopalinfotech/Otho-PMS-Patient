@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:ortho_pms_patient/responses/login_response.dart';
+import 'package:ortho_pms_patient/responses/patient_response.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,6 +25,31 @@ class Repository {
       log(jsonEncode(response.data));
 
       return LogInResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw e.response!.data['message'];
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+
+
+
+
+
+
+  Future<PatientResponse> getPatientImageBySeriesId(email) async {
+    SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    final token = sharedPreference.getString('token').toString();
+
+
+    try {
+      dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'};
+      final response = await dio.get(
+        "https://patientapi.orthopms.com/api/Patient/GetPatientByEmail?email=$email",
+      );
+      log(jsonEncode(response.data));
+      return PatientResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw e.response!.data['message'];
     } catch (e) {

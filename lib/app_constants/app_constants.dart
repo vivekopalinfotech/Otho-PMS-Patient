@@ -20,11 +20,7 @@ class AppConstants {
   static const SMALL = 12.0;
   static const XSMALL = 10.0;
 
-  static Widget LOADER = Center(
-    child: CircularProgressIndicator(
-      color: AppColor.blackColor,
-    ),
-  );
+
 
   static String formatDate(String dateString) {
     DateTime dateTime = DateTime.parse(dateString);
