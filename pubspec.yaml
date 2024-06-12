@@ -38,6 +38,7 @@ dependencies:
   google_fonts:
   intl:
   flutter_overlay_loader:
+  flutter_svg:
   sizer:
   flutter_bloc:
   flex_seed_scheme: ^1.5.0

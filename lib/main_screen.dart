@@ -2,21 +2,21 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
-import 'package:ortho_pms_patient/screens/dashboard.dart';
+import 'package:ortho_pms_patient/screens/patient/patient_screen.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 import 'app_constants/app_constants.dart';
 
-
 class MainScreen extends StatefulWidget {
   final String redirectPageName;
+  final String userEmail;
 
   const MainScreen({
     Key? key,
-    required this.redirectPageName,
-
+    required this.redirectPageName, required this.userEmail,
   });
 
   @override
@@ -44,7 +44,7 @@ class MainScreenState extends State<MainScreen> {
 
   List<Widget> _buildScreens() {
     return [
-      const Dashboard(),
+       PatientScreen(email: widget.userEmail,),
       const SizedBox(),
       const SizedBox(),
     ];
@@ -52,57 +52,133 @@ class MainScreenState extends State<MainScreen> {
 
   List<PersistentBottomNavBarItem> _navBarsItems() {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final Color oddItemColor = colorScheme.primary.withOpacity(0.05);
+    colorScheme.primary.withOpacity(0.05);
     final Color evenItemColor = colorScheme.primary.withOpacity(0.25);
     return [
       PersistentBottomNavBarItem(
-        icon: const Icon(Icons.medical_services_outlined),
-
-        iconSize: 26,
-        title: 'Patient',
+        icon: Column(
+          children: [
+            SizedBox(height: 8),
+            SvgPicture.asset(
+              'assets/images/patient.svg',
+              height: 30,
+              width: 30,
+              colorFilter: ColorFilter.srgbToLinearGamma(),
+            ),
+            SizedBox(height: 4),
+            Text(
+              'Patient',textScaler: TextScaler.linear(.9),
+              style: GoogleFonts.inter(color: colorScheme.primary, fontSize: AppConstants.SMALL,fontWeight:FontWeight.bold),
+            )
+          ],
+        ),
+        iconSize: 34,
+        inactiveIcon: Column(
+          children: [
+            SizedBox(height: 8),
+            SvgPicture.asset(
+              'assets/images/patient.svg',
+              height: 30,
+              width: 30,
+              color: evenItemColor,
+            ),
+            SizedBox(height: 4),
+            Text(
+              'Patient',textScaler: TextScaler.linear(.9),
+              style: GoogleFonts.inter(color: evenItemColor, fontSize: AppConstants.SMALL),
+            )
+          ],
+        ),
         textStyle: GoogleFonts.inter(fontSize: AppConstants.SMALL, fontWeight: FontWeight.w600, color: AppColor.blackColor),
         activeColorPrimary: colorScheme.surfaceTint,
-        inactiveColorPrimary:evenItemColor,
+        inactiveColorPrimary: evenItemColor,
         contentPadding: 0,
         routeAndNavigatorSettings: RouteAndNavigatorSettings(
           initialRoute: '/',
-          routes: {
-            '/dashboard': (context) => const Dashboard(),
-            '/schedule': (context) => const SizedBox(),
-            '/patients': (context) => const SizedBox()
-          },
+          routes: {'/dashboard': (context) =>  PatientScreen(email: widget.userEmail,), '/schedule': (context) => const SizedBox(), '/patients': (context) => const SizedBox()},
         ),
       ),
       PersistentBottomNavBarItem(
-        icon: const Icon(Icons.history),
-        iconSize: 26,
-        title: 'Appt History',
+        icon: Column(
+          children: [
+            SizedBox(height: 8),
+            SvgPicture.asset(
+              'assets/images/appt-history.svg',
+              height: 30,
+              width: 30,
+              colorFilter: ColorFilter.srgbToLinearGamma(),
+            ),
+            SizedBox(height: 4),
+            Text(
+              'Appt History',textScaler: TextScaler.linear(.9),
+              style: GoogleFonts.inter(color: colorScheme.primary, fontSize: AppConstants.SMALL,fontWeight:FontWeight.bold),
+            )
+          ],
+        ),
+        iconSize: 34,
+        inactiveIcon: Column(
+          children: [
+            SizedBox(height: 8),
+            SvgPicture.asset(
+              'assets/images/appt-history.svg',
+              height: 30,
+              width: 30,
+              color: evenItemColor,
+            ),
+            SizedBox(height: 4),
+            Text(
+              'Appt History',textScaler: TextScaler.linear(.9),
+              style: GoogleFonts.inter(color: evenItemColor, fontSize: AppConstants.SMALL),
+            )
+          ],
+        ),
         textStyle: GoogleFonts.inter(fontSize: AppConstants.SMALL, fontWeight: FontWeight.w600, color: AppColor.blackColor),
-        activeColorPrimary:  colorScheme.surfaceTint,
-        inactiveColorPrimary:evenItemColor,
+        activeColorPrimary: colorScheme.surfaceTint,
+        inactiveColorPrimary: evenItemColor,
         routeAndNavigatorSettings: RouteAndNavigatorSettings(
           initialRoute: '/',
-          routes: {
-            '/dashboard': (context) => const Dashboard(),
-            '/schedule': (context) => const SizedBox(),
-            '/patients': (context) => const SizedBox()
-          },
+          routes: {'/dashboard': (context) =>  PatientScreen(email: widget.userEmail,), '/schedule': (context) => const SizedBox(), '/patients': (context) => const SizedBox()},
         ),
       ),
       PersistentBottomNavBarItem(
-        icon: const Icon(Icons.payment),
-        iconSize: 26,
-        title: 'Payment',
-        activeColorPrimary:  colorScheme.surfaceTint,
-        inactiveColorPrimary:evenItemColor,
+        icon: Column(
+          children: [
+            SizedBox(height: 14),
+            SvgPicture.asset(
+              'assets/images/payment.svg',
+              height: 24,
+              width: 24,
+              colorFilter: ColorFilter.srgbToLinearGamma(),
+            ),
+            SizedBox(height: 5),
+            Text(
+              'Payment',
+              textScaler: TextScaler.linear(.9),
+              style: GoogleFonts.inter(color: colorScheme.primary, fontSize: AppConstants.SMALL,fontWeight:FontWeight.bold),
+            )
+          ],
+        ),
+        iconSize: 34,
+        inactiveIcon: Column(children: [
+          SizedBox(height: 14),
+          SvgPicture.asset(
+            'assets/images/payment.svg',
+            height: 24,
+            width: 24,
+            color: evenItemColor,
+          ),
+          SizedBox(height: 5),
+          Text(
+            'Payment',textScaler: TextScaler.linear(.9),
+            style: GoogleFonts.inter(color: evenItemColor, fontSize: AppConstants.SMALL),
+          )
+        ]),
+        activeColorPrimary: colorScheme.surfaceTint,
+        inactiveColorPrimary: evenItemColor,
         textStyle: GoogleFonts.inter(fontSize: AppConstants.SMALL, fontWeight: FontWeight.w600, color: AppColor.blackColor),
         routeAndNavigatorSettings: RouteAndNavigatorSettings(
           initialRoute: '/',
-          routes: {
-            '/dashboard': (context) => const Dashboard(),
-            '/schedule': (context) => const SizedBox(),
-            '/patients': (context) => const SizedBox()
-          },
+          routes: {'/dashboard': (context) =>  PatientScreen(email: widget.userEmail,), '/schedule': (context) => const SizedBox(), '/patients': (context) => const SizedBox()},
         ),
       ),
     ];
@@ -122,18 +198,15 @@ class MainScreenState extends State<MainScreen> {
             handleAndroidBackButtonPress: true,
             resizeToAvoidBottomInset: true,
             stateManagement: true,
-
             hideNavigationBarWhenKeyboardShows: true,
-            popActionScreens: PopActionScreensType.all,
-           onItemSelected: (index) {
-              if (index == 0) {}
-              if (index == 1) {
-                //   showAlertDialog(context);
-              }
-              if (index == 2) {}
-            },
+            popActionScreens: PopActionScreensType.all, onItemSelected: (index) {
+      if (index == 0) {}
+      if (index == 1) {
+        //   showAlertDialog(context);
+      }
+      if (index == 2) {}
+    },
             selectedTabScreenContext: (context) {},
-
             popAllScreensOnTapAnyTabs: true,
             navBarHeight: 65,
             hideNavigationBar: _hideNavBar,
@@ -142,7 +215,7 @@ class MainScreenState extends State<MainScreen> {
               duration: Duration(milliseconds: 400),
               curve: Curves.easeIn,
             ),
-            padding: const NavBarPadding.symmetric(vertical: 8,horizontal: 0),
+            padding: NavBarPadding.all(0),
             screenTransitionAnimation: const ScreenTransitionAnimation(
               animateTabTransition: true,
               curve: Curves.ease,

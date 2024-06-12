@@ -4,6 +4,7 @@ import 'package:ortho_pms_patient/api/api_provider.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/screens/auth/login_screen.dart';
 import 'bloc/auth/login_cubit.dart';
+import 'bloc/patient/patient_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +24,9 @@ class MyApp extends StatelessWidget {
         providers: [
           BlocProvider(
             create: (context) => LogInCubit(repository),
+          ),
+          BlocProvider(
+            create: (context) => PatientCubit(repository),
           ),
         ],
         child: MaterialApp(
