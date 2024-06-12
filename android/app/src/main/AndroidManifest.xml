@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="ortho_pms_patient"
+        android:label="Ortho PMS Patient"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
