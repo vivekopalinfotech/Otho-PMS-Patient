@@ -6,8 +6,8 @@ import 'package:ortho_pms_patient/responses/login_response.dart';
 import 'login_state.dart';
 
 class LogInCubit extends Cubit<LogInState> {
-  final Repository _repository;
-  LogInCubit(this._repository) : super(LogInInitial());
+  final ApiProvider _apiProvider;
+  LogInCubit(this._apiProvider) : super(LogInInitial());
 
   Future<void> logIn(
       String userName,
@@ -16,7 +16,7 @@ class LogInCubit extends Cubit<LogInState> {
     try {
       emit(LogInLoading());
 
-      LogInResponse logInResponse = await _repository.logIn(userName, password);
+      LogInResponse logInResponse = await _apiProvider.logIn(userName, password);
 
       emit(LogInSuccess(logInResponse));
     } catch (e) {

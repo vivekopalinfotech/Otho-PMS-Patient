@@ -1,14 +1,13 @@
+// ignore_for_file: unused_field
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:google_fonts/google_fonts.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
 import 'package:ortho_pms_patient/bloc/auth/login_cubit.dart';
 import 'package:ortho_pms_patient/bloc/auth/login_state.dart';
 import 'package:ortho_pms_patient/main_screen.dart';
-import 'package:ortho_pms_patient/screens/patient/patient_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -53,7 +52,13 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _isLogin = true;
       });
-      Navigator.push(context, MaterialPageRoute(builder: (context) => MainScreen(redirectPageName: 'dashboardPage',userEmail: email,)));
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => MainScreen(
+                    redirectPageName: 'dashboardPage',
+                    userEmail: email,
+                  )));
     } else {
       setState(() {
         _isLogin = false;
@@ -111,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       authenticated = await _localAuth.authenticate(
         localizedReason: 'Authenticate to access your account',
-        options: const AuthenticationOptions(biometricOnly: true, useErrorDialogs: true, stickyAuth: true, sensitiveTransaction: true),
+        options: AuthenticationOptions(biometricOnly: true, useErrorDialogs: true, stickyAuth: true, sensitiveTransaction: true),
       );
     } catch (e) {
       print(e);
@@ -123,7 +128,12 @@ class _LoginScreenState extends State<LoginScreen> {
       _authorized = authenticated ? 'Authorized' : 'Not Authorized';
     });
 
-    if (authenticated) {}
+    if (authenticated) {
+      BlocProvider.of<LogInCubit>(context).logIn(
+        biometricEmail,
+        biometricPassword,
+      );
+    }
   }
 
   @override
@@ -138,7 +148,13 @@ class _LoginScreenState extends State<LoginScreen> {
           _isLoading = false;
         });
         if (state.logInResponse.valid == true) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => MainScreen(redirectPageName: 'dashboardPage',userEmail: state.logInResponse.email.toString(),)));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => MainScreen(
+                        redirectPageName: 'dashboardPage',
+                        userEmail: state.logInResponse.email.toString(),
+                      )));
           SharedPreferences sharedPreference = await SharedPreferences.getInstance();
           sharedPreference.setString("login", 'true');
           sharedPreference.setString("email", state.logInResponse.email.toString());
@@ -312,7 +328,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ? Center(
                                       child: LinearProgressIndicator(
                                       color: colorScheme.surfaceTint,
-                                        borderRadius: BorderRadius.circular(10),
+                                      borderRadius: BorderRadius.circular(10),
                                     ))
                                   : ElevatedButton(
                                       style: ButtonStyle(

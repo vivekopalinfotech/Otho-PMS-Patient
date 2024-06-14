@@ -5,7 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
-import 'package:ortho_pms_patient/screens/patient/patient_screen.dart';
+import 'package:ortho_pms_patient/screens/patient_screen/patient_screen.dart';
+import 'package:ortho_pms_patient/screens/payment_screen/payment_screen.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 import 'app_constants/app_constants.dart';
@@ -46,7 +47,7 @@ class MainScreenState extends State<MainScreen> {
     return [
        PatientScreen(email: widget.userEmail,),
       const SizedBox(),
-      const SizedBox(),
+      PaymentScreen(),
     ];
   }
 
@@ -95,7 +96,7 @@ class MainScreenState extends State<MainScreen> {
         contentPadding: 0,
         routeAndNavigatorSettings: RouteAndNavigatorSettings(
           initialRoute: '/',
-          routes: {'/dashboard': (context) =>  PatientScreen(email: widget.userEmail,), '/schedule': (context) => const SizedBox(), '/patients': (context) => const SizedBox()},
+          routes: {'/dashboard': (context) =>  PatientScreen(email: widget.userEmail,), '/schedule': (context) => const SizedBox(), '/patients': (context) => PaymentScreen()},
         ),
       ),
       PersistentBottomNavBarItem(
@@ -137,7 +138,7 @@ class MainScreenState extends State<MainScreen> {
         inactiveColorPrimary: evenItemColor,
         routeAndNavigatorSettings: RouteAndNavigatorSettings(
           initialRoute: '/',
-          routes: {'/dashboard': (context) =>  PatientScreen(email: widget.userEmail,), '/schedule': (context) => const SizedBox(), '/patients': (context) => const SizedBox()},
+          routes: {'/dashboard': (context) =>  PatientScreen(email: widget.userEmail,), '/schedule': (context) => const SizedBox(), '/patients': (context) =>  PaymentScreen()},
         ),
       ),
       PersistentBottomNavBarItem(
@@ -178,7 +179,7 @@ class MainScreenState extends State<MainScreen> {
         textStyle: GoogleFonts.inter(fontSize: AppConstants.SMALL, fontWeight: FontWeight.w600, color: AppColor.blackColor),
         routeAndNavigatorSettings: RouteAndNavigatorSettings(
           initialRoute: '/',
-          routes: {'/dashboard': (context) =>  PatientScreen(email: widget.userEmail,), '/schedule': (context) => const SizedBox(), '/patients': (context) => const SizedBox()},
+          routes: {'/dashboard': (context) =>  PatientScreen(email: widget.userEmail,), '/schedule': (context) => const SizedBox(), '/patients': (context) => PaymentScreen()},
         ),
       ),
     ];
@@ -194,7 +195,7 @@ class MainScreenState extends State<MainScreen> {
             screens: _buildScreens(),
             items: _navBarsItems(),
             confineInSafeArea: true,
-            backgroundColor: colorScheme.surface,
+            backgroundColor: colorScheme.background,
             handleAndroidBackButtonPress: true,
             resizeToAvoidBottomInset: true,
             stateManagement: true,

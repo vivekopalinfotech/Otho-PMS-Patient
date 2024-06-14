@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ortho_pms_patient/api/api_provider.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
+import 'package:ortho_pms_patient/bloc/auth/logiut_cubit.dart';
+import 'package:ortho_pms_patient/bloc/patient/get_patient_exam_by_patient_id_cubit.dart';
+import 'package:ortho_pms_patient/bloc/patient/get_patient_insurance_company_bloc.dart';
+import 'package:ortho_pms_patient/bloc/patient/patient_by_id_cubit.dart';
 import 'package:ortho_pms_patient/screens/auth/login_screen.dart';
 import 'bloc/auth/login_cubit.dart';
 import 'bloc/patient/patient_cubit.dart';
@@ -18,7 +22,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final repository = Repository();
+    final repository = ApiProvider();
 
     return MultiBlocProvider(
         providers: [
@@ -26,7 +30,19 @@ class MyApp extends StatelessWidget {
             create: (context) => LogInCubit(repository),
           ),
           BlocProvider(
+            create: (context) => LogoutCubit(repository),
+          ),
+          BlocProvider(
             create: (context) => PatientCubit(repository),
+          ),
+          BlocProvider(
+            create: (context) => PatientByIdCubit(repository),
+          ),
+          BlocProvider(
+            create: (context) => GetPatientExamByPatientIdCubit(repository),
+          ),
+          BlocProvider(
+            create: (context) => GetPatientInsuranceCompanyCubit(repository),
           ),
         ],
         child: MaterialApp(
