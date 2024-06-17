@@ -38,6 +38,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   google_fonts:
   intl:
+  flutter_animate:
   flutter_overlay_loader:
   flutter_speed_dial:
   flutter_svg:

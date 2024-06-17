@@ -33,7 +33,7 @@ class _PaymentSummaryState extends State<PaymentSummary> {
         .brightness;
 
     return Card(
-      color: brightness == Brightness.dark ? AppColor.blackColor : AppColor.whiteColor,
+     // color: brightness == Brightness.dark ? AppColor.blackColor : AppColor.whiteColor,
       child: BlocConsumer<GetPatientExamByPatientIdCubit, GetPatientExamByPatientIdState>(listener: (context, state) async {
         if (state is GetPatientExamByPatientIdSuccess) {}
         if (state is GetPatientExamByPatientIdError) {

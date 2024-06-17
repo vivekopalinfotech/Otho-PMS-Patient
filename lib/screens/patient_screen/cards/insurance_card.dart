@@ -29,7 +29,7 @@ class _InsuranceState extends State<Insurance> {
     var brightness = Theme.of(context).brightness;
 
     return Card(
-      color: brightness == Brightness.dark ? AppColor.blackColor : AppColor.whiteColor,
+     // color: brightness == Brightness.dark ? AppColor.blackColor : AppColor.whiteColor,
       child: BlocConsumer<GetPatientInsuranceCompanyCubit, GetPatientInsuranceCompanyState>(listener: (context, state) async {
         if (state is GetPatientInsuranceCompanySuccess) {}
         if (state is GetPatientInsuranceCompanyError) {
@@ -72,11 +72,11 @@ class _InsuranceState extends State<Insurance> {
                     SizedBox(height: 8),
                     Row(
                       children: [
-                        SvgPicture.asset('assets/images/location.svg', color: AppColor.secondarySeedColor),
+                        SvgPicture.asset('assets/images/location.svg',color: brightness == Brightness.dark?AppColor.whiteColor:AppColor.blackColor),
                         SizedBox(width: 8),
                         Text(
                           '${state.insuranceResponse.insurance.first.practiceInsuranceCompanyAddress1},${state.insuranceResponse.insurance.first.practiceInsuranceCompanyCity},${state.insuranceResponse.insurance.first.practiceInsuranceCompanyState},${state.insuranceResponse.insurance.first.practiceInsuranceCompanyZipcode}',
-                          style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL, color: AppColor.secondarySeedColor),
+                          style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL,),
                         )
                       ],
                     ),
@@ -87,11 +87,11 @@ class _InsuranceState extends State<Insurance> {
                         Flexible(
                           child: Row(
                             children: [
-                              Image.asset('assets/images/phone.png', height: 24, color: AppColor.secondarySeedColor),
+                              Image.asset('assets/images/phone.png', height: 24,color: brightness == Brightness.dark?AppColor.whiteColor:AppColor.blackColor),
                               SizedBox(width: 8),
                               Text(
                                 '${state.insuranceResponse.insurance.first.practiceInsuranceCompanyPhone}',
-                                style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL, color: AppColor.secondarySeedColor),
+                                style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL,),
                               )
                             ],
                           ),

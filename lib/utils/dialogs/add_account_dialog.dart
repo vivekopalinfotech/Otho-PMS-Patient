@@ -20,14 +20,11 @@ class _AddAccountDialogState extends State<AddAccountDialog> {
     return AlertDialog(
         insetPadding: EdgeInsets.all(16),
         titlePadding: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6)
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         backgroundColor: brightness == Brightness.dark ? AppColor.bgDarkColor : AppColor.whiteColor,
         title: Container(
           width: double.maxFinite,
-          child:
-          Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               IconButton(
@@ -38,42 +35,44 @@ class _AddAccountDialogState extends State<AddAccountDialog> {
                     Navigator.of(context).pop(true);
                   },
                   icon: Icon(Icons.close, size: 16, color: AppColor.primarySeedColor)),
-
-              Padding(padding: EdgeInsets.only(left: AppConstants.HP,right: AppConstants.HP,bottom: AppConstants.HP),
-                child:  Column(
+              Padding(
+                padding: EdgeInsets.only(left: AppConstants.HP, right: AppConstants.HP, bottom: AppConstants.HP),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _formField("Account Number *",accountController,TextInputType.number),
+                    _formField("Account Number *", accountController, TextInputType.number),
                     SizedBox(height: 16),
-                    _formField("Routing Number *",routingController,TextInputType.number),
+                    _formField("Routing Number *", routingController, TextInputType.number),
                     SizedBox(height: 16),
-                    _formField("Billing Person Name *",personController,TextInputType.text),
+                    _formField("Billing Person Name *", personController, TextInputType.text),
                     SizedBox(height: 16),
-
-                   accountController.text.isNotEmpty && routingController.text.isNotEmpty && personController.text.isNotEmpty?
-
-                    ElevatedButton(onPressed: (){}, child: Text('Save')): SizedBox()
+                    accountController.text.isNotEmpty && routingController.text.isNotEmpty && personController.text.isNotEmpty ?
+                    ElevatedButton(onPressed: () {}, child: Text('Save',style: GoogleFonts.inter(),)) : SizedBox()
                   ],
-                ),)
+                ),
+              )
             ],
           ),
-        )
-
-    );
+        ));
   }
 
-  Widget _formField(title,controller,TextInputType textInputType){
+  Widget _formField(title, controller, TextInputType textInputType) {
     var brightness = Theme.of(context).brightness;
-    return   Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: GoogleFonts.inter(fontSize:AppConstants.NORMAL,fontWeight:FontWeight.bold,color:brightness == Brightness.dark?AppColor.whiteColor:AppColor.blackColor)),
+        Text(title, style: GoogleFonts.inter(fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
         SizedBox(height: 8),
         TextFormField(
           controller: controller,
+          onChanged: (value) {
+            setState(() {
+              controller.text;
+            });
+          },
           keyboardType: textInputType,
-          decoration: InputDecoration(
-              isDense: true,
+          decoration: InputDecoration(isDense: true,
+              hintText: title.replaceAll('*',''),
               enabledBorder: OutlineInputBorder(),
               focusedBorder: OutlineInputBorder()
           ),

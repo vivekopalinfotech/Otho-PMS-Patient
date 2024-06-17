@@ -1,11 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
 import 'package:ortho_pms_patient/screens/dentist/dentist_profile.dart';
+import 'package:ortho_pms_patient/screens/patient_screen/forms/primary_contact.dart';
 
 class PatientCard extends StatefulWidget {
   final patient;
@@ -23,6 +22,7 @@ class _PatientCardState extends State<PatientCard> {
     var brightness = Theme.of(context).brightness;
     abbreviation = '${widget.patient.patientLastName.substring(0, 1).toUpperCase()}${widget.patient.patientFirstName.substring(0, 1).toUpperCase()}';
 
+
     List<PC> cards = [
       PC(
         'PC',
@@ -34,7 +34,7 @@ class _PatientCardState extends State<PatientCard> {
       PC('I', widget.patient.hasInsurance ? AppColor.successColor : AppColor.errorColor),
     ];
     return Card(
-      color: brightness == Brightness.dark?AppColor.blackColor:AppColor.whiteColor,
+
       child: Container(
         padding: EdgeInsets.all(AppConstants.HP),
         child: Column(
@@ -65,7 +65,7 @@ class _PatientCardState extends State<PatientCard> {
                     ),
                     Text(
                       '${widget.patient.patientGender} - ${widget.patient.patientAge} years',
-                      style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL, color:AppColor.secondarySeedColor),
+                      style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL,),
                     )
                   ],
                 ))
@@ -76,20 +76,20 @@ class _PatientCardState extends State<PatientCard> {
               children: [
                 Icon(
                   Icons.mail,
-                  color: AppColor.secondarySeedColor,
+
                   size: 18,
                 ),
                 SizedBox(width: 8),
                 Text(
                   '${widget.patient.patientPrimaryEmailAddress}',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL, color: AppColor.secondarySeedColor),
+                  style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL,),
                 )
               ],
             ),
             SizedBox(height: 8),
             Row(
               children: [
-                SvgPicture.asset('assets/images/doctor.svg', color: AppColor.secondarySeedColor),
+                SvgPicture.asset('assets/images/doctor.svg',color: brightness == Brightness.dark?AppColor.whiteColor:AppColor.blackColor,),
                 SizedBox(width: 8),
                 Flexible(
                     child: Column(
@@ -127,7 +127,11 @@ class _PatientCardState extends State<PatientCard> {
                     itemBuilder: (context, index) => InkWell(
                         splashColor: Colors.transparent,
                         highlightColor: Colors.transparent,
-                        onTap: () {},
+                        onTap: () {
+                          if(index == 0){
+                            Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => PrimaryContactForm()));
+                          }
+                        },
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

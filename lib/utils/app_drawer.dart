@@ -4,7 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
 import 'package:ortho_pms_patient/bloc/auth/logiut_cubit.dart';
 import 'package:ortho_pms_patient/screens/auth/login_screen.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:ortho_pms_patient/utils/change_password.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'biometric_authentication_screen.dart';
@@ -19,8 +20,8 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final Color oddItemColor = colorScheme.primary.withOpacity(0.05);
     final Color evenItemColor = colorScheme.primary.withOpacity(0.15);
+
     return Drawer(
         shape: OutlineInputBorder(borderRadius: BorderRadius.only(topRight: Radius.circular(20)), borderSide: BorderSide.none),
         child: Container(
@@ -64,19 +65,7 @@ class AppDrawer extends StatelessWidget {
                         '${name}',
                         style: GoogleFonts.inter(fontWeight:FontWeight.bold,fontSize:AppConstants.NORMAL,color:colorScheme.onSurface),
                       ),
-                      // const SizedBox(
-                      //   height: 4,
-                      // ),
-                      // RichText(text: TextSpan(
-                      //     text: 'ClinID : ',
-                      //     style: GoogleFonts.roboto(color: AppColor.secondaryTextColor,fontWeight: FontWeight.w500,fontSize: AppConstants.SMALL),
-                      //     children: [
-                      //       TextSpan(
-                      //         text: 'rpatelmdd',
-                      //         style: GoogleFonts.roboto(color: AppColor.blackColor,fontWeight: FontWeight.bold,fontSize: AppConstants.SMALL),
-                      //       )
-                      //     ]
-                      // )),
+
 
                       const SizedBox(
                         height: 4,
@@ -111,6 +100,28 @@ class AppDrawer extends StatelessWidget {
                     SizedBox(width: 16),
                     Text(
                       'Biometric Authentication',
+                      style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.LARGE),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 50),
+              InkWell(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onTap: () {
+                  Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChangePassword(email:email)));
+                },
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.lock_open_outlined,
+                      size: 24,
+                        color: colorScheme.secondary
+                    ),
+                    SizedBox(width: 16),
+                    Text(
+                      'Change Password',
                       style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.LARGE),
                     ),
                   ],

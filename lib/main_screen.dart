@@ -10,6 +10,7 @@ import 'package:ortho_pms_patient/screens/payment_screen/payment_screen.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 import 'app_constants/app_constants.dart';
+import 'screens/appt_history_screen/appt_history_screen.dart';
 
 class MainScreen extends StatefulWidget {
   final String redirectPageName;
@@ -46,7 +47,7 @@ class MainScreenState extends State<MainScreen> {
   List<Widget> _buildScreens() {
     return [
        PatientScreen(email: widget.userEmail,),
-      const SizedBox(),
+      const ApptHistoryScreen(),
       PaymentScreen(),
     ];
   }
@@ -96,7 +97,7 @@ class MainScreenState extends State<MainScreen> {
         contentPadding: 0,
         routeAndNavigatorSettings: RouteAndNavigatorSettings(
           initialRoute: '/',
-          routes: {'/dashboard': (context) =>  PatientScreen(email: widget.userEmail,), '/schedule': (context) => const SizedBox(), '/patients': (context) => PaymentScreen()},
+          routes: {'/dashboard': (context) =>  PatientScreen(email: widget.userEmail,), '/schedule': (context) => const ApptHistoryScreen(), '/patients': (context) => PaymentScreen()},
         ),
       ),
       PersistentBottomNavBarItem(
@@ -138,7 +139,7 @@ class MainScreenState extends State<MainScreen> {
         inactiveColorPrimary: evenItemColor,
         routeAndNavigatorSettings: RouteAndNavigatorSettings(
           initialRoute: '/',
-          routes: {'/dashboard': (context) =>  PatientScreen(email: widget.userEmail,), '/schedule': (context) => const SizedBox(), '/patients': (context) =>  PaymentScreen()},
+          routes: {'/dashboard': (context) =>  PatientScreen(email: widget.userEmail,), '/schedule': (context) => const ApptHistoryScreen(), '/patients': (context) =>  PaymentScreen()},
         ),
       ),
       PersistentBottomNavBarItem(
@@ -179,7 +180,7 @@ class MainScreenState extends State<MainScreen> {
         textStyle: GoogleFonts.inter(fontSize: AppConstants.SMALL, fontWeight: FontWeight.w600, color: AppColor.blackColor),
         routeAndNavigatorSettings: RouteAndNavigatorSettings(
           initialRoute: '/',
-          routes: {'/dashboard': (context) =>  PatientScreen(email: widget.userEmail,), '/schedule': (context) => const SizedBox(), '/patients': (context) => PaymentScreen()},
+          routes: {'/dashboard': (context) =>  PatientScreen(email: widget.userEmail,), '/schedule': (context) =>  ApptHistoryScreen(), '/patients': (context) => PaymentScreen()},
         ),
       ),
     ];

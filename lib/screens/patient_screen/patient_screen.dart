@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
 import 'package:ortho_pms_patient/bloc/patient/get_patient_exam_by_patient_id_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/get_patient_insurance_company_bloc.dart';
@@ -8,10 +9,11 @@ import 'package:ortho_pms_patient/bloc/patient/patient_by_id_state.dart';
 import 'package:ortho_pms_patient/bloc/patient/patient_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/patient_state.dart';
 import 'package:ortho_pms_patient/screens/auth/login_screen.dart';
-import 'package:ortho_pms_patient/screens/patient_screen/insurance.dart';
-import 'package:ortho_pms_patient/screens/patient_screen/patient_card.dart';
-import 'package:ortho_pms_patient/screens/patient_screen/patient_exam_card.dart';
-import 'package:ortho_pms_patient/screens/patient_screen/payment_summary.dart';
+import 'package:ortho_pms_patient/screens/patient_screen/cards/insurance_card.dart';
+import 'package:ortho_pms_patient/screens/patient_screen/cards/patient_card.dart';
+
+import 'package:ortho_pms_patient/screens/patient_screen/cards/patient_exam_card.dart';
+import 'package:ortho_pms_patient/screens/patient_screen/cards/payment_summary_card.dart';
 
 import 'package:ortho_pms_patient/utils/app_drawer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,6 +49,7 @@ class _PatientScreenState extends State<PatientScreen> {
             setState(() {
               sharedPreference.setString('practiceId', state.patientResponse.patient.first.practiceId.toString());
               sharedPreference.setString('practiceGuid', state.patientResponse.patient.first.patientGuid.toString());
+              sharedPreference.setString('patientId', state.patientResponse.patient.first.patientId.toString());
             });
 
             BlocProvider.of<PatientByIdCubit>(context).getPatientById(state.patientResponse.patient.first.patientId.toString());
@@ -83,7 +86,7 @@ class _PatientScreenState extends State<PatientScreen> {
                 key: _scaffoldKey,
                 appBar: AppBar(
                   centerTitle: true,
-                  title: Text('${state.patientByIdResponse.patientById.first.patientLastName} ${state.patientByIdResponse.patientById.first.patientFirstName}'),
+                  title: Text('${state.patientByIdResponse.patientById.first.patientLastName} ${state.patientByIdResponse.patientById.first.patientFirstName}',style: GoogleFonts.inter(fontSize:AppConstants.HEADING3))
                 ),
                 drawer: AppDrawer(
                   abbreviation: abbreviation,

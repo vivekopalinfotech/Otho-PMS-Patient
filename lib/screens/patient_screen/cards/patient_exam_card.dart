@@ -32,7 +32,7 @@ class _PatientExamCardState extends State<PatientExamCard> {
     var brightness = Theme.of(context).brightness;
 
     return Card(
-      color: brightness == Brightness.dark ? AppColor.blackColor : AppColor.whiteColor,
+     // color: brightness == Brightness.dark ? AppColor.blackColor : AppColor.whiteColor,
       child: BlocConsumer<GetPatientExamByPatientIdCubit, GetPatientExamByPatientIdState>(listener: (context, state) async {
         if (state is GetPatientExamByPatientIdSuccess) {}
         if (state is GetPatientExamByPatientIdError) {
@@ -160,11 +160,11 @@ class _PatientExamCardState extends State<PatientExamCard> {
                               Flexible(
                                 child: Row(
                                   children: [
-                                    SvgPicture.asset('assets/images/location.svg', color: AppColor.secondarySeedColor),
+                                    SvgPicture.asset('assets/images/location.svg',color: brightness == Brightness.dark?AppColor.whiteColor:AppColor.blackColor),
                                     SizedBox(width: 8),
                                     Text(
                                       '${state.patientExamByPatientIdResponse.patientExam[_currentIndex].practiceLocationName}',
-                                      style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL, color: AppColor.secondarySeedColor),
+                                      style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL,),
                                     )
                                   ],
                                 ),
@@ -174,12 +174,12 @@ class _PatientExamCardState extends State<PatientExamCard> {
                                   children: [
                                     Text(
                                       '\$',
-                                      style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.LARGE, color: AppColor.secondarySeedColor),
+                                      style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.LARGE,),
                                     ),
                                     SizedBox(width: 8),
                                     Text(
                                       '${state.patientExamByPatientIdResponse.patientExam[_currentIndex].hasServiceContract == false ? 'No Contract' : ''}',
-                                      style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL, color: AppColor.secondarySeedColor),
+                                      style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL,),
                                     )
                                   ],
                                 ),
@@ -189,11 +189,11 @@ class _PatientExamCardState extends State<PatientExamCard> {
                           SizedBox(height: 8),
                           Row(
                             children: [
-                              SvgPicture.asset('assets/images/heartbeat.svg', color: AppColor.secondarySeedColor),
+                              SvgPicture.asset('assets/images/heartbeat.svg', color: brightness == Brightness.dark?AppColor.whiteColor:AppColor.blackColor ),
                               SizedBox(width: 8),
                               Text(
                                 'No Active treatment - (0 To 0)',
-                                style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL, color: AppColor.secondarySeedColor),
+                                style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL, ),
                               )
                             ],
                           ),

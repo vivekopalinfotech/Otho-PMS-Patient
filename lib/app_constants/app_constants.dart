@@ -33,12 +33,18 @@ class AppConstants {
     return formatter.format(dateTime);
   }
 
-  static String parsedDate(String dateString) {
+  static String convertDate(String dateString) {
     DateTime dateTime = DateTime.parse(dateString);
-    DateFormat formatter = DateFormat('yyyy-MM-dd');
-    return formatter.format(dateTime);
+    String formattedDate = DateFormat("MM/dd/yyyy hh:mm a").format(dateTime);
+    return formattedDate;
   }
-
+  static String parsedDate(String dateString) {
+    DateFormat inputFormat = DateFormat('MM/dd/yyyy');
+    DateTime date = inputFormat.parse(dateString);
+    DateFormat outputFormat = DateFormat('yyyy-MM-ddTHH:mm:ss');
+    String formattedDate = outputFormat.format(date);
+    return formattedDate;
+  }
 
 
 
