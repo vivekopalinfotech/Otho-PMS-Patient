@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:ortho_pms_patient/responses/change_password_response.dart';
 import 'package:ortho_pms_patient/responses/get_patient_contact_response.dart';
+import 'package:ortho_pms_patient/responses/get_patient_frp_response.dart';
 import 'package:ortho_pms_patient/responses/insurance_response.dart';
 import 'package:ortho_pms_patient/responses/login_response.dart';
 import 'package:ortho_pms_patient/responses/patient_appointment_history_response.dart';
@@ -20,15 +21,10 @@ class ApiProvider {
   static final BaseOptions _baseOptions = BaseOptions(baseUrl: 'https://usermanagementapi.orthopms.com/api');
   final Dio dio = Dio(_baseOptions);
 
-
   Future<LogInResponse> logIn(String userName, String password) async {
     try {
       // dio.options.headers = {'Content-Type': 'application/json', 'accept': '*/*'};
-      final response = await dio.post('https://usermanagementapi.orthopms.com/api/User/Login', data: {
-        'password': password,
-        'username': userName
-
-      });
+      final response = await dio.post('https://usermanagementapi.orthopms.com/api/User/Login', data: {'password': password, 'username': userName});
 
       log(jsonEncode(response.data));
 
@@ -60,7 +56,6 @@ class ApiProvider {
     }
   }
 
-
   Future<InsuranceResponse> getPatientInsuranceCompanies(patientId) async {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
     final token = sharedPreference.getString('token').toString();
@@ -80,7 +75,6 @@ class ApiProvider {
       throw e.toString();
     }
   }
-
 
   Future<PatientAppointmentResponse> getPatientAppointmentHistory(patientId) async {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
@@ -102,8 +96,6 @@ class ApiProvider {
     }
   }
 
-
-
   Future<PatientExamHistoryResponse> getPatientExamHistory(patientId) async {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
     final token = sharedPreference.getString('token').toString();
@@ -123,7 +115,6 @@ class ApiProvider {
       throw e.toString();
     }
   }
-
 
   Future<GetPrimaryContactResponse> getPatientContact() async {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
@@ -146,8 +137,29 @@ class ApiProvider {
     }
   }
 
+  Future<GetPatientFRPResponse> getPatientFinancialResponsiblePersons() async {
+    SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    final token = sharedPreference.getString('token').toString();
+    final practiceId = sharedPreference.getString('practiceId').toString();
+    final patientId = sharedPreference.getString('patientId').toString();
+    final practiceGuid = sharedPreference.getString('practiceGuid').toString();
 
-  Future<SavePrimaryContactResponse> savePatientContact(isActive,isPrimary,isSameAsPatientInfo,dob,firstName,patientContactId,middleName,lastName,patientContactPreferredName,patientContactPrimaryPhoneExt,prefix,email,phone,primaryType,relation,suffix) async {
+    try {
+      dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', 'Practiceid': '$practiceId', 'Practiceguid': '$practiceGuid'};
+      final response = await dio.get(
+        "https://patientapi.orthopms.com/api/Patient/GetPatientFinancialResponsiblePersons?patientId=$patientId",
+      );
+      log(jsonEncode(response.data));
+      return GetPatientFRPResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw e.response!.data['message'];
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+  Future<SavePrimaryContactResponse> savePatientContact(isActive, isPrimary, isSameAsPatientInfo, dob, firstName, patientContactId, middleName, lastName, patientContactPreferredName,
+      patientContactPrimaryPhoneExt, prefix, email, phone, primaryType, relation, suffix) async {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
     final token = sharedPreference.getString('token').toString();
     final practiceId = sharedPreference.getString('practiceId').toString();
@@ -156,28 +168,25 @@ class ApiProvider {
 
     try {
       dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', 'Practiceid': '$practiceId', 'Practiceguid': '$practiceGuid'};
-      final response = await dio.post(
-        "https://patientapi.orthopms.com/api/Patient/SavePatientContact",
-        data: {
-          "isActive" : isActive,
-          "isPrimary" : isPrimary,
-          "isSameAsPatientInfo" : null,
-          "patientContactDob" : dob,
-          "patientContactFirstName" : firstName,
-          "patientContactId" : patientContactId,
-          "patientContactLastName" : lastName,
-          "patientContactMiddleName" : middleName,
-          "patientContactPreferredName":patientContactPreferredName,
-          "patientContactPrefix":prefix,
-          "patientContactPrimaryEmailAddress":email,
-          "patientContactPrimaryPhone":phone,
-          "patientContactPrimaryPhoneExt":patientContactPrimaryPhoneExt,
-          "patientContactPrimaryType":primaryType,
-          "patientContactRelationToPatient":relation,
-          "patientContactSuffixName":suffix,
-          "patientId":patientId,
-        }
-      );
+      final response = await dio.post("https://patientapi.orthopms.com/api/Patient/SavePatientContact", data: {
+        "isActive": isActive,
+        "isPrimary": isPrimary,
+        "isSameAsPatientInfo": null,
+        "patientContactDob": dob,
+        "patientContactFirstName": firstName,
+        "patientContactId": patientContactId,
+        "patientContactLastName": lastName,
+        "patientContactMiddleName": middleName,
+        "patientContactPreferredName": patientContactPreferredName,
+        "patientContactPrefix": prefix,
+        "patientContactPrimaryEmailAddress": email,
+        "patientContactPrimaryPhone": phone,
+        "patientContactPrimaryPhoneExt": patientContactPrimaryPhoneExt,
+        "patientContactPrimaryType": primaryType,
+        "patientContactRelationToPatient": relation,
+        "patientContactSuffixName": suffix,
+        "patientId": patientId,
+      });
       log(jsonEncode(response.data));
       return SavePrimaryContactResponse.fromJson(response.data);
     } on DioException catch (e) {
@@ -187,9 +196,99 @@ class ApiProvider {
     }
   }
 
+  Future<GetPatientFRPResponse> savePatientFRP(
+      isPatientFrp,
+      patientFinancialResponsiblePersonId,
+      prefix,
+      firstName,
+      middleName,
+      lastName,
+      suffix,
+      patientFRPPreferredName,
+      dob,
+      address1,
+      address2,
+      city,
+      state,
+      abbreviation,
+      zipCode,
+      primaryPhone,
+      patientFRPPrimaryPhoneExt,
+      primaryType,
+      secondaryPhone,
+      patientFRPSecondaryPhoneExt,
+      secondaryType,
+      relation,
+      createFrpUser,
+      isActive,
+      isPrimary,
+      isSameAsPcInfo,
+      isSameAsPatientAddress,
+      patientFRPIndex,
+      isEmail,
+      isText,
+      email,
+      isPatientFRP) async {
+    SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    final token = sharedPreference.getString('token').toString();
+    final practiceId = sharedPreference.getString('practiceId').toString();
+    final patientId = int.parse(sharedPreference.getString('patientId').toString());
+    final practiceGuid = sharedPreference.getString('practiceGuid').toString();
 
+    try {
+      dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', 'Practiceid': '$practiceId', 'Practiceguid': '$practiceGuid'};
+      final response = await dio.post("https://patientapi.orthopms.com/api/Patient/SavePatientFinancialResponsiblePeopleWithPatientId", data: {
 
-  Future<ChangePasswordResponse> changePassword(currentPassword,email,newPassword) async {
+          "patientFinancialResponsiblePersons": [
+            {
+              "isPatientFrp": isPatientFrp,
+              "patientFinancialResponsiblePersonId": patientFinancialResponsiblePersonId,
+              "patientId": patientId,
+              "patientFinancialResponsiblePersonPrefix": prefix,
+              "patientFinancialResponsiblePersonFirstName": firstName,
+              "patientFinancialResponsiblePersonMiddleName": middleName,
+              "patientFinancialResponsiblePersonLastName": lastName,
+              "patientFinancialResponsiblePersonSuffixName": suffix,
+              "patientFinancialResponsiblePersonPreferredName": patientFRPPreferredName,
+              "patientFinancialResponsiblePersonDob": dob,
+              "patientFinancialResponsiblePersonAddress1": address1,
+              "patientFinancialResponsiblePersonAddress2": address2,
+              "patientFinancialResponsiblePersonCity": city,
+              "patientFinancialResponsiblePersonState":state,
+              "patientFinancialResponsiblePersonStateAbbreviation":  abbreviation,
+              "patientFinancialResponsiblePersonZip": zipCode,
+              "patientFinancialResponsiblePersonPrimaryPhone": primaryPhone,
+              "patientFinancialResponsiblePersonPrimaryPhoneExt": patientFRPPrimaryPhoneExt,
+              "patientFinancialResponsiblePersonPrimaryType": primaryType,
+              "patientFinancialResponsiblePersonSecondaryPhone": secondaryPhone,
+              "patientFinancialResponsiblePersonSecondaryPhoneExt": patientFRPSecondaryPhoneExt,
+              "patientFinancialResponsiblePersonSecondaryType":secondaryType,
+              "patientFinancialResponsiblePersonRelationToPatient": relation,
+              "createFrpUser": createFrpUser,
+              "isActive": isActive,
+              "isPrimary": isPrimary,
+              "isSameAsPcInfo": isSameAsPcInfo,
+              "isSameAsPatientAddress": isSameAsPatientAddress,
+              "patientFinancialResponsiblePersonIndex": patientFRPIndex,
+              "isPatientAgreedToContactFrpviaEmail": isEmail,
+              "isPatientAgreedToContactFrpviaText": isText,
+              "patientFinancialResponsiblePersonPrimaryEmailAddress": email
+            }
+          ],
+          "patientId": patientId,
+          "isPatientFRP": isPatientFRP
+
+      });
+      log(jsonEncode(response.data));
+      return GetPatientFRPResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw e.response!.data['message'];
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+  Future<ChangePasswordResponse> changePassword(currentPassword, email, newPassword) async {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
     final token = sharedPreference.getString('token').toString();
     final practiceId = sharedPreference.getString('practiceId').toString();
@@ -197,14 +296,11 @@ class ApiProvider {
 
     try {
       dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', 'Practiceid': '$practiceId', 'Practiceguid': '$practiceGuid'};
-      final response = await dio.post(
-        "https://usermanagementapi.orthopms.com/api/User/ChangePassword",
-        data: {
-          "currentPassword" : currentPassword,
-          "email" : email,
-          "newPassword" : newPassword,
-        }
-      );
+      final response = await dio.post("https://usermanagementapi.orthopms.com/api/User/ChangePassword", data: {
+        "currentPassword": currentPassword,
+        "email": email,
+        "newPassword": newPassword,
+      });
       log(jsonEncode(response.data));
       return ChangePasswordResponse.fromJson(response.data);
     } on DioException catch (e) {
@@ -213,8 +309,6 @@ class ApiProvider {
       throw e.toString();
     }
   }
-
-
 
   Future<PatientByIdResponse> getPatientById(patientId) async {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
@@ -236,11 +330,9 @@ class ApiProvider {
     }
   }
 
-
   Future<PatientResponse> getPatientByEmail(email) async {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
     final token = sharedPreference.getString('token').toString();
-
 
     try {
       dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'};
@@ -260,7 +352,10 @@ class ApiProvider {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
     final token = sharedPreference.getString('token').toString();
     try {
-      dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', };
+      dio.options.headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
 
       final response = await dio.post(
         'https://usermanagementapi.orthopms.com/api/User/Logout',
@@ -275,5 +370,4 @@ class ApiProvider {
       throw e.toString();
     }
   }
-
 }

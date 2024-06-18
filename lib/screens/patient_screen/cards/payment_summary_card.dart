@@ -1,25 +1,19 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
-import 'package:ortho_pms_patient/bloc/patient/get_patient_exam_by_patient_id_cubit.dart';
-import 'package:ortho_pms_patient/bloc/patient/get_patient_exam_by_patient_id_state.dart';
 
 class PaymentSummary extends StatefulWidget {
-  final patientId;
-  const PaymentSummary({super.key, this.patientId});
+
+  const PaymentSummary({super.key,});
 
   @override
   State<PaymentSummary> createState() => _PaymentSummaryState();
 }
 
 class _PaymentSummaryState extends State<PaymentSummary> {
-  int _currentIndex = 0;
-  int totalIndex = 0;
-  double val = 0.0;
+
 
   @override
   void initState() {
@@ -34,14 +28,7 @@ class _PaymentSummaryState extends State<PaymentSummary> {
 
     return Card(
      // color: brightness == Brightness.dark ? AppColor.blackColor : AppColor.whiteColor,
-      child: BlocConsumer<GetPatientExamByPatientIdCubit, GetPatientExamByPatientIdState>(listener: (context, state) async {
-        if (state is GetPatientExamByPatientIdSuccess) {}
-        if (state is GetPatientExamByPatientIdError) {
-          print(state.message);
-        }
-      }, builder: (context, state) {
-        if (state is GetPatientExamByPatientIdSuccess) {
-          return Column(
+      child:  Column(
               children: [
                 GestureDetector(
                   child: Container(
@@ -79,21 +66,8 @@ class _PaymentSummaryState extends State<PaymentSummary> {
                     ),
                   ),
                 )
-              ]);
-        } else {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(16),
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            ],
-          );
-        }
-      }),
+              ])
+
     );
   }
 

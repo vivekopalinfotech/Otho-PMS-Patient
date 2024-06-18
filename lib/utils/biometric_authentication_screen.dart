@@ -4,6 +4,8 @@ import 'package:local_auth/local_auth.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
 import 'package:ortho_pms_patient/utils/biometric_dialog.dart';
+import 'package:ortho_pms_patient/utils/constant_widgets.dart';
+import 'package:riff_switch/riff_switch.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BioMetricAuthScreen extends StatefulWidget {
@@ -155,27 +157,22 @@ class _BioMetricAuthScreenState extends State<BioMetricAuthScreen> {
                     ),
                   ),
                 ),
-                Switch.adaptive(
-                  value: val,
-                  // activeColor: AppColor.primaryColor,
-                  // inactiveThumbColor: AppColor.disabledColor,
-                  // inactiveTrackColor: AppColor.disabledColor.withOpacity(.16),
-                  onChanged: (value) async {
-                    SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+                ConstantSwitch(val: val, riffSwitchType: RiffSwitchType.cupertino,onChange: (value) async {
+                  SharedPreferences sharedPreference = await SharedPreferences.getInstance();
 
-                    if (val == true) {
-                      setState(() {
-                        val = value;
-                        sharedPreference.setBool('biometric', false);
-                      });
-                    } else {
-                      val = false;
-                      filled == false;
-                      sharedPreference.setBool('biometric', val);
-                      showAlertDialog(context);
-                    }
-                  },
-                )
+                  if (val == true) {
+                    setState(() {
+                      val = value;
+                      sharedPreference.setBool('biometric', false);
+                    });
+                  } else {
+                    val = false;
+                    filled == false;
+                    sharedPreference.setBool('biometric', val);
+                    showAlertDialog(context);
+                  }
+                }),
+
               ],
             ),
             Divider(

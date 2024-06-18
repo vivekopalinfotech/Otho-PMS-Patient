@@ -1,16 +1,13 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
-import 'package:ortho_pms_patient/bloc/patient/get_patient_exam_by_patient_id_cubit.dart';
-import 'package:ortho_pms_patient/bloc/patient/get_patient_exam_by_patient_id_state.dart';
 
 class PatientExamCard extends StatefulWidget {
-  final patientId;
-  const PatientExamCard({super.key, this.patientId});
+  final patientExam;
+  const PatientExamCard({super.key, this.patientExam,});
 
   @override
   State<PatientExamCard> createState() => _PatientExamCardState();
@@ -32,15 +29,8 @@ class _PatientExamCardState extends State<PatientExamCard> {
     var brightness = Theme.of(context).brightness;
 
     return Card(
-     // color: brightness == Brightness.dark ? AppColor.blackColor : AppColor.whiteColor,
-      child: BlocConsumer<GetPatientExamByPatientIdCubit, GetPatientExamByPatientIdState>(listener: (context, state) async {
-        if (state is GetPatientExamByPatientIdSuccess) {}
-        if (state is GetPatientExamByPatientIdError) {
-          print(state.message);
-        }
-      }, builder: (context, state) {
-        if (state is GetPatientExamByPatientIdSuccess) {
-          return Column(
+    
+      child:  Column(
             children: [
               CarouselSlider.builder(
                 carouselController: carouselController,
@@ -62,7 +52,7 @@ class _PatientExamCardState extends State<PatientExamCard> {
                     });
                   },
                 ),
-                itemCount: state.patientExamByPatientIdResponse.patientExam.length,
+                itemCount: widget.patientExam.length,
                 itemBuilder: (BuildContext context, int index, int realIndex) {
                   totalIndex = index;
                   return GestureDetector(
@@ -79,7 +69,7 @@ class _PatientExamCardState extends State<PatientExamCard> {
                             SizedBox(width: 8),
                             Flexible(
                                 child: Text(
-                              '${state.patientExamByPatientIdResponse.patientExam[_currentIndex].providerName}',
+                              '${widget.patientExam[_currentIndex].providerName}',
                               style: GoogleFonts.inter(
                                 fontWeight: FontWeight.bold,
                                 fontSize: AppConstants.NORMAL,
@@ -136,7 +126,7 @@ class _PatientExamCardState extends State<PatientExamCard> {
                                   child: Column(
                                     children: [
                                       Text(
-                                        '# ${AppConstants.formatedDate(state.patientExamByPatientIdResponse.patientExam[_currentIndex].patientExamDate.toString())}',
+                                        '# ${AppConstants.formatedDate(widget.patientExam[_currentIndex].patientExamDate.toString())}',
                                         style: GoogleFonts.inter(
                                           fontWeight: FontWeight.bold,
                                           fontSize: AppConstants.SMALL,
@@ -163,7 +153,7 @@ class _PatientExamCardState extends State<PatientExamCard> {
                                     SvgPicture.asset('assets/images/location.svg',color: brightness == Brightness.dark?AppColor.whiteColor:AppColor.blackColor),
                                     SizedBox(width: 8),
                                     Text(
-                                      '${state.patientExamByPatientIdResponse.patientExam[_currentIndex].practiceLocationName}',
+                                      '${widget.patientExam[_currentIndex].practiceLocationName}',
                                       style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL,),
                                     )
                                   ],
@@ -178,7 +168,7 @@ class _PatientExamCardState extends State<PatientExamCard> {
                                     ),
                                     SizedBox(width: 8),
                                     Text(
-                                      '${state.patientExamByPatientIdResponse.patientExam[_currentIndex].hasServiceContract == false ? 'No Contract' : ''}',
+                                      '${widget.patientExam[_currentIndex].hasServiceContract == false ? 'No Contract' : ''}',
                                       style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL,),
                                     )
                                   ],
@@ -203,23 +193,9 @@ class _PatientExamCardState extends State<PatientExamCard> {
                   );
                 },
               ),
-              _buildDot(state.patientExamByPatientIdResponse.patientExam.length)
+              _buildDot(widget.patientExam.length)
             ],
-          );
-        } else {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(16),
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            ],
-          );
-        }
-      }),
+          )
     );
   }
 

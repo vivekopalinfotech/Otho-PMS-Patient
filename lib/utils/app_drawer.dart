@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
 import 'package:ortho_pms_patient/bloc/auth/logiut_cubit.dart';
 import 'package:ortho_pms_patient/screens/auth/login_screen.dart';
 import 'package:ortho_pms_patient/utils/change_password.dart';
+import 'package:ortho_pms_patient/utils/constant_widgets.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -43,17 +45,7 @@ class AppDrawer extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: evenItemColor),
-                    child: Center(
-                      child: Text(
-                        abbreviation,
-                        style: GoogleFonts.inter(color: colorScheme.primary, fontSize: AppConstants.TITLE, fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ),
+                  circleTitle(abbreviation, 50, 50,AppConstants.TITLE,AppColor.primarySeedColor.withOpacity(.2)),
                   const SizedBox(
                     width: 16,
                   ),
@@ -63,14 +55,12 @@ class AppDrawer extends StatelessWidget {
                     children: [
                       Text(
                         '${name}',
-                        style: GoogleFonts.inter(fontWeight:FontWeight.bold,fontSize:AppConstants.NORMAL,color:colorScheme.onSurface),
+                        style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: AppConstants.NORMAL, color: colorScheme.onSurface),
                       ),
-
-
                       const SizedBox(
                         height: 4,
                       ),
-                      Text('${email}', style: GoogleFonts.inter(fontWeight:FontWeight.w500,fontSize:AppConstants.SMALL,color:colorScheme.secondary)),
+                      Text('${email}', style: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: AppConstants.SMALL, color: colorScheme.secondary)),
                     ],
                   ))
                 ],
@@ -88,15 +78,10 @@ class AppDrawer extends StatelessWidget {
                 highlightColor: Colors.transparent,
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => BioMetricAuthScreen()));
-
                 },
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.fingerprint,
-                      size: 24,
-                        color: colorScheme.secondary
-                    ),
+                    Icon(Icons.fingerprint, size: 24, color: colorScheme.secondary),
                     SizedBox(width: 16),
                     Text(
                       'Biometric Authentication',
@@ -110,15 +95,11 @@ class AppDrawer extends StatelessWidget {
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
                 onTap: () {
-                  Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChangePassword(email:email)));
+                  Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChangePassword(email: email)));
                 },
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.lock_open_outlined,
-                      size: 24,
-                        color: colorScheme.secondary
-                    ),
+                    Icon(Icons.lock_open_outlined, size: 24, color: colorScheme.secondary),
                     SizedBox(width: 16),
                     Text(
                       'Change Password',
@@ -137,18 +118,12 @@ class AppDrawer extends StatelessWidget {
                   sharedPreference.setString("login", 'false');
                   Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
                     MaterialPageRoute(builder: (context) => const LoginScreen()),
-                        (Route<dynamic> route) => false,
+                    (Route<dynamic> route) => false,
                   );
                 },
                 child: Row(
                   children: [
-                    Image.asset(
-                      'assets/images/logout.png',
-                      height: 24,
-                      cacheWidth: 48,
-                      cacheHeight: 48,
-                      color: colorScheme.secondary
-                    ),
+                    Image.asset('assets/images/logout.png', height: 24, cacheWidth: 48, cacheHeight: 48, color: colorScheme.secondary),
                     SizedBox(width: 16),
                     Text(
                       'Log out',

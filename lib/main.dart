@@ -4,6 +4,8 @@ import 'package:ortho_pms_patient/api/api_provider.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/bloc/auth/change_password_cubit.dart';
 import 'package:ortho_pms_patient/bloc/auth/logiut_cubit.dart';
+import 'package:ortho_pms_patient/bloc/patient/frp/get_patient_frp_cubit.dart';
+import 'package:ortho_pms_patient/bloc/patient/frp/save_patient_frp_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/get_patient_exam_by_patient_id_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/get_patient_insurance_company_bloc.dart';
 import 'package:ortho_pms_patient/bloc/patient/history/patient_appointment_history_cubit.dart';
@@ -64,10 +66,17 @@ class MyApp extends StatelessWidget {
           BlocProvider(
             create: (context) => SavePatientContactCubit(repository),
           ),
+          BlocProvider(
+            create: (context) => GetPatientFRPCubit(repository),
+          ),
+          BlocProvider(
+            create: (context) => SavePatientFRPCubit(repository),
+          ),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           themeMode: ThemeMode.system,
+
           theme: ThemeData(
             colorScheme: AppColor.schemeLight,
             useMaterial3: true,

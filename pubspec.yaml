@@ -38,7 +38,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   google_fonts:
   intl:
-  flutter_animate:
+  animations: ^2.0.11
   flutter_overlay_loader:
   flutter_speed_dial:
   flutter_svg:
@@ -46,7 +46,10 @@ dependencies:
   flutter_bloc:
   flex_seed_scheme: ^1.5.0
   persistent_bottom_nav_bar:
+  pull_to_refresh_flutter3: ^2.0.2
+  riff_switch: ^0.0.4
   shared_preferences:
+  shimmer:
   local_auth:
   dio:
 

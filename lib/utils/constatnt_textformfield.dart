@@ -18,7 +18,7 @@ class ConstantTextFormField extends StatefulWidget {
 }
 
 class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
-  String _password = '';
+
   DateTime? _selectedDate;
   bool isOpen = false;
   bool _isObscure = true;
@@ -46,7 +46,8 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
   @override
   Widget build(BuildContext context) {
     var brightness = Theme.of(context).brightness;
-    return Column(
+    return Padding(padding: EdgeInsets.only(top: 8,bottom: 16),
+    child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(widget.title, style: GoogleFonts.inter(fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
@@ -69,20 +70,20 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
           },
           keyboardType: widget.textInputType,
           validator: (value) {
-            if (widget.title == 'Current Password' || widget.title == 'New Password' ) {
-              if (value == null || value.isEmpty) {
+            if (widget.title == 'Current Password' || widget.title == 'New Password'|| widget.title == 'Re-Type New Password') {
+              if (widget.controller.text.isEmpty) {
                 return '${widget.title} is required';
               }
-              if (value.length < 8) {
+              if (widget.controller.text.length < 8) {
                 return 'Password must be at least 8 characters long';
               }
-              if (value.contains(' ')) {
+              if (widget.controller.text.contains(' ')) {
                 return 'Password cannot contain spaces';
               }
-              if (!RegExp(r'[a-zA-Z]').hasMatch(value)) {
+              if (!RegExp(r'[a-zA-Z]').hasMatch(widget.controller.text)) {
                 return 'Password must contain at least one letter';
               }
-              if (!RegExp(r'^(?=.*[a-zA-Z])(?=.*\d)').hasMatch(value)) {
+              if (!RegExp(r'^(?=.*[a-zA-Z])(?=.*\d)').hasMatch(widget.controller.text)) {
                 return 'Password must contain at least one letter and one digit';
               }
               return null;
@@ -93,15 +94,15 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
               isDense: true,
               suffixIcon: widget.title == 'Current Password' || widget.title == 'New Password' || widget.title == 'Re-Type New Password'
                   ? InkWell(
-                      radius: 15,
-                      child: Icon(
-                        _isObscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                      ),
-                      onTap: () {
-                        setState(() {
-                          _isObscure = !_isObscure;
-                        });
-                      })
+                  radius: 15,
+                  child: Icon(
+                    _isObscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                  ),
+                  onTap: () {
+                    setState(() {
+                      _isObscure = !_isObscure;
+                    });
+                  })
                   : SizedBox(),
               hintText: widget.title,
               border: OutlineInputBorder(borderSide: BorderSide(color: AppColor.secondarySeedColor)),
@@ -109,6 +110,6 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
               focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColor.primarySeedColor))),
         )
       ],
-    );
+    ),);
   }
 }

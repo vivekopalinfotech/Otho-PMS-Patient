@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,6 +7,9 @@ import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
 import 'package:ortho_pms_patient/bloc/patient/history/patient_appointment_history_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/history/patient_appointment_history_state.dart';
+import 'package:ortho_pms_patient/utils/loader/constant_loader.dart';
+import 'package:ortho_pms_patient/utils/loader/loading_widget.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Appointment extends StatefulWidget {
@@ -16,66 +20,102 @@ class Appointment extends StatefulWidget {
 }
 
 class _AppointmentState extends State<Appointment> {
-
   getData() async {
     String patientId = '';
     SharedPreferences preferences = await SharedPreferences.getInstance();
     patientId = preferences.getString('patientId').toString();
     BlocProvider.of<GetPatientAppointmentHistoryCubit>(context).getGetPatientAppointmentHistory(patientId);
   }
+
   @override
   void initState() {
     super.initState();
     getData();
   }
 
+  List appointment = [];
+  RefreshController _refreshController = RefreshController(initialRefresh: false);
 
+  void _onLoading() async {
+    await Future.delayed(Duration(milliseconds: 2000));
+    setState(() {
+      _refreshController.loadComplete();
+    });
+  }
 
+  bool isLoading = true;
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<GetPatientAppointmentHistoryCubit, GetPatientAppointmentHistoryState>(listener: (context, state) async {
-      if (state is GetPatientAppointmentHistoryError) {
-        print(state.message);
-      }
-      if (state is GetPatientAppointmentHistorySuccess) {}
-    }, builder: (context, state) {
-      if (state is GetPatientAppointmentHistorySuccess) {
-        return ListView.separated(
-          shrinkWrap: true,
-          itemCount: state.patientAppointmentResponse.appointment.length,
-          padding: EdgeInsets.all(AppConstants.HP),
-          itemBuilder: (context, index) {
-            return Card(
-              child: Padding(
-                padding: EdgeInsets.all(8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _rowBuild('APPOINTMENT DATE', "${AppConstants.convertDate(state.patientAppointmentResponse.appointment[index].patientAppointmentTime.toString())}", 'APPOINTMENT NAME', "${state.patientAppointmentResponse.appointment[index].practiceAppointmentName}"),
-                    SizedBox(height: 8),
-                    _rowBuild('PROVIDER NAME', "${state.patientAppointmentResponse.appointment[index].providerName}", 'CONFIRMED', "${state.patientAppointmentResponse.appointment[index].isAppointmentConfirmed ? 'Yes':'No'}"),
-                    SizedBox(height: 8),
-                    _rowBuild('NOTES', "${state.patientAppointmentResponse.appointment[index].providerNotes}", 'LOCATION', "${state.patientAppointmentResponse.appointment[index].practiceLocationName}"),
-                  ],
+    return BlocListener<GetPatientAppointmentHistoryCubit, GetPatientAppointmentHistoryState>(
+        listener: (context, state) async {
+          if (state is GetPatientAppointmentHistoryError) {
+            print(state.message);
+          }
+          if (state is GetPatientAppointmentHistorySuccess) {
+            appointment.clear();
+            setState(() {
+              isLoading = false;
+              appointment.addAll(state.patientAppointmentResponse.appointment);
+            });
+          }
+        },
+        child: isLoading
+            ? LoadingList()
+            : SmartRefresher(
+                enablePullDown: true,
+                enablePullUp: false,
+                enableTwoLevel: false,
+                footer: CustomFooter(
+                  builder: (context, mode) {
+                    return SizedBox();
+                  },
                 ),
-              ),
-            );
-          },
-          separatorBuilder: (BuildContext context, int index) {
-            return SizedBox(height: 16);
-          },
-        );
-      } else {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Center(
-              child: CircularProgressIndicator(),
-            )
-          ],
-        );
-      }
-    });
+                header: ClassicHeader(
+                  completeText: '',
+                  idleText: '',
+                  releaseText: '',
+                  refreshingText: '',
+                  idleIcon: Icon(Icons.refresh),
+                  completeIcon: CupertinoActivityIndicator(),
+                  refreshingIcon: CupertinoActivityIndicator(),
+                ),
+                onRefresh: () async {
+                  String patientId = '';
+                  SharedPreferences preferences = await SharedPreferences.getInstance();
+                  patientId = preferences.getString('patientId').toString();
+                  BlocProvider.of<GetPatientAppointmentHistoryCubit>(context).getGetPatientAppointmentHistory(patientId).whenComplete(() => setState(() {
+                        _refreshController.refreshCompleted();
+                      }));
+                },
+                onLoading: _onLoading,
+                controller: _refreshController,
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  primary: false,
+                  itemCount: appointment.length,
+                  padding: EdgeInsets.all(AppConstants.HP),
+                  itemBuilder: (context, index) {
+                    return Card(
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _rowBuild('APPOINTMENT DATE', "${AppConstants.convertDate(appointment[index].patientAppointmentTime.toString())}", 'APPOINTMENT NAME',
+                                "${appointment[index].practiceAppointmentName}"),
+                            SizedBox(height: 8),
+                            _rowBuild('PROVIDER NAME', "${appointment[index].providerName}", 'CONFIRMED', "${appointment[index].isAppointmentConfirmed ? 'Yes' : 'No'}"),
+                            SizedBox(height: 8),
+                            _rowBuild('NOTES', "${appointment[index].providerNotes}", 'LOCATION', "${appointment[index].practiceLocationName}"),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return SizedBox(height: 16);
+                  },
+                )));
   }
 
   Widget _rowBuild(item1, value1, item2, value2) {

@@ -4,7 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
 import 'package:ortho_pms_patient/screens/dentist/dentist_profile.dart';
+import 'package:ortho_pms_patient/screens/patient_screen/forms/frp.dart';
 import 'package:ortho_pms_patient/screens/patient_screen/forms/primary_contact.dart';
+import 'package:ortho_pms_patient/utils/constant_widgets.dart';
 
 class PatientCard extends StatefulWidget {
   final patient;
@@ -42,18 +44,8 @@ class _PatientCardState extends State<PatientCard> {
           children: [
             Row(
               children: [
-                Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(shape: BoxShape.circle, color:AppColor.primarySeedColor.withOpacity(.2)),
-                  child: Center(
-                    child: Text(
-                      abbreviation,
-                      style: GoogleFonts.inter(color: AppColor.primarySeedColor
-                          , fontSize: AppConstants.TITLE, fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                ),
+                circleTitle(abbreviation,50,50,AppConstants.TITLE,AppColor.primarySeedColor.withOpacity(.2)),
+
                 SizedBox(width: 8),
                 Flexible(
                     child: Column(
@@ -130,6 +122,8 @@ class _PatientCardState extends State<PatientCard> {
                         onTap: () {
                           if(index == 0){
                             Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => PrimaryContactForm()));
+                          } else if(index == 1){
+                            Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => FRP()));
                           }
                         },
                         child: Column(
