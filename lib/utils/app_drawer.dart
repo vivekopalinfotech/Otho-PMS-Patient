@@ -45,7 +45,7 @@ class AppDrawer extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  circleTitle(abbreviation, 50, 50,AppConstants.TITLE,AppColor.primarySeedColor.withOpacity(.2)),
+                  circleTitle(abbreviation, 50, 50,AppConstants.TITLE,AppColor.primaryColor.withOpacity(.2)),
                   const SizedBox(
                     width: 16,
                   ),

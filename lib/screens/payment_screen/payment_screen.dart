@@ -25,7 +25,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       floatingActionButton: SpeedDial(
         animatedIcon: AnimatedIcons.add_event,
         animatedIconTheme: IconThemeData(size: 24.0, color: AppColor.whiteColor),
-        backgroundColor: AppColor.primarySeedColor,
+        backgroundColor: AppColor.primaryColor,
         visible: true,
         spacing: 8,
         childPadding: EdgeInsets.symmetric(vertical: 8),
@@ -70,13 +70,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           IconButton(
-                              style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(AppColor.primarySeedColor.withOpacity(.1))),
+                              style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(AppColor.primaryColor.withOpacity(.1))),
                               constraints: BoxConstraints(maxHeight: 30, minHeight: 30, maxWidth: 30, minWidth: 30),
                               padding: EdgeInsets.zero,
                               onPressed: () {
                                 Navigator.of(context).pop(true);
                               },
-                              icon: Icon(Icons.close, size: 16, color: AppColor.primarySeedColor)),
+                              icon: Icon(Icons.close, size: 16, color: AppColor.primaryColor)),
                           Padding(
                             padding: EdgeInsets.only(left: AppConstants.HP, bottom: AppConstants.HP, right: AppConstants.HP),
                             child: RichText(

@@ -1,9 +1,8 @@
 import 'package:flex_seed_scheme/flex_seed_scheme.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AppColor {
-  static Color primarySeedColor = HexColor("#4099FF");
+  static Color primaryColor = HexColor("#4099FF");
   static Color secondarySeedColor = HexColor("#545454");
   static Color secondaryLightColor = Colors.grey.shade300;
   static Color secondaryDarkColor = HexColor("#191919");
@@ -17,7 +16,7 @@ class AppColor {
 
   static ColorScheme schemeLight = SeedColorScheme.fromSeeds(
     brightness: Brightness.light,
-    primaryKey: primarySeedColor,
+    primaryKey: primaryColor,
     secondaryKey: secondarySeedColor,
     tertiaryKey: tertiarySeedColor,
     tones: FlexTones.vivid(Brightness.light),
@@ -25,7 +24,7 @@ class AppColor {
 
   static ColorScheme schemeDark = SeedColorScheme.fromSeeds(
     brightness: Brightness.dark,
-    primaryKey: primarySeedColor,
+    primaryKey: primaryColor,
     secondaryKey: secondarySeedColor,
     tertiaryKey: tertiarySeedColor,
     tones: FlexTones.vivid(Brightness.dark),

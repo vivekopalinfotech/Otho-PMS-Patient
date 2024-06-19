@@ -196,7 +196,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     right: 0,
                     child: Card(
                         margin: const EdgeInsets.symmetric(horizontal: AppConstants.HP),
-                        color: colorScheme.onPrimary,
+
                         child: Container(
                           padding: const EdgeInsets.all(AppConstants.HP),
                           child: Column(

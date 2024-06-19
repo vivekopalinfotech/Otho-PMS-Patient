@@ -37,7 +37,7 @@ class _InsuranceState extends State<Insurance> {
                     Row(children: [
                       SvgPicture.asset(
                         'assets/images/insurance.svg',
-                        color: AppColor.primarySeedColor,
+                        color: AppColor.primaryColor,
                       ),
                       SizedBox(width: 8),
                       Flexible(
@@ -56,7 +56,7 @@ class _InsuranceState extends State<Insurance> {
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
                         fontSize: AppConstants.NORMAL,
-                        color: AppColor.primarySeedColor,
+                        color: AppColor.primaryColor,
                       ),
                     ),
                     SizedBox(height: 8),
@@ -87,7 +87,7 @@ class _InsuranceState extends State<Insurance> {
                           ),
                         ),
                         Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(6), color: AppColor.primarySeedColor.withOpacity(.1)),
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(6), color: AppColor.primaryColor.withOpacity(.1)),
                           padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                           child: Center(
                             child: Text(
@@ -95,7 +95,7 @@ class _InsuranceState extends State<Insurance> {
                               style: GoogleFonts.inter(
                                 fontWeight: FontWeight.bold,
                                 fontSize: AppConstants.SMALL,
-                                color: AppColor.primarySeedColor,
+                                color: AppColor.primaryColor,
                               ),
                             ),
                           ),

@@ -18,7 +18,7 @@ class GetPatientFRPResponse {
 class PatientFinancialResponsiblePerson {
   int patientFinancialResponsiblePersonId;
   int patientId;
-  String patientFinancialResponsiblePersonPrefix;
+  dynamic patientFinancialResponsiblePersonPrefix;
   String patientFinancialResponsiblePersonFirstName;
   dynamic patientFinancialResponsiblePersonMiddleName;
   String patientFinancialResponsiblePersonLastName;

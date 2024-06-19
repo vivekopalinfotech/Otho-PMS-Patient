@@ -28,12 +28,12 @@ removeAllHtmlTags(String htmlText) {
 showSnackBar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: AppColor.primarySeedColor,
+      backgroundColor: AppColor.primaryColor,
       duration: const Duration(milliseconds: 2000),
       content: Center(
           child: Text(
         message,
-        textScaleFactor: 1,
+        textScaler: TextScaler.linear(1),
         textAlign: TextAlign.center,
         style: GoogleFonts.inter(color: AppColor.tertiarySeedColor),
       ))));
@@ -43,11 +43,12 @@ radioButton(selected, list) {
   return Container(
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             height: 16,
             width: 16,
-            decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(width: 1.5, color: selected ? AppColor.primarySeedColor : AppColor.secondarySeedColor)),
+            decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(width: 1.5, color: selected ? AppColor.primaryColor : AppColor.secondarySeedColor)),
             padding: EdgeInsets.all(2),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -57,18 +58,18 @@ radioButton(selected, list) {
                   width: 8,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: selected ? AppColor.primarySeedColor : Colors.transparent,
+                    color: selected ? AppColor.primaryColor : Colors.transparent,
                   ),
                 )
               ],
             ),
           ),
           SizedBox(width: 16),
-          Text(list,
-              style: GoogleFonts.inter(
-                fontSize: AppConstants.SMALL,
-                fontWeight: FontWeight.w500,
-              ))
+         Flexible(child:  Text(list,
+             style: GoogleFonts.inter(
+               fontSize: AppConstants.SMALL,
+               fontWeight: FontWeight.w500,
+             )))
         ],
       ));
 }
@@ -81,26 +82,26 @@ circleTitle(abbreviation, double height, double width, double fontSize, Color co
     child: Center(
       child: Text(
         abbreviation,
-        style: GoogleFonts.inter(color: AppColor.primarySeedColor, fontSize: fontSize, fontWeight: FontWeight.w500),
+        style: GoogleFonts.inter(color: AppColor.primaryColor, fontSize: fontSize, fontWeight: FontWeight.w500),
       ),
     ),
   );
 }
 
-checkBox(isMark, title) {
+checkBox(isMark, title, size, height,width) {
   return Row(
     children: [
       isMark
           ? Image.asset(
               'assets/images/mark.png',
-              height: 24,
-              width: 24,
+              height: height,
+              width: width,
             )
-          : Icon(Icons.check_box_outline_blank_rounded, color: AppColor.secondarySeedColor),
-      SizedBox(width: 16),
+          : Icon(Icons.check_box_outline_blank_rounded, color: AppColor.secondarySeedColor,size: 18,),
+      SizedBox(width: size),
       Text(title,
           style: GoogleFonts.inter(
-            fontSize: AppConstants.NORMAL,
+            fontSize: AppConstants.SMALL,
             fontWeight: FontWeight.w500,
           )),
     ],
@@ -137,7 +138,7 @@ class _ConstantSwitchState extends State<ConstantSwitch> {
       width: widget.width??40,
       height: widget.height??18,
       thumbMargin: 2,
-      activeTrackColor: AppColor.primarySeedColor,
+      activeTrackColor: AppColor.primaryColor,
       animateToggle: true,
     );
   }

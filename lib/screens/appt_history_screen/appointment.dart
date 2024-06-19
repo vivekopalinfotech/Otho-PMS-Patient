@@ -148,7 +148,7 @@ class _AppointmentState extends State<Appointment> {
             Flexible(
               child: Text(
                 value,
-                style: GoogleFonts.inter(fontSize: AppConstants.SMALL, fontWeight: FontWeight.w500, color: AppColor.primarySeedColor),
+                style: GoogleFonts.inter(fontSize: AppConstants.SMALL, fontWeight: FontWeight.w500, color: AppColor.primaryColor),
               ),
             )
           ],

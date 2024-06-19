@@ -1,16 +1,15 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
-import 'package:ortho_pms_patient/bloc/patient/get_patient_exam_by_patient_id_cubit.dart';
-import 'package:ortho_pms_patient/bloc/patient/get_patient_exam_by_patient_id_state.dart';
-import 'package:ortho_pms_patient/bloc/patient/get_patient_insurance_company_bloc.dart';
-import 'package:ortho_pms_patient/bloc/patient/get_patient_insurance_company_state.dart';
+import 'package:ortho_pms_patient/bloc/patient/patient_exam/get_patient_exam_by_patient_id_cubit.dart';
+import 'package:ortho_pms_patient/bloc/patient/insurance_company/get_patient_insurance_company_bloc.dart';
+import 'package:ortho_pms_patient/bloc/patient/insurance_company/get_patient_insurance_company_state.dart';
 import 'package:ortho_pms_patient/bloc/patient/patient_by_id_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/patient_by_id_state.dart';
 import 'package:ortho_pms_patient/bloc/patient/patient_cubit.dart';
+import 'package:ortho_pms_patient/bloc/patient/patient_exam/get_patient_exam_by_patient_id_state.dart';
 import 'package:ortho_pms_patient/bloc/patient/patient_state.dart';
 import 'package:ortho_pms_patient/screens/auth/login_screen.dart';
 import 'package:ortho_pms_patient/screens/patient_screen/cards/insurance_card.dart';
@@ -45,7 +44,7 @@ class _PatientScreenState extends State<PatientScreen> {
 
 
   void _onLoading() async {
-    await Future.delayed(Duration(milliseconds: 3000));
+
     setState(() {
       _refreshController.loadComplete();
     });
@@ -150,11 +149,7 @@ class _PatientScreenState extends State<PatientScreen> {
                       completeIcon: CupertinoActivityIndicator(),
                       refreshingIcon: CupertinoActivityIndicator(),
                     ),
-                    footer: CustomFooter(
-                      builder: (context, mode) {
-                        return SizedBox();
-                      },
-                    ),
+
                     onRefresh: () async {
                       await BlocProvider.of<PatientCubit>(context).getPatientByEmail(widget.email);
                       await BlocProvider.of<GetPatientExamByPatientIdCubit>(context).getGetPatientExamByPatientId(patient.first.patientId);

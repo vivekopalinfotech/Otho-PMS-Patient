@@ -144,7 +144,7 @@ class _ExamHistoryState extends State<ExamHistory> {
             Flexible(
               child: Text(
                 value,
-                style: GoogleFonts.inter(fontSize: AppConstants.SMALL, fontWeight: FontWeight.w500, color: AppColor.primarySeedColor),
+                style: GoogleFonts.inter(fontSize: AppConstants.SMALL, fontWeight: FontWeight.w500, color: AppColor.primaryColor),
               ),
             )
           ],

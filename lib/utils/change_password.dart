@@ -85,20 +85,16 @@ class _ChangePasswordState extends State<ChangePassword> {
                                     emailController,
                                     TextInputType.text,
                                   ),
-
-
                                   ConstantTextFormField(
                                     'Current Password',
                                     currentPasswordController,
                                     TextInputType.text,
                                   ),
-
                                   ConstantTextFormField(
                                     'New Password',
                                     newPasswordController,
                                     TextInputType.text,
                                   ),
-
                                   ConstantTextFormField(
                                     'Re-Type New Password',
                                     retypeNewPasswordController,
@@ -109,7 +105,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                               ),
                             ),
                             Container(
-                              color: AppColor.primarySeedColor.withOpacity(.2),
+                              color: AppColor.primaryColor.withOpacity(.2),
                               padding: EdgeInsets.all(AppConstants.HP),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -153,18 +149,17 @@ class _ChangePasswordState extends State<ChangePassword> {
                           right: 0,
                           child: Container(
                             padding: EdgeInsets.all(AppConstants.HP),
-                            child:
-                            isLoading?
-                                ConstantLoader(borderRadius: 100.0, containerHeight: 40.0):
-                            ElevatedButton(
-                                onPressed: () {
-                                  if (newPasswordController.text != retypeNewPasswordController.text) {
-                                    showSnackBar(context, 'New Password & Re-Type New Password must be same.');
-                                  } else {
-                                    BlocProvider.of<ChangePasswordCubit>(context).ChangePassword(currentPasswordController.text, emailController.text, newPasswordController.text);
-                                  }
-                                },
-                                child: Text('Change Password')),
+                            child: isLoading
+                                ? ConstantLoader(borderRadius: 100.0, containerHeight: 40.0)
+                                : ElevatedButton(
+                                    onPressed: () {
+                                      if (newPasswordController.text != retypeNewPasswordController.text) {
+                                        showSnackBar(context, 'New Password & Re-Type New Password must be same.');
+                                      } else {
+                                        BlocProvider.of<ChangePasswordCubit>(context).ChangePassword(currentPasswordController.text, emailController.text, newPasswordController.text);
+                                      }
+                                    },
+                                    child: Text('Change Password')),
                           ))
                       : SizedBox()
                   : SizedBox()

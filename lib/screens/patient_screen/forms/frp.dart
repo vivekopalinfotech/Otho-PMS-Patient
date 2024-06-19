@@ -9,10 +9,13 @@ import 'package:ortho_pms_patient/bloc/patient/frp/save_patient_frp_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/frp/save_patient_frp_state.dart';
 import 'package:ortho_pms_patient/utils/constant_widgets.dart';
 import 'package:ortho_pms_patient/utils/constatnt_textformfield.dart';
+import 'package:ortho_pms_patient/utils/loader/loading_widget.dart';
+
 import 'package:riff_switch/riff_switch.dart';
 
 class FRP extends StatefulWidget {
-  const FRP({super.key});
+  final dob;
+  const FRP({super.key, this.dob});
 
   @override
   State<FRP> createState() => _FRPState();
@@ -28,17 +31,27 @@ class _FRPState extends State<FRP> {
   TextEditingController dobController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
+  TextEditingController phoneExtController = TextEditingController();
   TextEditingController address1Controller = TextEditingController();
   TextEditingController address2Controller = TextEditingController();
   TextEditingController cityController = TextEditingController();
   TextEditingController stateController = TextEditingController();
   TextEditingController zipcodeController = TextEditingController();
   TextEditingController secondaryPhoneController = TextEditingController();
+  TextEditingController secondaryPhoneExtController = TextEditingController();
 
   List<String> primaryPhone = ['Home', 'Work', 'Mobile'];
   List<String> relation = ['Spouse', 'Parent', 'Child', 'sibling', 'Friend', 'Colleague', 'Other', 'Dependant'];
   List<String> frp = ['Yes', 'No'];
-  List<String> prefixes = ['Mr.', 'Mrs.','Ms.', 'Dr.', 'Prof.', 'Miss.', 'Sir.',];
+  List<String> prefixes = [
+    'Mr.',
+    'Mrs.',
+    'Ms.',
+    'Dr.',
+    'Prof.',
+    'Miss.',
+    'Sir.',
+  ];
   var secondaryPhoneType;
   var selectedPhoneType;
   var relationship;
@@ -52,12 +65,6 @@ class _FRPState extends State<FRP> {
   bool isLoading = true;
   List primaryFRP = [];
   String? selectedPrefix;
-  receivedPrefixFromChild(String data) {
-    setState(() {
-      selectedPrefix = data;
-      print(selectedPrefix);
-    });
-  }
 
   bool isPrimary = false;
   bool readOnly = true;
@@ -66,8 +73,8 @@ class _FRPState extends State<FRP> {
   void initState() {
     super.initState();
     BlocProvider.of<GetPatientFRPCubit>(context).GetPatientFRP();
+    print(widget.dob);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -94,15 +101,18 @@ class _FRPState extends State<FRP> {
                   emailController.text = primaryFRP.first.patientPrimaryEmailAddress;
                   middleNameController.text = primaryFRP.first.patientFinancialResponsiblePersonMiddleName ?? '';
                   lastNameController.text = primaryFRP.first.patientFinancialResponsiblePersonLastName;
-                  prefixController.text = primaryFRP.first.patientFinancialResponsiblePersonPrefix;
+                  prefixController.text = primaryFRP.first.patientFinancialResponsiblePersonPrefix ?? '';
                   suffixController.text = primaryFRP.first.patientFinancialResponsiblePersonSuffixName ?? '';
                   phoneController.text = primaryFRP.first.patientFinancialResponsiblePersonPrimaryPhone;
+                  phoneExtController.text = primaryFRP.first.patientFinancialResponsiblePersonPrimaryPhoneExt;
+                  secondaryPhoneController.text = primaryFRP.first.patientFinancialResponsiblePersonSecondaryPhone;
+                  secondaryPhoneExtController.text = primaryFRP.first.patientFinancialResponsiblePersonSecondaryPhoneExt;
                   preferredNameController.text = primaryFRP.first.patientFinancialResponsiblePersonPreferredName ?? '';
                   dobController.text = AppConstants.formatedDate(primaryFRP.first.patientFinancialResponsiblePersonDob.toString());
                   selectedPhoneType = primaryFRP.first.patientFinancialResponsiblePersonPrimaryType;
                   secondaryPhoneType = primaryFRP.first.patientFinancialResponsiblePersonSecondaryType;
                   selectedRelationship = primaryFRP.first.patientFinancialResponsiblePersonRelationToPatient;
-                  selectedPrefix = primaryFRP.first.patientFinancialResponsiblePersonPrefix == 'Alaska' ? null : primaryFRP.first.patientFinancialResponsiblePersonPrefix;
+                  selectedPrefix = primaryFRP.first.patientFinancialResponsiblePersonPrefix == 'Gujarat ' ? null : primaryFRP.first.patientFinancialResponsiblePersonPrefix;
                   isEmail = primaryFRP.first.isPatientAgreedToContactFrpviaEmail;
                   isText = primaryFRP.first.isPatientAgreedToContactFrpviaText;
                   isPrimary = primaryFRP.first.isPrimary;
@@ -113,9 +123,13 @@ class _FRPState extends State<FRP> {
                   stateController.text = primaryFRP.first.patientFinancialResponsiblePersonState ?? '';
                   zipcodeController.text = primaryFRP.first.patientFinancialResponsiblePersonZip ?? '';
 
-                  if (!AppConstants.checkAdult(primaryFRP.first.patientFinancialResponsiblePersonDob.toString())) {
+                  if (widget.dob) {
                     setState(() {
                       selectedFrp = frp[0];
+                    });
+                  } else {
+                    setState(() {
+                      selectedFrp = frp[1];
                     });
                   }
                 });
@@ -125,13 +139,18 @@ class _FRPState extends State<FRP> {
                   isLoading = true;
                 });
               }
-              if (state is GetPatientFRPError) {}
+              if (state is GetPatientFRPError) {
+                setState(() {
+                  isLoading = false;
+                });
+                showSnackBar(context, state.message);
+              }
             }),
             BlocListener<SavePatientFRPCubit, SavePatientFRPState>(listener: (context, state) async {
               if (state is SavePatientFRPSuccess) {
                 setState(() {
                   isLoading = false;
-                  Navigator.of(context).pop(true);
+                  Navigator.of(context).pop();
                 });
               }
               if (state is SavePatientFRPLoading) {
@@ -139,13 +158,16 @@ class _FRPState extends State<FRP> {
                   isLoading = true;
                 });
               }
-              if (state is SavePatientFRPError) {}
+              if (state is SavePatientFRPError) {
+                setState(() {
+                  isLoading = false;
+                });
+                showSnackBar(context, state.message);
+              }
             }),
           ],
           child: isLoading
-              ? Center(
-                  child: CircularProgressIndicator(),
-                )
+              ? FieldsLoading()
               : Stack(
                   children: [
                     Container(
@@ -161,7 +183,7 @@ class _FRPState extends State<FRP> {
                                 Text("Is the patient going to be financially responsible, if treatment is recommended? ",
                                     style: GoogleFonts.inter(
                                         fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
-                                SizedBox(height: 8),
+                                SizedBox(height: 16),
                                 GridView.builder(
                                   shrinkWrap: true,
                                   gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 100, mainAxisExtent: 40),
@@ -172,13 +194,13 @@ class _FRPState extends State<FRP> {
                                       splashColor: Colors.transparent,
                                       highlightColor: Colors.transparent,
                                       onTap: () {
-                                        if (AppConstants.checkAdult(primaryFRP.first.patientFinancialResponsiblePersonDob.toString())) {
+                                        if (widget.dob) {
                                           setState(() {
                                             selectedFrp = frp[index];
                                           });
                                         } else {
                                           setState(() {
-                                            selectedFrp = frp[0];
+                                            selectedFrp = frp[1];
                                           });
                                         }
                                       },
@@ -205,7 +227,7 @@ class _FRPState extends State<FRP> {
                                     child: ElevatedButton(
                                         style: ButtonStyle(
                                             backgroundColor: MaterialStatePropertyAll(user
-                                                ? AppColor.primarySeedColor
+                                                ? AppColor.primaryColor
                                                 : brightness == Brightness.dark
                                                     ? AppColor.secondaryDarkColor
                                                     : AppColor.secondaryLightColor),
@@ -218,15 +240,18 @@ class _FRPState extends State<FRP> {
                                             emailController.text = primaryFRP.first.patientPrimaryEmailAddress;
                                             middleNameController.text = primaryFRP.first.patientFinancialResponsiblePersonMiddleName ?? '';
                                             lastNameController.text = primaryFRP.first.patientFinancialResponsiblePersonLastName;
-                                            prefixController.text = primaryFRP.first.patientFinancialResponsiblePersonPrefix;
+                                            prefixController.text = primaryFRP.first.patientFinancialResponsiblePersonPrefix ?? '';
                                             suffixController.text = primaryFRP.first.patientFinancialResponsiblePersonSuffixName ?? '';
                                             phoneController.text = primaryFRP.first.patientFinancialResponsiblePersonPrimaryPhone;
+                                            phoneExtController.text = primaryFRP.first.patientFinancialResponsiblePersonPrimaryPhoneExt;
+                                            secondaryPhoneController.text = primaryFRP.first.patientFinancialResponsiblePersonSecondaryPhone;
+                                            secondaryPhoneExtController.text = primaryFRP.first.patientFinancialResponsiblePersonSecondaryPhoneExt;
                                             preferredNameController.text = primaryFRP.first.patientFinancialResponsiblePersonPreferredName ?? '';
                                             dobController.text = AppConstants.formatedDate(primaryFRP.first.patientFinancialResponsiblePersonDob.toString());
                                             selectedPhoneType = primaryFRP.first.patientFinancialResponsiblePersonPrimaryType;
                                             secondaryPhoneType = primaryFRP.first.patientFinancialResponsiblePersonSecondaryType;
                                             selectedRelationship = primaryFRP.first.patientFinancialResponsiblePersonRelationToPatient;
-                                            selectedPrefix = primaryFRP.first.patientFinancialResponsiblePersonPrefix == 'Alaska' ? null : primaryFRP.first.patientFinancialResponsiblePersonPrefix;
+                                            selectedPrefix = primaryFRP.first.patientFinancialResponsiblePersonPrefix == "Gujarat " ? null : primaryFRP.first.patientFinancialResponsiblePersonPrefix;
                                             isEmail = primaryFRP.first.isPatientAgreedToContactFrpviaEmail;
                                             isText = primaryFRP.first.isPatientAgreedToContactFrpviaText;
                                             isPrimary = primaryFRP.first.isPrimary;
@@ -240,7 +265,7 @@ class _FRPState extends State<FRP> {
                                         child: Row(
                                           mainAxisAlignment: MainAxisAlignment.start,
                                           children: [
-                                            circleTitle('CV', 30, 30, AppConstants.NORMAL, user ? AppColor.whiteColor : AppColor.primarySeedColor.withOpacity(.2)),
+                                            circleTitle('CV', 30, 30, AppConstants.NORMAL, user ? AppColor.whiteColor : AppColor.primaryColor.withOpacity(.2)),
                                             SizedBox(width: 8),
                                             Flexible(
                                               child: Text(
@@ -263,7 +288,7 @@ class _FRPState extends State<FRP> {
                                   child: ElevatedButton(
                                     style: ButtonStyle(
                                         backgroundColor: MaterialStatePropertyAll(add
-                                            ? AppColor.primarySeedColor
+                                            ? AppColor.primaryColor
                                             : brightness == Brightness.dark
                                                 ? AppColor.secondaryDarkColor
                                                 : AppColor.secondaryLightColor)),
@@ -271,6 +296,8 @@ class _FRPState extends State<FRP> {
                                       setState(() {
                                         user = false;
                                         add = true;
+                                        isEmail = false;
+                                        isText = false;
                                         emailController.clear();
                                         firstNameController.clear();
                                         middleNameController.clear();
@@ -278,6 +305,7 @@ class _FRPState extends State<FRP> {
                                         prefixController.clear();
                                         suffixController.clear();
                                         phoneController.clear();
+                                        phoneExtController.clear();
                                         emailController.clear();
                                         preferredNameController.clear();
                                         dobController.clear();
@@ -290,6 +318,7 @@ class _FRPState extends State<FRP> {
                                         cityController.clear();
                                         zipcodeController.clear();
                                         secondaryPhoneController.clear();
+                                        secondaryPhoneExtController.clear();
                                       });
                                     },
                                     child: Text(
@@ -315,19 +344,24 @@ class _FRPState extends State<FRP> {
                                     ? SizedBox()
                                     : Row(
                                         children: [
-                                          ConstantSwitch( val: createFrpUser,riffSwitchType: RiffSwitchType.simple,),
+                                          ConstantSwitch(
+                                            val: createFrpUser,
+                                            riffSwitchType: RiffSwitchType.simple,
+                                          ),
                                           SizedBox(width: 8),
                                           Text('Create User',
-                                              style: GoogleFonts.inter(fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
+                                              style: GoogleFonts.inter(
+                                                  fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
                                         ],
                                       ),
                                 SizedBox(width: 16),
                                 Row(
                                   children: [
-                                    ConstantSwitch(val: isPrimary,riffSwitchType: RiffSwitchType.simple),
+                                    ConstantSwitch(val: isPrimary, riffSwitchType: RiffSwitchType.simple),
                                     SizedBox(width: 8),
                                     Text('Is Primary',
-                                        style: GoogleFonts.inter(fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
+                                        style: GoogleFonts.inter(
+                                            fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
                                   ],
                                 )
                               ],
@@ -369,18 +403,17 @@ class _FRPState extends State<FRP> {
                             ]),
                             SizedBox(height: 16),
                             ConstantTextFormField('First Name', firstNameController, TextInputType.text),
-
                             ConstantTextFormField('Middle Name', middleNameController, TextInputType.text),
-
                             ConstantTextFormField('Last Name', lastNameController, TextInputType.text),
-
                             ConstantTextFormField('Suffix', suffixController, TextInputType.text),
-
                             ConstantTextFormField('Date of Birth', dobController, TextInputType.datetime, readOnly: true),
-
                             ConstantTextFormField('Preferred Name', preferredNameController, TextInputType.text),
-
-                            ConstantTextFormField('Primary phone', phoneController, TextInputType.phone),
+                            ConstantTextFormField(
+                              'Primary Phone',
+                              phoneController,
+                              TextInputType.phone,
+                              extController: phoneExtController,
+                            ),
                             SizedBox(height: 16),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -388,7 +421,7 @@ class _FRPState extends State<FRP> {
                                 Text("Primary Phone Type",
                                     style: GoogleFonts.inter(
                                         fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
-                                SizedBox(height: 8),
+                                SizedBox(height: 16),
                                 GridView.builder(
                                   shrinkWrap: true,
                                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 2.2),
@@ -419,7 +452,7 @@ class _FRPState extends State<FRP> {
                                 Text("Relationship",
                                     style: GoogleFonts.inter(
                                         fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
-                                SizedBox(height: 8),
+                                SizedBox(height: 16),
                                 GridView.builder(
                                   shrinkWrap: true,
                                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 2.2),
@@ -462,7 +495,7 @@ class _FRPState extends State<FRP> {
                                             isEmail = !isEmail;
                                           });
                                         },
-                                        child: checkBox(isEmail, 'Email')),
+                                        child: checkBox(isEmail, 'Email', 18.0,18.0,18.0)),
                                     SizedBox(width: 40),
                                     InkWell(
                                         splashColor: Colors.transparent,
@@ -472,21 +505,21 @@ class _FRPState extends State<FRP> {
                                             isText = !isText;
                                           });
                                         },
-                                        child: checkBox(isText, 'Text'))
+                                        child: checkBox(isText, 'Text', 18.0,18.0,18.0))
                                   ],
                                 ),
                                 SizedBox(height: 16),
                                 ConstantTextFormField('Address Line 1', address1Controller, TextInputType.text),
-
                                 ConstantTextFormField('Address Line 2', address2Controller, TextInputType.text),
-
                                 ConstantTextFormField('City', cityController, TextInputType.text),
-
                                 ConstantTextFormField('State', stateController, TextInputType.text),
-
                                 ConstantTextFormField('Zip Code', zipcodeController, TextInputType.number),
-
-                                ConstantTextFormField('Secondary Phone', secondaryPhoneController, TextInputType.phone),
+                                ConstantTextFormField(
+                                  'Secondary Phone',
+                                  secondaryPhoneController,
+                                  TextInputType.phone,
+                                  extController: secondaryPhoneExtController,
+                                ),
                               ],
                             ),
                             SizedBox(height: 16),
@@ -496,7 +529,7 @@ class _FRPState extends State<FRP> {
                                 Text("Secondary Phone Type",
                                     style: GoogleFonts.inter(
                                         fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
-                                SizedBox(height: 8),
+                                SizedBox(height: 16),
                                 GridView.builder(
                                   shrinkWrap: true,
                                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 2.2),
@@ -525,44 +558,54 @@ class _FRPState extends State<FRP> {
                         ),
                       ),
                     ),
-                    selectedPhoneType != null && selectedRelationship != null && firstNameController.text.isNotEmpty && lastNameController.text.isNotEmpty && emailController.text.isNotEmpty && phoneController.text.isNotEmpty
+                    selectedPhoneType != null &&
+                            selectedRelationship != null &&
+                            firstNameController.text.isNotEmpty &&
+                            lastNameController.text.isNotEmpty &&
+                            emailController.text.isNotEmpty &&
+                            phoneController.text.isNotEmpty
                         ? Positioned(
-                            bottom: 16, left: 16, right: 16,
-                            child:  ElevatedButton(onPressed: () {
-                                BlocProvider.of<SavePatientFRPCubit>(context).savePatientFRP(
-                                    AppConstants.checkAdult(primaryFRP.first.patientFinancialResponsiblePersonDob.toString()),
-                                    primaryFRP.first.patientFinancialResponsiblePersonId,
-                                    selectedPrefix,
-                                    firstNameController.text,
-                                    middleNameController.text.isEmpty?null:middleNameController.text,
-                                    lastNameController.text,
-                                    suffixController.text.isEmpty?null:suffixController.text,
-                                    preferredNameController.text,
-                                    AppConstants.parsedDate(dobController.text),
-                                    address1Controller.text,
-                                    address2Controller.text.isEmpty?null:address2Controller.text,
-                                    cityController.text,
-                                    stateController.text,
-                                    primaryFRP.first.patientFinancialResponsiblePersonStateAbbreviation,
-                                    zipcodeController.text,
-                                    phoneController.text,
-                                    "",
-                                    selectedPhoneType ?? '',
-                                    secondaryPhoneController.text,
-                                    "",
-                                    secondaryPhoneType??'',
-                                    selectedRelationship ?? '',
-                                    createFrpUser,
-                                    primaryFRP.first.isActive,
-                                    isPrimary,
-                                    null,
-                                    null,
-                                    0,
-                                    isEmail, isText,
-                                    emailController.text,
-                                    false);
-                              }, child: Text('Save Responsible Person')),
-                            )
+                            bottom: 16,
+                            left: 16,
+                            right: 16,
+                            child: ElevatedButton(
+                                onPressed: () {
+                                  BlocProvider.of<SavePatientFRPCubit>(context).savePatientFRP(
+                                      AppConstants.checkAdult(primaryFRP.first.patientFinancialResponsiblePersonDob.toString()),
+                                      primaryFRP.first.patientFinancialResponsiblePersonId,
+                                      selectedPrefix,
+                                      firstNameController.text,
+                                      middleNameController.text.isEmpty ? null : middleNameController.text,
+                                      lastNameController.text,
+                                      suffixController.text.isEmpty ? null : suffixController.text,
+                                      preferredNameController.text,
+                                      AppConstants.parsedDate(dobController.text),
+                                      address1Controller.text,
+                                      address2Controller.text.isEmpty ? null : address2Controller.text,
+                                      cityController.text,
+                                      stateController.text,
+                                      primaryFRP.first.patientFinancialResponsiblePersonStateAbbreviation,
+                                      zipcodeController.text,
+                                      phoneController.text,
+                                      phoneExtController.text,
+                                      selectedPhoneType ?? '',
+                                      secondaryPhoneController.text,
+                                      secondaryPhoneExtController.text,
+                                      secondaryPhoneType ?? '',
+                                      selectedRelationship ?? '',
+                                      createFrpUser,
+                                      primaryFRP.first.isActive,
+                                      isPrimary,
+                                      null,
+                                      null,
+                                      0,
+                                      isEmail,
+                                      isText,
+                                      emailController.text,
+                                      false);
+                                },
+                                child: Text('Save Responsible Person')),
+                          )
                         : SizedBox()
                   ],
                 ),

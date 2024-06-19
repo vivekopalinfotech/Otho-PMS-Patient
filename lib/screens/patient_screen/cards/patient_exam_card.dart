@@ -64,7 +64,7 @@ class _PatientExamCardState extends State<PatientExamCard> {
                           Row(children: [
                             SvgPicture.asset(
                               'assets/images/doctor.svg',
-                              color: AppColor.primarySeedColor,
+                              color: AppColor.primaryColor,
                             ),
                             SizedBox(width: 8),
                             Flexible(
@@ -73,7 +73,7 @@ class _PatientExamCardState extends State<PatientExamCard> {
                               style: GoogleFonts.inter(
                                 fontWeight: FontWeight.bold,
                                 fontSize: AppConstants.NORMAL,
-                                color: AppColor.primarySeedColor,
+                                color: AppColor.primaryColor,
                               ),
                             ))
                           ]),
@@ -83,24 +83,24 @@ class _PatientExamCardState extends State<PatientExamCard> {
                             children: [
                               Flexible(
                                   child: Container(
-                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(6), color: AppColor.primarySeedColor.withOpacity(.06)),
+                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(6), color: AppColor.primaryColor.withOpacity(.06)),
                                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                                 child: SliderTheme(
                                   data: SliderTheme.of(context).copyWith(
-                                    activeTrackColor: AppColor.primarySeedColor.withOpacity(0.3),
-                                    inactiveTrackColor: AppColor.primarySeedColor.withOpacity(0.3),
+                                    activeTrackColor: AppColor.primaryColor.withOpacity(0.3),
+                                    inactiveTrackColor: AppColor.primaryColor.withOpacity(0.3),
                                     trackShape: RoundedRectSliderTrackShape(),
                                     trackHeight: 4.0,
                                     disabledInactiveTickMarkColor: Colors.transparent,
                                     thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.0, disabledThumbRadius: 16),
-                                    thumbColor: AppColor.primarySeedColor,
-                                    overlayColor: AppColor.primarySeedColor.withAlpha(32),
+                                    thumbColor: AppColor.primaryColor,
+                                    overlayColor: AppColor.primaryColor.withAlpha(32),
                                     overlayShape: RoundSliderOverlayShape(overlayRadius: 0.0),
                                     tickMarkShape: RoundSliderTickMarkShape(),
                                     activeTickMarkColor: Colors.transparent,
                                     inactiveTickMarkColor: Colors.transparent,
                                     valueIndicatorShape: PaddleSliderValueIndicatorShape(),
-                                    valueIndicatorColor: AppColor.primarySeedColor,
+                                    valueIndicatorColor: AppColor.primaryColor,
                                     valueIndicatorTextStyle: TextStyle(
                                       color: Colors.white,
                                     ),
@@ -121,7 +121,7 @@ class _PatientExamCardState extends State<PatientExamCard> {
                               )),
                               SizedBox(width: 16),
                               Container(
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(6), color: AppColor.primarySeedColor.withOpacity(.1)),
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(6), color: AppColor.primaryColor.withOpacity(.1)),
                                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                                   child: Column(
                                     children: [
@@ -232,7 +232,7 @@ class _PatientExamCardState extends State<PatientExamCard> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20.0),
                       color: index == _currentIndex
-                          ? AppColor.primarySeedColor
+                          ? AppColor.primaryColor
                           : brightness == Brightness.dark
                               ? AppColor.secondaryDarkColor
                               : AppColor.secondaryLightColor,

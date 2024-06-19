@@ -48,13 +48,13 @@ class _DentistProfileState extends State<DentistProfile> {
                           style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: AppConstants.LARGE, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor),
                         )),
                         IconButton(
-                            style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(AppColor.primarySeedColor.withOpacity(.1))),
+                            style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(AppColor.primaryColor.withOpacity(.1))),
                             constraints: BoxConstraints(maxHeight: 24, minHeight: 24, maxWidth: 24, minWidth: 24),
                             padding: EdgeInsets.zero,
                             onPressed: () {
                               Navigator.of(context).pop(true);
                             },
-                            icon: Icon(Icons.close, size: 16, color: AppColor.primarySeedColor))
+                            icon: Icon(Icons.close, size: 16, color: AppColor.primaryColor))
                       ],
                     ),
                     Container(

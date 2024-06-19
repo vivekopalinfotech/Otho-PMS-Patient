@@ -28,13 +28,13 @@ class _AddAccountDialogState extends State<AddAccountDialog> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               IconButton(
-                  style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(AppColor.primarySeedColor.withOpacity(.1))),
+                  style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(AppColor.primaryColor.withOpacity(.1))),
                   constraints: BoxConstraints(maxHeight: 30, minHeight: 30, maxWidth: 30, minWidth: 30),
                   padding: EdgeInsets.zero,
                   onPressed: () {
                     Navigator.of(context).pop(true);
                   },
-                  icon: Icon(Icons.close, size: 16, color: AppColor.primarySeedColor)),
+                  icon: Icon(Icons.close, size: 16, color: AppColor.primaryColor)),
               Padding(
                 padding: EdgeInsets.only(left: AppConstants.HP, right: AppConstants.HP, bottom: AppConstants.HP),
                 child: Column(

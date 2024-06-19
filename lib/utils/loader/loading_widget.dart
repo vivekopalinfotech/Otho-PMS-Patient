@@ -50,3 +50,71 @@ class DashboardLoading extends StatelessWidget {
     );
   }
 }
+
+
+class ReferralLoading extends StatefulWidget {
+  const ReferralLoading({super.key});
+
+  @override
+  State<ReferralLoading> createState() => _ReferralLoadingState();
+}
+
+class _ReferralLoadingState extends State<ReferralLoading> {
+  @override
+  Widget build(BuildContext context) {
+    return  Container(
+
+        width: double.maxFinite,
+        child: ListView.separated(
+          shrinkWrap:  true,
+          itemCount: 3,
+          padding: EdgeInsets.symmetric(horizontal:AppConstants.HP,vertical: AppConstants.HP),
+          itemBuilder: (BuildContext context, int index) {
+            return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              ConstantLoader(borderRadius: 0.0, containerHeight: 16.0),
+              ConstantLoader(borderRadius: 0.0, containerHeight: 16.0,width: 200.0,),
+              SizedBox(height: 16),
+              GridView.builder(
+                shrinkWrap: true,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 3),
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: 6,
+                itemBuilder: (context, index) {
+                  return   ConstantLoader(borderRadius: 0.0, containerHeight: 25.0);
+                },
+              ),]);
+          }, separatorBuilder: (BuildContext context, int index) {
+          return SizedBox(height: 16);
+        },
+        ));
+  }
+}
+
+
+class FieldsLoading extends StatefulWidget {
+  const FieldsLoading({super.key});
+
+  @override
+  State<FieldsLoading> createState() => _FieldsLoadingState();
+}
+
+class _FieldsLoadingState extends State<FieldsLoading> {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+        itemCount: 10,
+        padding: EdgeInsets.all(16),
+        shrinkWrap: true,
+        itemBuilder: (context,index){
+      return  Column(crossAxisAlignment: CrossAxisAlignment.start,
+          children:
+          [
+       ConstantLoader(borderRadius: 0.0, containerHeight: 14.0,width: 100.0,),
+        SizedBox(height: 8),
+            ConstantLoader(borderRadius: 10.0, containerHeight: 50.0),
+      ]);
+    }, separatorBuilder: (BuildContext context, int index) {
+          return SizedBox(height: 16);
+    },);
+  }
+}
