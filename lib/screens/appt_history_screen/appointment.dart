@@ -1,5 +1,6 @@
+import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,9 +8,9 @@ import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
 import 'package:ortho_pms_patient/bloc/patient/history/patient_appointment_history_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/history/patient_appointment_history_state.dart';
-import 'package:ortho_pms_patient/utils/loader/constant_loader.dart';
+
 import 'package:ortho_pms_patient/utils/loader/loading_widget.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Appointment extends StatefulWidget {
@@ -34,14 +35,6 @@ class _AppointmentState extends State<Appointment> {
   }
 
   List appointment = [];
-  RefreshController _refreshController = RefreshController(initialRefresh: false);
-
-  void _onLoading() async {
-    await Future.delayed(Duration(milliseconds: 2000));
-    setState(() {
-      _refreshController.loadComplete();
-    });
-  }
 
   bool isLoading = true;
   @override
@@ -61,34 +54,33 @@ class _AppointmentState extends State<Appointment> {
         },
         child: isLoading
             ? LoadingList()
-            : SmartRefresher(
-                enablePullDown: true,
-                enablePullUp: false,
-                enableTwoLevel: false,
-                footer: CustomFooter(
-                  builder: (context, mode) {
-                    return SizedBox();
-                  },
-                ),
-                header: ClassicHeader(
-                  completeText: '',
-                  idleText: '',
-                  releaseText: '',
-                  refreshingText: '',
-                  idleIcon: Icon(Icons.refresh),
-                  completeIcon: CupertinoActivityIndicator(),
-                  refreshingIcon: CupertinoActivityIndicator(),
-                ),
+            : CustomRefreshIndicator(
                 onRefresh: () async {
                   String patientId = '';
                   SharedPreferences preferences = await SharedPreferences.getInstance();
                   patientId = preferences.getString('patientId').toString();
-                  BlocProvider.of<GetPatientAppointmentHistoryCubit>(context).getGetPatientAppointmentHistory(patientId).whenComplete(() => setState(() {
-                        _refreshController.refreshCompleted();
-                      }));
+                  BlocProvider.of<GetPatientAppointmentHistoryCubit>(context).getGetPatientAppointmentHistory(patientId);
                 },
-                onLoading: _onLoading,
-                controller: _refreshController,
+                builder: (BuildContext context, Widget child, IndicatorController controller) {
+                  return Stack(
+                    alignment: Alignment.topCenter,
+                    children: <Widget>[
+                      if (controller.isDragging || controller.isArmed)
+                        Positioned(
+                          top: 35.0 * controller.value,
+                          child: Container(
+                            height: 30,
+                            width: 30,
+                            child: CupertinoActivityIndicator(),
+                          ),
+                        ),
+                      Transform.translate(
+                        offset: Offset(0, 100.0 * controller.value),
+                        child: child,
+                      ),
+                    ],
+                  );
+                },
                 child: ListView.separated(
                   shrinkWrap: true,
                   primary: false,

@@ -1,22 +1,36 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
-import 'package:ortho_pms_patient/bloc/patient/frp/get_patient_frp_cubit.dart';
-import 'package:ortho_pms_patient/bloc/patient/frp/get_patient_frp_state.dart';
 import 'package:ortho_pms_patient/bloc/patient/frp/save_patient_frp_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/frp/save_patient_frp_state.dart';
+import 'package:ortho_pms_patient/bloc/patient/insurance_company/get_patient_insurance_company_bloc.dart';
+import 'package:ortho_pms_patient/bloc/patient/insurance_company/get_patient_insurance_company_state.dart';
+import 'package:ortho_pms_patient/bloc/patient/insurance_company/practice_insurance_companies_cubit.dart';
+import 'package:ortho_pms_patient/bloc/patient/insurance_company/practice_insurance_companies_state.dart';
+import 'package:ortho_pms_patient/bloc/patient/insurance_company/save_patient_insurance_cubit.dart';
+import 'package:ortho_pms_patient/bloc/patient/insurance_company/save_patient_insurance_state.dart';
+import 'package:ortho_pms_patient/bloc/patient/patient_by_id_cubit.dart';
+import 'package:ortho_pms_patient/bloc/patient/patient_by_id_state.dart';
+import 'package:ortho_pms_patient/bloc/patient/patient_exam/get_patient_exam_by_patient_id_cubit.dart';
+import 'package:ortho_pms_patient/bloc/states/get_states_cubit.dart';
+import 'package:ortho_pms_patient/bloc/states/get_states_state.dart';
 import 'package:ortho_pms_patient/utils/constant_widgets.dart';
 import 'package:ortho_pms_patient/utils/constatnt_textformfield.dart';
 import 'package:ortho_pms_patient/utils/loader/loading_widget.dart';
-
-import 'package:riff_switch/riff_switch.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class InsuranceForm extends StatefulWidget {
   final patientName;
-  const InsuranceForm({super.key, this.patientName});
+
+  const InsuranceForm({
+    super.key,
+    this.patientName,
+  });
 
   @override
   State<InsuranceForm> createState() => _InsuranceFormState();
@@ -30,7 +44,7 @@ class _InsuranceFormState extends State<InsuranceForm> {
   TextEditingController middleNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController suffixController = TextEditingController();
-  TextEditingController preferredNameController = TextEditingController();
+
   TextEditingController dobController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController phoneExtController = TextEditingController();
@@ -41,10 +55,13 @@ class _InsuranceFormState extends State<InsuranceForm> {
   TextEditingController zipcodeController = TextEditingController();
   TextEditingController secondaryPhoneController = TextEditingController();
   TextEditingController secondaryPhoneExtController = TextEditingController();
-
+  TextEditingController grpPlanController = TextEditingController();
+  TextEditingController grpEmpNameController = TextEditingController();
+  var selected;
   List<String> primaryPhone = ['Home', 'Work', 'Mobile'];
   List<String> relation = ['Spouse', 'Parent', 'Child', 'sibling', 'Friend', 'Colleague', 'Other', 'Dependant'];
-  List<String> frp = ['Yes', 'No'];
+  List<String> gender = ['Female', 'Male', 'Other'];
+  List<String> networkType = ['DHMO', 'PPO', 'Premier'];
   List<String> prefixes = [
     'Mr.',
     'Mrs.',
@@ -54,35 +71,58 @@ class _InsuranceFormState extends State<InsuranceForm> {
     'Miss.',
     'Sir.',
   ];
+  List states = [];
   var secondaryPhoneType;
   var selectedPhoneType;
   var relationship;
   var selectedRelationship;
+  var selectedGender;
   var selectedFrp;
   bool isWarned = false;
-  bool isEmail = false;
-  bool isText = false;
-  bool user = true;
+  bool isAlert = false;
+
+  bool currentCompany = true;
+  bool isPatient = true;
+  bool isPatientAdd = true;
   bool add = false;
   bool isLoading = true;
-  List primaryFRP = [];
+  List patient = [];
+  String? selectedCompany;
+  String? selectedCompanyPhone;
+  var selectedCompanyId;
+  String? selectedCompanyAddress;
+  String? selectedCompanyAddress1;
+  String? selectedCompanyAddress2;
+  String? selectedCompanyCity;
+  String? selectedCompanyState;
+  String? selectedCompanyZipCode;
   String? selectedPrefix;
-
+  String? selectedState;
+  String? selectedNetWorkType;
+  List patientInsurance = [];
+  List patientInsuranceCompanies = [];
   bool isPrimary = false;
   bool readOnly = true;
-  bool createFrpUser = false;
+  var patientId;
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<GetPatientFRPCubit>(context).GetPatientFRP();
+    getData();
+  }
 
+  getData() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    patientId = preferences.getString('patientId');
+    BlocProvider.of<GetStatesCubit>(context).getStates();
+    BlocProvider.of<GetPatientInsuranceCompanyCubit>(context).getGetPatientInsuranceCompany(patientId);
+    BlocProvider.of<PracticeInsuranceCompanyCubit>(context).getPracticeInsuranceCompany();
   }
 
   @override
   Widget build(BuildContext context) {
     var brightness = Theme.of(context).brightness;
     var maxHeight = MediaQuery.of(context).size.height;
-
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
         appBar: AppBar(
             centerTitle: false,
@@ -93,576 +133,676 @@ class _InsuranceFormState extends State<InsuranceForm> {
             )),
         body: MultiBlocListener(
           listeners: [
-            BlocListener<GetPatientFRPCubit, GetPatientFRPState>(listener: (context, state) async {
-              if (state is GetPatientFRPSuccess) {
-                primaryFRP.clear();
+            BlocListener<GetPatientInsuranceCompanyCubit, GetPatientInsuranceCompanyState>(listener: (context, state) async {
+              if (state is GetPatientInsuranceCompanySuccess) {
+                patientInsurance.clear();
                 setState(() {
-                  isLoading = false;
-                  primaryFRP.addAll(state.getPatientFRPResponse.patientFinancialResponsiblePerson);
-                  firstNameController.text = primaryFRP.first.patientFinancialResponsiblePersonFirstName;
-                  middleNameController.text = primaryFRP.first.patientFinancialResponsiblePersonMiddleName ?? '';
-                  lastNameController.text = primaryFRP.first.patientFinancialResponsiblePersonLastName;
-                  prefixController.text = primaryFRP.first.patientFinancialResponsiblePersonPrefix ?? '';
-                  suffixController.text = primaryFRP.first.patientFinancialResponsiblePersonSuffixName ?? '';
-                  phoneController.text = primaryFRP.first.patientFinancialResponsiblePersonPrimaryPhone;
-                  phoneExtController.text = primaryFRP.first.patientFinancialResponsiblePersonPrimaryPhoneExt;
-                  secondaryPhoneController.text = primaryFRP.first.patientFinancialResponsiblePersonSecondaryPhone;
-                  secondaryPhoneExtController.text = primaryFRP.first.patientFinancialResponsiblePersonSecondaryPhoneExt;
-                  preferredNameController.text = primaryFRP.first.patientFinancialResponsiblePersonPreferredName ?? '';
-                  dobController.text = AppConstants.formatedDate(primaryFRP.first.patientFinancialResponsiblePersonDob.toString());
-                  selectedPhoneType = primaryFRP.first.patientFinancialResponsiblePersonPrimaryType;
-                  secondaryPhoneType = primaryFRP.first.patientFinancialResponsiblePersonSecondaryType;
-                  selectedRelationship = primaryFRP.first.patientFinancialResponsiblePersonRelationToPatient;
-                  selectedPrefix = primaryFRP.first.patientFinancialResponsiblePersonPrefix == 'Gujarat ' ? null : primaryFRP.first.patientFinancialResponsiblePersonPrefix;
-                  isEmail = primaryFRP.first.isPatientAgreedToContactFrpviaEmail;
-                  isText = primaryFRP.first.isPatientAgreedToContactFrpviaText;
-                  isPrimary = primaryFRP.first.isPrimary;
-                  createFrpUser = primaryFRP.first.createFrpUser;
-                  address1Controller.text = primaryFRP.first.patientFinancialResponsiblePersonAddress1;
-                  address2Controller.text = primaryFRP.first.patientFinancialResponsiblePersonAddress2 ?? '';
-                  cityController.text = primaryFRP.first.patientFinancialResponsiblePersonCity ?? '';
-                  stateController.text = primaryFRP.first.patientFinancialResponsiblePersonState ?? '';
-                  zipcodeController.text = primaryFRP.first.patientFinancialResponsiblePersonZip ?? '';
+                  patientInsurance.addAll(state.insuranceResponse.insurance);
 
-
-                });
-              }
-              if (state is GetPatientFRPLoading) {
-                setState(() {
-                  isLoading = true;
-                });
-              }
-              if (state is GetPatientFRPError) {
-                setState(() {
+                  isPrimary = patientInsurance.first.isPrimary;
+                  selectedCompany =
+                      '${patientInsurance.first.practiceInsuranceCompanyName} - ${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
+                  selectedCompanyPhone = patientInsurance.first.practiceInsuranceCompanyPhone;
+                  selectedCompanyAddress =
+                      '${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
+                  selectedNetWorkType = patientInsurance.first.networkType;
+                  grpPlanController.text = patientInsurance.first.subscriberGroupPlanNumber;
+                  grpEmpNameController.text = patientInsurance.first.groupEmployerName;
                   isLoading = false;
                 });
-                showSnackBar(context, state.message);
+              }
+              if (state is GetPatientInsuranceCompanyError) {
+                print(state.message);
               }
             }),
-            BlocListener<SavePatientFRPCubit, SavePatientFRPState>(listener: (context, state) async {
-              if (state is SavePatientFRPSuccess) {
+            BlocListener<PracticeInsuranceCompanyCubit, PracticeInsuranceCompanyState>(listener: (context, state) async {
+              if (state is PracticeInsuranceCompanySuccess) {
                 setState(() {
-                  isLoading = false;
-                  Navigator.of(context).pop();
+                  patientInsuranceCompanies.addAll(state.practiceInsuranceCompanyResponse.practiceInsuranceCompany);
                 });
               }
-              if (state is SavePatientFRPLoading) {
+              if (state is PracticeInsuranceCompanyError) {
+                print(state.message);
+              }
+            }),
+            BlocListener<GetStatesCubit, GetStatesState>(listener: (context, state) async {
+              if (state is GetStatesSuccess) {
+                setState(() {
+                  states.addAll(state.statesResponse.states);
+                });
+              }
+              if (state is GetStatesError) {
+                print(state.message);
+              }
+            }),
+            BlocListener<SavePatientInsuranceCubit, SavePatientInsuranceState>(listener: (context, state) async {
+              if (state is SavePatientInsuranceSuccess) {
+                setState(() {
+                  isLoading = false;
+                  Navigator.of(context).pop(true);
+                  BlocProvider.of<PatientByIdCubit>(context).getPatientById(patientId);
+                });
+              }
+              if (state is SavePatientInsuranceLoading) {
                 setState(() {
                   isLoading = true;
                 });
               }
-              if (state is SavePatientFRPError) {
+              if (state is SavePatientInsuranceError) {
                 setState(() {
                   isLoading = false;
                 });
-                showSnackBar(context, state.message);
               }
             }),
           ],
           child: isLoading
               ? FieldsLoading()
               : Stack(
-            children: [
-              Container(
-                height: maxHeight,
-                width: double.maxFinite,
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(AppConstants.HP),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-
-                          Text(widget.patientName,
-                              style: GoogleFonts.inter(
-                                  fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: AppColor.primaryColor)),
-
-                  
-                      SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                              child: ElevatedButton(
-                                  style: ButtonStyle(
-                                      backgroundColor: MaterialStatePropertyAll(user
-                                          ? AppColor.primaryColor
-                                          : brightness == Brightness.dark
-                                          ? AppColor.secondaryDarkColor
-                                          : AppColor.secondaryLightColor),
-                                  padding: MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: AppConstants.HP))
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      user = true;
-                                      add = false;
-                                      firstNameController.text = primaryFRP.first.patientFinancialResponsiblePersonFirstName;
-                                      middleNameController.text = primaryFRP.first.patientFinancialResponsiblePersonMiddleName ?? '';
-                                      lastNameController.text = primaryFRP.first.patientFinancialResponsiblePersonLastName;
-                                      prefixController.text = primaryFRP.first.patientFinancialResponsiblePersonPrefix ?? '';
-                                      suffixController.text = primaryFRP.first.patientFinancialResponsiblePersonSuffixName ?? '';
-                                      phoneController.text = primaryFRP.first.patientFinancialResponsiblePersonPrimaryPhone;
-                                      phoneExtController.text = primaryFRP.first.patientFinancialResponsiblePersonPrimaryPhoneExt;
-                                      secondaryPhoneController.text = primaryFRP.first.patientFinancialResponsiblePersonSecondaryPhone;
-                                      secondaryPhoneExtController.text = primaryFRP.first.patientFinancialResponsiblePersonSecondaryPhoneExt;
-                                      preferredNameController.text = primaryFRP.first.patientFinancialResponsiblePersonPreferredName ?? '';
-                                      dobController.text = AppConstants.formatedDate(primaryFRP.first.patientFinancialResponsiblePersonDob.toString());
-                                      selectedPhoneType = primaryFRP.first.patientFinancialResponsiblePersonPrimaryType;
-                                      secondaryPhoneType = primaryFRP.first.patientFinancialResponsiblePersonSecondaryType;
-                                      selectedRelationship = primaryFRP.first.patientFinancialResponsiblePersonRelationToPatient;
-                                      selectedPrefix = primaryFRP.first.patientFinancialResponsiblePersonPrefix == "Gujarat " ? null : primaryFRP.first.patientFinancialResponsiblePersonPrefix;
-                                      isEmail = primaryFRP.first.isPatientAgreedToContactFrpviaEmail;
-                                      isText = primaryFRP.first.isPatientAgreedToContactFrpviaText;
-                                      isPrimary = primaryFRP.first.isPrimary;
-                                      address1Controller.text = primaryFRP.first.patientFinancialResponsiblePersonAddress1;
-                                      address2Controller.text = primaryFRP.first.patientFinancialResponsiblePersonAddress2 ?? '';
-                                      cityController.text = primaryFRP.first.patientFinancialResponsiblePersonCity ?? '';
-                                      stateController.text = primaryFRP.first.patientFinancialResponsiblePersonState ?? '';
-                                      zipcodeController.text = primaryFRP.first.patientFinancialResponsiblePersonZip ?? '';
-                                    });
-                                  },
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'DeltaDental',
-                                        style: GoogleFonts.inter(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: AppConstants.NORMAL,
-                                            color: user
-                                                ? AppColor.whiteColor
-                                                : brightness == Brightness.dark
-                                                ? AppColor.whiteColor
-                                                : AppColor.blackColor),
-                                      ),
-                                      SizedBox(width: 16),
-                                     Image.asset('assets/images/edit.png',height: 18,width: 18,color: user
-                                         ? AppColor.whiteColor
-                                         : brightness == Brightness.dark
-                                         ? AppColor.whiteColor
-                                         : AppColor.blackColor,)
-                                    ],
-                                  ))),
-                          SizedBox(width: 16),
-                          Flexible(
-                            child: ElevatedButton(
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStatePropertyAll(add
-                                      ? AppColor.primaryColor
-                                      : brightness == Brightness.dark
-                                      ? AppColor.secondaryDarkColor
-                                      : AppColor.secondaryLightColor),
-                                  padding: MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: AppConstants.HP))
-                              ),
-                              onPressed: () {
+                  children: [
+                    Container(
+                      height: maxHeight,
+                      width: double.maxFinite,
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.all(AppConstants.HP),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(widget.patientName, style: GoogleFonts.inter(fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: AppColor.primaryColor)),
+                            SizedBox(height: 16),
+                            SelectedOptions(
+                              title1: patientInsurance.first.practiceInsuranceCompanyName,
+                              selected1: currentCompany,
+                              icon1: true,
+                              onPressed1: () {
                                 setState(() {
-                                  user = false;
+                                  currentCompany = true;
+                                  add = false;
+                                  BlocProvider.of<GetPatientInsuranceCompanyCubit>(context).getGetPatientInsuranceCompany(patientId);
+                                  selectedCompany =
+                                      '${patientInsurance.first.practiceInsuranceCompanyName} - ${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
+                                  selectedCompanyPhone = patientInsurance.first.practiceInsuranceCompanyPhone;
+                                  selectedCompanyId = patientInsurance.first.practiceInsuranceCompanyId;
+                                  selectedCompanyAddress =
+                                      '${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
+                                  selectedCompanyAddress1 = patientInsurance.first.practiceInsuranceCompanyAddress1;
+                                  selectedCompanyAddress2 = patientInsurance.first.practiceInsuranceCompanyAddress2;
+                                  selectedCompanyCity = patientInsurance.first.practiceInsuranceCompanyCity;
+                                  selectedCompanyState = patientInsurance.first.practiceInsuranceCompanyState;
+                                  selectedCompanyZipCode = patientInsurance.first.practiceInsuranceCompanyZipcode;
+
+                                  selectedNetWorkType = patientInsurance.first.networkType;
+                                  grpPlanController.text = patientInsurance.first.subscriberGroupPlanNumber;
+                                  grpEmpNameController.text = patientInsurance.first.groupEmployerName;
+                                });
+                              },
+                              title2: 'Add New',
+                              selected2: add,
+                              icon2: true,
+                              onPressed2: () {
+                                setState(() {
+                                  currentCompany = false;
+                                  selectedCompanyAddress1 = '';
+                                  selectedCompanyAddress2 = null;
+                                  selectedCompanyCity = '';
+                                  selectedCompanyState = '';
+                                  selectedCompanyZipCode = '';
                                   add = true;
-                                  isEmail = false;
-                                  isText = false;
-                                  firstNameController.clear();
-                                  middleNameController.clear();
-                                  lastNameController.clear();
-                                  prefixController.clear();
-                                  suffixController.clear();
-                                  phoneController.clear();
-                                  phoneExtController.clear();
-
-                                  preferredNameController.clear();
-                                  dobController.clear();
-                                  selectedPhoneType = null;
-                                  secondaryPhoneType = null;
-                                  selectedRelationship = null;
-                                  selectedPrefix = null;
-                                  address1Controller.clear();
-                                  address2Controller.clear();
-                                  cityController.clear();
-                                  zipcodeController.clear();
-                                  secondaryPhoneController.clear();
-                                  secondaryPhoneExtController.clear();
+                                  selectedCompany = null;
+                                  selectedCompanyPhone = '';
+                                  selectedCompanyAddress = '';
+                                  isPrimary = false;
+                                  grpPlanController.clear();
+                                  grpEmpNameController.clear();
+                                  selectedNetWorkType = null;
                                 });
                               },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Add New',
-                                    style: GoogleFonts.inter(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: AppConstants.NORMAL,
-                                        color: add
-                                            ? AppColor.whiteColor
-                                            : brightness == Brightness.dark
-                                            ? AppColor.whiteColor
-                                            : AppColor.blackColor),
+                            ),
+                            SizedBox(height: 16),
+                            Card(
+                                margin: EdgeInsets.zero,
+                                child: Padding(
+                                  padding: EdgeInsets.all(AppConstants.HP),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Text('Insurance Company',
+                                                style: GoogleFonts.inter(
+                                                    fontSize: AppConstants.LARGE, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
+                                          ),
+                                          InkWell(
+                                              splashColor: Colors.transparent,
+                                              highlightColor: Colors.transparent,
+                                              onTap: () {
+                                                setState(() {
+                                                  isPrimary = !isPrimary;
+                                                });
+                                              },
+                                              child: checkBox(isPrimary, 'Primary', 8.0, 20.0, 20.0))
+                                        ],
+                                      ),
+                                      SizedBox(height: 16),
+                                      Container(
+                                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), border: Border.all(color: AppColor.secondarySeedColor)),
+                                          child: DropdownButton<String>(
+                                            isDense: false,
+                                            itemHeight: 50,
+                                            padding: EdgeInsets.symmetric(horizontal: 12),
+                                            icon: Icon(Icons.keyboard_arrow_down_rounded),
+                                            borderRadius: BorderRadius.circular(4),
+                                            hint: Text('Select Insurance Company'),
+                                            alignment: Alignment.centerLeft,
+                                            isExpanded: true,
+                                            underline: SizedBox(),
+                                            value: selectedCompany,
+                                            onChanged: (String? newValue) {
+                                              selected = patientInsuranceCompanies.firstWhere((element) => element.practiceInsuranceCompanyName == newValue.toString());
+                                              setState(() {
+                                                selectedCompany = newValue.toString();
+                                                selectedCompanyPhone = selected.practiceInsuranceCompanyPhone;
+                                                selectedCompanyId = selected.practiceInsuranceCompanyId;
+                                                selectedCompanyAddress =
+                                                    '${selected.practiceInsuranceCompanyAddress1},${selected.practiceInsuranceCompanyCity},${selected.practiceInsuranceCompanyState},${selected.practiceInsuranceCompanyZipcode}';
+                                                selectedCompanyAddress1 = selected.practiceInsuranceCompanyAddress1;
+                                                selectedCompanyAddress2 = selected.practiceInsuranceCompanyAddress2;
+                                                selectedCompanyCity = selected.practiceInsuranceCompanyCity;
+                                                selectedCompanyState = selected.practiceInsuranceCompanyState;
+                                                selectedCompanyZipCode = selected.practiceInsuranceCompanyZipcode;
+                                              });
+                                            },
+                                            items: patientInsuranceCompanies.map((dynamic patientInsuranceCompanies) {
+                                              return DropdownMenuItem<String>(
+                                                value: patientInsuranceCompanies.practiceInsuranceCompanyName,
+                                                child: Text(
+                                                  patientInsuranceCompanies.practiceInsuranceCompanyName,
+                                                  maxLines: 2,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: GoogleFonts.inter(fontSize: AppConstants.SMALL, fontWeight: FontWeight.bold),
+                                                ),
+                                              );
+                                            }).toList(),
+                                          )),
+                                      SizedBox(height: 16),
+                                      insuranceCompany('assets/images/property.svg', 'Insurance Company', selectedCompany ?? ''),
+                                      Divider(height: 32),
+                                      insuranceCompany('assets/images/mobileinsurance.svg', 'Phone', selectedCompanyPhone),
+                                      Divider(height: 32),
+                                      insuranceCompany('assets/images/address.svg', 'Address', selectedCompanyAddress),
+                                    ],
                                   ),
-                                  SizedBox(width: 12),
-                                  Icon(Icons.add_rounded,size: 20, color: add
-                                      ? AppColor.whiteColor
-                                      : brightness == Brightness.dark
-                                      ? AppColor.whiteColor
-                                      : AppColor.blackColor)
-                                ],
-                              )
-                            ),
-                          )
-                        ],
-                      ),
-                      SizedBox(height: 16),
-                      Card(
-                        margin: EdgeInsets.zero,
-                        child: Padding(
-                          padding: EdgeInsets.all(AppConstants.HP),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                               Flexible(child:  Text('Insurance Company',
-                                   style:
-                                   GoogleFonts.inter(fontSize: AppConstants.LARGE, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),),
-                                InkWell(
-                                    splashColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    onTap: () {
+                                )),
+                            SizedBox(height: 16),
+                            Card(
+                                margin: EdgeInsets.zero,
+                                child: Padding(
+                                  padding: EdgeInsets.all(AppConstants.HP),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Policyholder Information',
+                                          style: GoogleFonts.inter(
+                                              fontSize: AppConstants.LARGE, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
+                                      SizedBox(height: 16),
+                                      ConstantTextFormField('Policyholder Member #', policyHolderMemberController, TextInputType.text),
+                                      ConstantTextFormField('Policyholder Social Security Number', socialSecurityMemberController, TextInputType.number),
+                                      SizedBox(height: 16),
+                                      Text('Who is the Policyholder?',
+                                          style: GoogleFonts.inter(
+                                              fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
+                                      SizedBox(height: 16),
+                                      SelectedOptions(
+                                        title1: 'Same as ${widget.patientName}',
+                                        selected1: isPatient,
+                                        icon1: false,
+                                        onPressed1: () {
+                                          setState(() {
+                                            isPatient = true;
+                                            BlocProvider.of<GetPatientInsuranceCompanyCubit>(context).getGetPatientInsuranceCompany(patientId);
+                                            selectedCompany =
+                                                '${patientInsurance.first.practiceInsuranceCompanyName} - ${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
+                                            selectedCompanyPhone = patientInsurance.first.practiceInsuranceCompanyPhone;
+                                            selectedCompanyAddress =
+                                                '${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
+                                            selectedGender = patientInsurance.first.subscriberGender;
+                                          });
+                                        },
+                                        title2: 'Other',
+                                        selected2: !isPatient,
+                                        icon2: false,
+                                        onPressed2: () {
+                                          setState(() {
+                                            isPatient = false;
+                                            selectedPrefix = null;
+                                            firstNameController.clear();
+                                            middleNameController.clear();
+                                            lastNameController.clear();
+                                            suffixController.clear();
+                                            selectedGender = null;
+                                            dobController.clear();
+                                            selectedRelationship = null;
+                                            phoneController.clear();
+                                            phoneExtController.clear();
+                                            selectedPhoneType = null;
+                                            secondaryPhoneController.clear();
+                                            secondaryPhoneExtController.clear();
+                                            secondaryPhoneType = null;
+                                          });
+                                        },
+                                      ),
+                                      !isPatient
+                                          ? Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                SizedBox(height: 16),
+                                                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                                  Text('Prefix',
+                                                      style: GoogleFonts.inter(
+                                                          fontSize: AppConstants.NORMAL,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
+                                                  SizedBox(height: 8),
+                                                  Container(
+                                                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), border: Border.all(color: AppColor.secondarySeedColor)),
+                                                      child: DropdownButton<String>(
+                                                        isDense: false,
+                                                        itemHeight: 50,
+                                                        padding: EdgeInsets.symmetric(horizontal: 12),
+                                                        icon: Icon(Icons.keyboard_arrow_down_rounded),
+                                                        borderRadius: BorderRadius.circular(4),
+                                                        hint: Text('Prefix'),
+                                                        alignment: Alignment.centerLeft,
+                                                        isExpanded: true,
+                                                        underline: SizedBox(),
+                                                        value: selectedPrefix,
+                                                        onChanged: (String? newValue) {
+                                                          setState(() {
+                                                            selectedPrefix = newValue.toString();
+                                                            prefixController.text = selectedPrefix.toString();
+                                                          });
+                                                        },
+                                                        items: prefixes.map((String prefix) {
+                                                          return DropdownMenuItem<String>(
+                                                            value: prefix,
+                                                            child: Text(prefix),
+                                                          );
+                                                        }).toList(),
+                                                      ))
+                                                ]),
+                                                SizedBox(height: 16),
+                                                ConstantTextFormField(
+                                                  'First Name',
+                                                  firstNameController,
+                                                  TextInputType.text,
+                                                  alertText: isAlert,
+                                                ),
+                                                ConstantTextFormField('Middle Name', middleNameController, TextInputType.text),
+                                                ConstantTextFormField(
+                                                  'Last Name',
+                                                  lastNameController,
+                                                  TextInputType.text,
+                                                  alertText: isAlert,
+                                                ),
+                                                ConstantTextFormField('Suffix', suffixController, TextInputType.text),
+                                                subCategories("Gender", gender, (context, index) {
+                                                  return InkWell(
+                                                    splashColor: Colors.transparent,
+                                                    highlightColor: Colors.transparent,
+                                                    onTap: () {
+                                                      setState(() {
+                                                        selectedGender = gender[index];
+                                                      });
+                                                    },
+                                                    child: radioButton(
+                                                      selectedGender == gender[index],
+                                                      gender[index],
+                                                    ),
+                                                  );
+                                                }),
+                                                ConstantTextFormField(
+                                                  'Date of Birth',
+                                                  dobController,
+                                                  TextInputType.datetime,
+                                                  readOnly: true,
+                                                  alertText: isAlert,
+                                                ),
+                                                subCategories("Relationship to Patient", relation, (context, index) {
+                                                  return InkWell(
+                                                    splashColor: Colors.transparent,
+                                                    highlightColor: Colors.transparent,
+                                                    onTap: () {
+                                                      setState(() {
+                                                        selectedRelationship = relation[index];
+                                                      });
+                                                    },
+                                                    child: radioButton(
+                                                      selectedRelationship == relation[index],
+                                                      relation[index],
+                                                    ),
+                                                  );
+                                                }),
+                                                ConstantTextFormField(
+                                                  'Primary Phone',
+                                                  phoneController,
+                                                  TextInputType.phone,
+                                                  extController: phoneExtController,
+                                                  alertText: isAlert,
+                                                ),
+                                                SizedBox(height: 16),
+                                                subCategories("Primary Phone Type", primaryPhone, (context, index) {
+                                                  return InkWell(
+                                                    splashColor: Colors.transparent,
+                                                    highlightColor: Colors.transparent,
+                                                    onTap: () {
+                                                      setState(() {
+                                                        selectedPhoneType = primaryPhone[index];
+                                                      });
+                                                    },
+                                                    child: radioButton(
+                                                      selectedPhoneType == primaryPhone[index],
+                                                      primaryPhone[index],
+                                                    ),
+                                                  );
+                                                }),
+                                                ConstantTextFormField(
+                                                  'Secondary Phone',
+                                                  secondaryPhoneController,
+                                                  TextInputType.phone,
+                                                  extController: secondaryPhoneExtController,
+                                                ),
+                                                subCategories("Secondary Phone Type", primaryPhone, (context, index) {
+                                                  return InkWell(
+                                                    splashColor: Colors.transparent,
+                                                    highlightColor: Colors.transparent,
+                                                    onTap: () {
+                                                      setState(() {
+                                                        secondaryPhoneType = primaryPhone[index];
+                                                      });
+                                                    },
+                                                    child: radioButton(
+                                                      secondaryPhoneType == primaryPhone[index],
+                                                      primaryPhone[index],
+                                                    ),
+                                                  );
+                                                }),
+                                              ],
+                                            )
+                                          : SizedBox(),
+                                      SizedBox(height: 16),
+                                      Text('Policyholder Address?',
+                                          style: GoogleFonts.inter(
+                                              fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
+                                      SizedBox(height: 16),
+                                      SelectedOptions(
+                                          title1: 'Same as ${widget.patientName}',
+                                          selected1: isPatientAdd,
+                                          icon1: false,
+                                          onPressed1: () {
+                                            setState(() {
+                                              isPatientAdd = true;
+                                              BlocProvider.of<GetPatientInsuranceCompanyCubit>(context).getGetPatientInsuranceCompany(patientId);
+                                              selectedCompany =
+                                                  '${patientInsurance.first.practiceInsuranceCompanyName} - ${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
+                                              selectedCompanyPhone = patientInsurance.first.practiceInsuranceCompanyPhone;
+                                              selectedCompanyAddress =
+                                                  '${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
+                                              selectedGender = patientInsurance.first.subscriberGender;
+                                            });
+                                          },
+                                          title2: 'Other',
+                                          selected2: !isPatientAdd,
+                                          icon2: false,
+                                          onPressed2: () {
+                                            setState(() {
+                                              isPatientAdd = false;
+
+                                              address1Controller.clear();
+                                              address2Controller.clear();
+                                              cityController.clear();
+                                              stateController.clear();
+                                              zipcodeController.clear();
+                                            });
+                                          }),
+                                      !isPatientAdd
+                                          ? Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                SizedBox(height: 16),
+                                                ConstantTextFormField(
+                                                  'Address Line 1',
+                                                  address1Controller,
+                                                  TextInputType.text,
+                                                  alertText: isAlert,
+                                                ),
+                                                ConstantTextFormField('Address Line 2', address2Controller, TextInputType.text),
+                                                ConstantTextFormField(
+                                                  'City',
+                                                  cityController,
+                                                  TextInputType.text,
+                                                  alertText: isAlert,
+                                                ),
+                                                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                                  Text('State',
+                                                      style: GoogleFonts.inter(
+                                                          fontSize: AppConstants.NORMAL,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
+                                                  SizedBox(height: 8),
+                                                  Container(
+                                                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), border: Border.all(color: AppColor.secondarySeedColor)),
+                                                      child: DropdownButton<String>(
+                                                        isDense: false,
+                                                        itemHeight: 50,
+                                                        padding: EdgeInsets.symmetric(horizontal: 12),
+                                                        icon: Icon(Icons.keyboard_arrow_down_rounded),
+                                                        borderRadius: BorderRadius.circular(4),
+                                                        hint: Text('Select State'),
+                                                        alignment: Alignment.centerLeft,
+                                                        isExpanded: true,
+                                                        underline: SizedBox(),
+                                                        value: selectedState,
+                                                        onChanged: (String? newValue) {
+                                                          setState(() {
+                                                            selectedState = newValue.toString();
+                                                          });
+                                                        },
+                                                        items: states.map((states) {
+                                                          return DropdownMenuItem<String>(
+                                                            value: states.stateName,
+                                                            child: Text(states.stateName),
+                                                          );
+                                                        }).toList(),
+                                                      )),
+                                                  isAlert
+                                                      ? Padding(
+                                                          padding: EdgeInsets.only(top: 4),
+                                                          child: Text(
+                                                            'State is required.',
+                                                            style: GoogleFonts.inter(fontSize: AppConstants.SMALL, color: Colors.redAccent),
+                                                          ),
+                                                        )
+                                                      : SizedBox()
+                                                ]),
+                                                ConstantTextFormField(
+                                                  'Zip Code',
+                                                  zipcodeController,
+                                                  TextInputType.number,
+                                                  alertText: isAlert,
+                                                ),
+                                              ],
+                                            )
+                                          : SizedBox()
+                                    ],
+                                  ),
+                                )),
+                            SizedBox(height: 16),
+                            Card(
+                                margin: EdgeInsets.zero,
+                                child: Padding(
+                                    padding: EdgeInsets.all(AppConstants.HP),
+                                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                      Text('Group Information',
+                                          style: GoogleFonts.inter(
+                                              fontSize: AppConstants.LARGE, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
+                                      SizedBox(height: 16),
+                                      ConstantTextFormField('Group Plan #', grpPlanController, TextInputType.text),
+                                      ConstantTextFormField('Group / Employer Name ', grpEmpNameController, TextInputType.text),
+                                      SizedBox(height: 16),
+                                      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                        Text('Network Type',
+                                            style: GoogleFonts.inter(
+                                                fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
+                                        SizedBox(height: 8),
+                                        Container(
+                                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), border: Border.all(color: AppColor.secondarySeedColor)),
+                                            child: DropdownButton<String>(
+                                              isDense: false,
+                                              itemHeight: 50,
+                                              padding: EdgeInsets.symmetric(horizontal: 12),
+                                              icon: Icon(Icons.keyboard_arrow_down_rounded),
+                                              borderRadius: BorderRadius.circular(4),
+                                              hint: Text('Select Network Type'),
+                                              alignment: Alignment.centerLeft,
+                                              isExpanded: true,
+                                              underline: SizedBox(),
+                                              value: selectedNetWorkType,
+                                              onChanged: (String? newValue) {
+                                                setState(() {
+                                                  selectedNetWorkType = newValue.toString();
+                                                });
+                                              },
+                                              items: networkType.map((String networkType) {
+                                                return DropdownMenuItem<String>(
+                                                  value: networkType,
+                                                  child: Text(networkType),
+                                                );
+                                              }).toList(),
+                                            ))
+                                      ])
+                                    ]))),
+                            SizedBox(height: 16),
+                            Align(
+                              alignment: AlignmentDirectional.bottomEnd,
+                              child: ElevatedButton(
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStatePropertyAll(colorScheme.primaryContainer),
+                                ),
+                                onPressed: () {
+                                  if (!isPatient || !isPatientAdd) {
+                                    if (firstNameController.text.isNotEmpty &&
+                                        lastNameController.text.isNotEmpty &&
+                                        dobController.text.isNotEmpty &&
+                                        phoneController.text.isNotEmpty &&
+                                        address1Controller.text.isNotEmpty &&
+                                        cityController.text.isNotEmpty &&
+                                        selectedState != null &&
+                                        zipcodeController.text.isNotEmpty) {
+                                      BlocProvider.of<SavePatientInsuranceCubit>(context).savePatientInsurance(
+                                          patientInsurance.first.patientInsuranceId,
+                                          selectedCompanyId,
+                                          prefixController.text,
+                                          firstNameController.text,
+                                          middleNameController.text,
+                                          lastNameController.text,
+                                          suffixController.text,
+                                          phoneController.text,
+                                          phoneExtController.text,
+                                          selectedPhoneType ?? '',
+                                          secondaryPhoneController.text,
+                                          secondaryPhoneExtController.text,
+                                          secondaryPhoneType ?? '',
+                                          dobController.text.isEmpty ? null : AppConstants.parsedDate(dobController.text),
+                                          selectedGender ?? '',
+                                          selectedRelationship,
+                                          null,
+                                          address1Controller.text,
+                                          address2Controller.text,
+                                          cityController.text,
+                                          selectedState,
+                                          zipcodeController.text,
+                                          grpPlanController.text,
+                                          policyHolderMemberController.text,
+                                          selectedNetWorkType,
+                                          grpEmpNameController.text,
+                                          isPrimary,
+                                          patientInsurance.first.isActive,
+                                          isPatient,
+                                          isPatientAdd,
+                                          "",
+                                          selectedCompany,
+                                          selectedCompanyPhone,
+                                          null,
+                                          selectedCompanyAddress1,
+                                          selectedCompanyAddress2,
+                                          selectedCompanyCity,
+                                          selectedCompanyState,
+                                          selectedCompanyZipCode);
+                                    } else {
                                       setState(() {
-                                        isPrimary = !isPrimary;
+                                        isAlert = true;
                                       });
-                                    },
-                                    child: checkBox(isPrimary, 'Primary',8.0,20.0,20.0))
-                              ],
+                                    }
+                                  }else{
+                                    BlocProvider.of<SavePatientInsuranceCubit>(context).savePatientInsurance(
+                                        patientInsurance.first.patientInsuranceId,
+                                        selectedCompanyId,
+                                        prefixController.text,
+                                        firstNameController.text,
+                                        middleNameController.text,
+                                        lastNameController.text,
+                                        suffixController.text,
+                                        phoneController.text,
+                                        phoneExtController.text,
+                                        selectedPhoneType ?? '',
+                                        secondaryPhoneController.text,
+                                        secondaryPhoneExtController.text,
+                                        secondaryPhoneType ?? '',
+                                        dobController.text.isEmpty ? null : AppConstants.parsedDate(dobController.text),
+                                        selectedGender ?? '',
+                                        selectedRelationship,
+                                        null,
+                                        address1Controller.text,
+                                        address2Controller.text,
+                                        cityController.text,
+                                        selectedState,
+                                        zipcodeController.text,
+                                        grpPlanController.text,
+                                        policyHolderMemberController.text,
+                                        selectedNetWorkType,
+                                        grpEmpNameController.text,
+                                        isPrimary,
+                                        patientInsurance.first.isActive,
+                                        isPatient,
+                                        isPatientAdd,
+                                        "",
+                                        selectedCompany,
+                                        selectedCompanyPhone,
+                                        null,
+                                        selectedCompanyAddress1,
+                                        selectedCompanyAddress2,
+                                        selectedCompanyCity,
+                                        selectedCompanyState,
+                                        selectedCompanyZipCode);
+                                  }
+
+
+                                },
+                                child: Text('Save Patient Insurance'),
+                              ),
                             ),
-                              SizedBox(height: 16),
-                              Container(
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), border: Border.all(color: AppColor.secondarySeedColor)),
-                                  child: DropdownButton<String>(
-                                    isDense: false,
-                                    itemHeight: 50,
-                                    padding: EdgeInsets.symmetric(horizontal: 12),
-                                    icon: Icon(Icons.keyboard_arrow_down_rounded),
-                                    borderRadius: BorderRadius.circular(4),
-                                    hint: Text('Select Insurance Company'),
-                                    alignment: Alignment.centerLeft,
-                                    isExpanded: true,
-                                    underline: SizedBox(),
-                                    value: selectedPrefix,
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        selectedPrefix = newValue.toString();
-                                        prefixController.text = selectedPrefix.toString();
-                                      });
-                                    },
-                                    items: prefixes.map((String prefix) {
-                                      return DropdownMenuItem<String>(
-                                        value: prefix,
-                                        child: Text(prefix),
-                                      );
-                                    }).toList(),
-                                  )),
-
-                              SizedBox(height: 16),
-                              _insuranceCompany('assets/images/property.svg','Insurance Company',"Ever Safe Assurance - 789 Oak Avenue, Building 101 City ville, USA 54321,Kayleyshire,Alaska,23422"),
-                              Divider(height: 32),
-                              _insuranceCompany('assets/images/mobileinsurance.svg','Phone',"(321) 321-1324"),
-                              Divider(height: 32),
-                              _insuranceCompany('assets/images/address.svg','Address',"789 Oak Avenue, Building 101 City ville, USA 54321 , Alaska , Kayleyshire , 23422"),
-                            ],
-                          ),
-                        )
+                            SizedBox(height: 16),
+                          ],
+                        ),
                       ),
-                      SizedBox(height: 16),
-                      Card(
-                          margin: EdgeInsets.zero,
-                          child: Padding(
-                            padding: EdgeInsets.all(AppConstants.HP),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                               Text('Policyholder Information',
-                                        style:
-                                        GoogleFonts.inter(fontSize: AppConstants.LARGE, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
-
-                                SizedBox(height: 16),
-                                ConstantTextFormField('Policyholder Member #', policyHolderMemberController, TextInputType.text),
-
-                                ConstantTextFormField('Policyholder Social Security Number', socialSecurityMemberController, TextInputType.number),
-
-                                SizedBox(height: 16),
-                                _insuranceCompany('assets/images/property.svg','Insurance Company',"Ever Safe Assurance - 789 Oak Avenue, Building 101 City ville, USA 54321,Kayleyshire,Alaska,23422"),
-                                Divider(height: 32),
-                                _insuranceCompany('assets/images/mobileinsurance.svg','Phone',"(321) 321-1324"),
-                                Divider(height: 32),
-                                _insuranceCompany('assets/images/address.svg','Address',"789 Oak Avenue, Building 101 City ville, USA 54321 , Alaska , Kayleyshire , 23422"),
-                              ],
-                            ),
-                          )
-                      ),
-                      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text('Prefix',
-                            style:
-                            GoogleFonts.inter(fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
-                        SizedBox(height: 8),
-                        Container(
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), border: Border.all(color: AppColor.secondarySeedColor)),
-                            child: DropdownButton<String>(
-                              isDense: false,
-                              itemHeight: 50,
-                              padding: EdgeInsets.symmetric(horizontal: 12),
-                              icon: Icon(Icons.keyboard_arrow_down_rounded),
-                              borderRadius: BorderRadius.circular(4),
-                              hint: Text('Prefix'),
-                              alignment: Alignment.centerLeft,
-                              isExpanded: true,
-                              underline: SizedBox(),
-                              value: selectedPrefix,
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  selectedPrefix = newValue.toString();
-                                  prefixController.text = selectedPrefix.toString();
-                                });
-                              },
-                              items: prefixes.map((String prefix) {
-                                return DropdownMenuItem<String>(
-                                  value: prefix,
-                                  child: Text(prefix),
-                                );
-                              }).toList(),
-                            ))
-                      ]),
-                      SizedBox(height: 16),
-                      ConstantTextFormField('First Name', firstNameController, TextInputType.text),
-                      ConstantTextFormField('Middle Name', middleNameController, TextInputType.text),
-                      ConstantTextFormField('Last Name', lastNameController, TextInputType.text),
-                      ConstantTextFormField('Suffix', suffixController, TextInputType.text),
-                      ConstantTextFormField('Date of Birth', dobController, TextInputType.datetime, readOnly: true),
-                      ConstantTextFormField('Preferred Name', preferredNameController, TextInputType.text),
-                      ConstantTextFormField(
-                        'Primary Phone',
-                        phoneController,
-                        TextInputType.phone,
-                        extController: phoneExtController,
-                      ),
-                      SizedBox(height: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Primary Phone Type",
-                              style: GoogleFonts.inter(
-                                  fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
-                          SizedBox(height: 16),
-                          GridView.builder(
-                            shrinkWrap: true,
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 2.2),
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: primaryPhone.length,
-                            itemBuilder: (context, index) {
-                              return InkWell(
-                                splashColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () {
-                                  setState(() {
-                                    selectedPhoneType = primaryPhone[index];
-                                  });
-                                },
-                                child: radioButton(
-                                  selectedPhoneType == primaryPhone[index],
-                                  primaryPhone[index],
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Relationship",
-                              style: GoogleFonts.inter(
-                                  fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
-                          SizedBox(height: 16),
-                          GridView.builder(
-                            shrinkWrap: true,
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 2.2),
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: relation.length,
-                            itemBuilder: (context, index) {
-                              return InkWell(
-                                splashColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () {
-                                  setState(() {
-                                    selectedRelationship = relation[index];
-                                  });
-                                },
-                                child: radioButton(
-                                  selectedRelationship == relation[index],
-                                  relation[index],
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Communication",
-                              style: GoogleFonts.inter(
-                                  fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
-                          SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              InkWell(
-                                  splashColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () {
-                                    setState(() {
-                                      isEmail = !isEmail;
-                                    });
-                                  },
-                                  child: checkBox(isEmail, 'Email',18.0,18.0,18.0)),
-                              SizedBox(width: 40),
-                              InkWell(
-                                  splashColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () {
-                                    setState(() {
-                                      isText = !isText;
-                                    });
-                                  },
-                                  child: checkBox(isText, 'Text',18.0,18.0,18.0))
-                            ],
-                          ),
-                          SizedBox(height: 16),
-                          ConstantTextFormField('Address Line 1', address1Controller, TextInputType.text),
-                          ConstantTextFormField('Address Line 2', address2Controller, TextInputType.text),
-                          ConstantTextFormField('City', cityController, TextInputType.text),
-                          ConstantTextFormField('State', stateController, TextInputType.text),
-                          ConstantTextFormField('Zip Code', zipcodeController, TextInputType.number),
-                          ConstantTextFormField(
-                            'Secondary Phone',
-                            secondaryPhoneController,
-                            TextInputType.phone,
-                            extController: secondaryPhoneExtController,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Secondary Phone Type",
-                              style: GoogleFonts.inter(
-                                  fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
-                          SizedBox(height: 16),
-                          GridView.builder(
-                            shrinkWrap: true,
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 2.2),
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: primaryPhone.length,
-                            itemBuilder: (context, index) {
-                              return InkWell(
-                                splashColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () {
-                                  setState(() {
-                                    secondaryPhoneType = primaryPhone[index];
-                                  });
-                                },
-                                child: radioButton(
-                                  secondaryPhoneType == primaryPhone[index],
-                                  primaryPhone[index],
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 60),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ),
-              selectedPhoneType != null &&
-                  selectedRelationship != null &&
-                  firstNameController.text.isNotEmpty &&
-                  lastNameController.text.isNotEmpty &&
-
-                  phoneController.text.isNotEmpty
-                  ? Positioned(
-                bottom: 16,
-                left: 16,
-                right: 16,
-                child: ElevatedButton(
-                    onPressed: () {
-                      BlocProvider.of<SavePatientFRPCubit>(context).savePatientFRP(
-                          AppConstants.checkAdult(primaryFRP.first.patientFinancialResponsiblePersonDob.toString()),
-                          primaryFRP.first.patientFinancialResponsiblePersonId,
-                          selectedPrefix,
-                          firstNameController.text,
-                          middleNameController.text.isEmpty ? null : middleNameController.text,
-                          lastNameController.text,
-                          suffixController.text.isEmpty ? null : suffixController.text,
-                          preferredNameController.text,
-                          AppConstants.parsedDate(dobController.text),
-                          address1Controller.text,
-                          address2Controller.text.isEmpty ? null : address2Controller.text,
-                          cityController.text,
-                          stateController.text,
-                          primaryFRP.first.patientFinancialResponsiblePersonStateAbbreviation,
-                          zipcodeController.text,
-                          phoneController.text,
-                          phoneExtController.text,
-                          selectedPhoneType ?? '',
-                          secondaryPhoneController.text,
-                          secondaryPhoneExtController.text,
-                          secondaryPhoneType ?? '',
-                          selectedRelationship ?? '',
-                          createFrpUser,
-                          primaryFRP.first.isActive,
-                          isPrimary,
-                          null,
-                          null,
-                          0,
-                          isEmail,
-                          isText,
-                          '',
-                          false);
-                    },
-                    child: Text('Save Responsible Person')),
-              )
-                  : SizedBox()
-            ],
-          ),
         ));
   }
 
-  Widget _insuranceCompany(icon,title,subtitle){
-    var brightness = Theme.of(context).brightness;
-    return  Row(
-      children: [
-        SvgPicture.asset(icon,width: 80,),
-        SizedBox(width: 16),
-        Flexible(child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style:
-                GoogleFonts.inter(fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 4),
-                Text(subtitle,
-                    style:
-                    GoogleFonts.inter(fontSize: AppConstants.SMALL, fontWeight: FontWeight.w500, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
-              ],
-            )
-          ],
-        ))
-      ],
-    );
-  }
+
+
+
 }

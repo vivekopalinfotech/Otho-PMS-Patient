@@ -36,6 +36,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   carousel_slider: ^4.1.1
   cupertino_icons: ^1.0.6
+  custom_refresh_indicator: ^3.1.0
   google_fonts:
   intl:
   animations: ^2.0.11
@@ -46,15 +47,11 @@ dependencies:
   flutter_bloc:
   flex_seed_scheme: ^1.5.0
   persistent_bottom_nav_bar:
-  pull_to_refresh_flutter3: ^2.0.2
   riff_switch: ^0.0.4
   shared_preferences:
   shimmer:
   local_auth:
   dio:
-
-
-
 
 dev_dependencies:
   flutter_test:

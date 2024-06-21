@@ -46,7 +46,7 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
-        widget.controller.text = ' ${DateFormat('MM/dd/yyyy').format(_selectedDate!)}';
+        widget.controller.text = '${DateFormat('MM/dd/yyyy').format(_selectedDate!)}';
       });
     }
   }
@@ -136,8 +136,8 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
                                 : SizedBox(),
                             hintText: widget.title,
                             border: OutlineInputBorder(borderSide: BorderSide(color: AppColor.secondarySeedColor)),
-                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText != null ? Colors.redAccent : AppColor.secondarySeedColor)),
-                            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText != null ? Colors.redAccent : AppColor.primaryColor))),
+                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.secondarySeedColor)),
+                            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.primaryColor))),
                       ),
                     ),
                     SizedBox(width: 8),
@@ -152,8 +152,8 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
                         isDense: true,
                         counterText: '',
                         border: OutlineInputBorder(borderSide: BorderSide(color: AppColor.secondarySeedColor)),
-                        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText != null ? Colors.redAccent : AppColor.secondarySeedColor)),
-                        focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText != null ? Colors.redAccent : AppColor.primaryColor)),
+                        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.secondarySeedColor)),
+                        focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.primaryColor)),
                       ),
                       // validator: (value) {
                       //   if (value == null || value.isEmpty) {
@@ -228,9 +228,12 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
                           : SizedBox(),
                       hintText: widget.title,
                       border: OutlineInputBorder(borderSide: BorderSide(color: AppColor.secondarySeedColor)),
-                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText != null ? Colors.redAccent : AppColor.secondarySeedColor)),
-                      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText != null ? Colors.redAccent : AppColor.primaryColor))),
-                )
+                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.secondarySeedColor)),
+                      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.primaryColor))),
+                ),
+          widget.alertText == true ?   Padding(padding: EdgeInsets.only(top: 4),
+          child: Text('${widget.title} is required.',style: GoogleFonts.inter(fontSize:AppConstants.SMALL,color:Colors.redAccent),),
+          ):SizedBox()
         ],
       ),
     );

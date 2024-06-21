@@ -59,6 +59,14 @@ class AppConstants {
     return formattedTime;
   }
 
+  static String calculateDateDifference(String dynamicDateString) {
+    DateTime dynamicDate = DateTime.parse(dynamicDateString);
+    DateTime currentDate = DateTime.now();
+    int monthsDifference = (currentDate.year - dynamicDate.year) * 12 + (currentDate.month - dynamicDate.month);
+   String difference = monthsDifference>1 ?'$monthsDifference Months':'$monthsDifference Month';
+    return difference;
+  }
+
   static String convertCurrentDate(String originalDateStr) {
     DateTime originalDate = DateTime.parse(originalDateStr);
     DateFormat outputFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");

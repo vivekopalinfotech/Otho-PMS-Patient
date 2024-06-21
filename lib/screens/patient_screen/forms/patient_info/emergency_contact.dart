@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
-import 'package:ortho_pms_patient/bloc/patient/patient_contact/get_patient_contact_cubit.dart';
-import 'package:ortho_pms_patient/bloc/patient/patient_contact/get_patient_contact_state.dart';
+import 'package:ortho_pms_patient/bloc/patient/patient_by_id_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/patient_contact/save_patient_contact_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/patient_contact/save_patient_contact_state.dart';
+import 'package:ortho_pms_patient/bloc/patient/patient_contact/save_patient_emergency_contact_detail_cubit.dart';
+import 'package:ortho_pms_patient/bloc/patient/patient_contact/save_patient_emergency_contact_detail_state.dart';
 import 'package:ortho_pms_patient/utils/constant_widgets.dart';
 import 'package:ortho_pms_patient/utils/constatnt_textformfield.dart';
 import 'package:ortho_pms_patient/utils/loader/loading_widget.dart';
@@ -57,19 +58,20 @@ class _EmergencyContactState extends State<EmergencyContact> {
     return  MultiBlocListener(
       listeners: [
 
-        BlocListener<SavePatientContactCubit, SavePatientContactState>(listener: (context, state) async {
-          if (state is SavePatientContactSuccess) {
+        BlocListener<SavePatientEmergencyContactCubit, SavePatientEmergencyContactState>(listener: (context, state) async {
+          if (state is SavePatientEmergencyContactSuccess) {
             setState(() {
               isLoading = false;
               Navigator.of(context).pop(true);
+              BlocProvider.of<PatientByIdCubit>(context).getPatientById(widget.patient.patientId.toString());
             });
           }
-          if (state is SavePatientContactLoading) {
+          if (state is SavePatientEmergencyContactLoading) {
             setState(() {
               isLoading = true;
             });
           }
-          if (state is SavePatientContactError) {
+          if (state is SavePatientEmergencyContactError) {
             setState(() {
               isLoading = false;
             });
@@ -186,7 +188,7 @@ class _EmergencyContactState extends State<EmergencyContact> {
                   backgroundColor: MaterialStatePropertyAll( colorScheme.primaryContainer),
                 ),
                 onPressed: () {
-
+                  BlocProvider.of<SavePatientEmergencyContactCubit>(context).savePatientEmergencyContactDetails( AppConstants.parsedDate(dobController.text.toString()), firstNameController.text, lastNameController.text, phoneController.text, phoneExtController.text,   selectedPhoneType ?? '',   selectedRelationship ?? '');
                 },
                 child: Text('Save Emergency Contact'),
               ),

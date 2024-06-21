@@ -137,7 +137,7 @@ class _ReferralState extends State<Referral> {
                       selectedSubCategoryId = state.patientReferralDetailResponse.referralSubCategoryId;
                       selectedSubCategory = state.patientReferralDetailResponse.referralSubCategoryName;
                     }
-                    selectedDentist = '${state.patientReferralDetailResponse.dentistLastName}, ${state.patientReferralDetailResponse.dentistFirstName}';
+                    selectedDentist =state.patientReferralDetailResponse.dentistLastName!=null? '${state.patientReferralDetailResponse.dentistLastName??''}, ${state.patientReferralDetailResponse.dentistFirstName??''}':null;
                     referralNotesController.text = state.patientReferralDetailResponse.referralNotes;
                   });
                 }

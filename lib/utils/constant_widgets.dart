@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
@@ -143,3 +144,152 @@ class _ConstantSwitchState extends State<ConstantSwitch> {
     );
   }
 }
+
+class SelectedOptions extends StatelessWidget {
+  final title1;
+  final selected1;
+  final icon1;
+  final onPressed1;
+  final title2;
+  final selected2;
+  final icon2;
+  final onPressed2;
+  const SelectedOptions({super.key, this.title1, this.selected1, this.icon1, this.onPressed1, this.title2, this.selected2, this.icon2, this.onPressed2});
+
+  @override
+  Widget build(BuildContext context) {
+    var brightness = Theme.of(context).brightness;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(
+            child: ElevatedButton(
+                style: ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll(selected1
+                        ? AppColor.primaryColor
+                        : brightness == Brightness.dark
+                        ? AppColor.secondaryDarkColor
+                        : AppColor.secondaryLightColor),
+                    padding: MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: AppConstants.HP))),
+                onPressed: onPressed1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        title1,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w500,
+                            fontSize: AppConstants.NORMAL,
+                            color: selected1
+                                ? AppColor.whiteColor
+                                : brightness == Brightness.dark
+                                ? AppColor.whiteColor
+                                : AppColor.blackColor),
+                      ),
+                    ),
+                    icon1
+                        ? Padding(
+                      padding: EdgeInsets.only(left: 16),
+                      child: Image.asset(
+                        'assets/images/edit.png',
+                        height: 18,
+                        width: 18,
+                        color: selected1
+                            ? AppColor.whiteColor
+                            : brightness == Brightness.dark
+                            ? AppColor.whiteColor
+                            : AppColor.blackColor,
+                      ),
+                    )
+                        : SizedBox()
+                  ],
+                ))),
+        SizedBox(width: 16),
+        ElevatedButton(
+          style: ButtonStyle(
+              backgroundColor: MaterialStatePropertyAll(selected2
+                  ? AppColor.primaryColor
+                  : brightness == Brightness.dark
+                  ? AppColor.secondaryDarkColor
+                  : AppColor.secondaryLightColor),
+              padding: MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: AppConstants.HP))),
+          onPressed: onPressed2,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                title2,
+                style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w500,
+                    fontSize: AppConstants.NORMAL,
+                    color: selected2
+                        ? AppColor.whiteColor
+                        : brightness == Brightness.dark
+                        ? AppColor.whiteColor
+                        : AppColor.blackColor),
+              ),
+              icon2
+                  ? Padding(
+                padding: EdgeInsets.only(left: 12),
+                child: Icon(Icons.add_rounded,
+                    size: 20,
+                    color: selected2
+                        ? AppColor.whiteColor
+                        : brightness == Brightness.dark
+                        ? AppColor.whiteColor
+                        : AppColor.blackColor),
+              )
+                  : SizedBox()
+            ],
+          ),
+        )
+      ],
+    );
+  }
+}
+
+
+subCategories(title, list, itemBuilder) {
+
+  return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    Text(title, style: GoogleFonts.inter(fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold,)),
+    SizedBox(height: 16),
+    GridView.builder(
+      shrinkWrap: true,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 2.2),
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: list.length,
+      itemBuilder: itemBuilder,
+    ),
+  ]);
+}
+
+insuranceCompany(icon, title, subtitle) {
+  return Row(
+    children: [
+      SvgPicture.asset(
+        icon,
+        width: 80,
+      ),
+      SizedBox(width: 16),
+      Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: GoogleFonts.inter(fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold)),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 4),
+                  Text(subtitle, style: GoogleFonts.inter(fontSize: AppConstants.SMALL, fontWeight: FontWeight.w500)),
+                ],
+              )
+            ],
+          ))
+    ],
+  );
+}
+

@@ -1,3 +1,4 @@
+import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,9 +19,6 @@ import 'package:ortho_pms_patient/screens/patient_screen/cards/patient_exam_card
 import 'package:ortho_pms_patient/screens/patient_screen/cards/payment_summary_card.dart';
 import 'package:ortho_pms_patient/utils/app_drawer.dart';
 import 'package:ortho_pms_patient/utils/loader/loading_widget.dart';
-
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PatientScreen extends StatefulWidget {
@@ -39,15 +37,26 @@ class _PatientScreenState extends State<PatientScreen> {
   List patientExam = [];
   List patientInsurance = [];
   bool isLoading = true;
+  bool isRefreshing = false;
 
-  RefreshController _refreshController = RefreshController(initialRefresh: false);
 
 
-  void _onLoading() async {
-
+  Future<void> _refreshData(patientId) async {
     setState(() {
-      _refreshController.loadComplete();
+      isRefreshing = true;
     });
+    final patientCubit = BlocProvider.of<PatientCubit>(context);
+    final examCubit = BlocProvider.of<GetPatientExamByPatientIdCubit>(context);
+    final insuranceCubit = BlocProvider.of<GetPatientInsuranceCompanyCubit>(context);
+
+    await patientCubit.getPatientByEmail(widget.email);
+
+    await Future.wait([
+      examCubit.getGetPatientExamByPatientId(patientId),
+      insuranceCubit.getGetPatientInsuranceCompany(patientId),
+    ]).whenComplete(() => setState(() {
+          isRefreshing = false;
+        }));
   }
 
   @override
@@ -136,47 +145,48 @@ class _PatientScreenState extends State<PatientScreen> {
                   name: '${patient.first.patientLastName} ${patient.first.patientFirstName}',
                   scaffoldKey: _scaffoldKey,
                 ),
-                body: SmartRefresher(
-                    enablePullDown: true,
-                    enablePullUp: false,
-                    enableTwoLevel: false,
-                    header: ClassicHeader(
-                      completeText: '',
-                      idleText: '',
-                      releaseText: '',
-                      refreshingText: '',
-                      idleIcon: Icon(Icons.refresh),
-                      completeIcon: CupertinoActivityIndicator(),
-                      refreshingIcon: CupertinoActivityIndicator(),
-                    ),
+                body:
 
-                    onRefresh: () async {
-                      await BlocProvider.of<PatientCubit>(context).getPatientByEmail(widget.email);
-                      await BlocProvider.of<GetPatientExamByPatientIdCubit>(context).getGetPatientExamByPatientId(patient.first.patientId);
-                      await BlocProvider.of<GetPatientInsuranceCompanyCubit>(context).getGetPatientInsuranceCompany(patient.first.patientId).whenComplete(() => setState(() {
-                            _refreshController.refreshCompleted();
-                          }));
-                    },
-                    onLoading: _onLoading,
-                    controller: _refreshController,
-                    child: SingleChildScrollView(
-                      primary: false,
-                      scrollDirection: Axis.vertical,
-                      padding: EdgeInsets.all(AppConstants.HP),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          PatientCard(patient: patient.first),
-                          SizedBox(height: 16),
-                          PatientExamCard(patientExam: patientExam),
-                          SizedBox(height: 16),
-                          PaymentSummary(),
-                          SizedBox(height: 16),
-                          Insurance(
-                            patientInsurance: patientInsurance,
-                          )
-                        ],
-                      ),
-                    ))));
+                    CustomRefreshIndicator(
+                        onRefresh: () async {
+                          await _refreshData(patient.first.patientId);
+                        },
+                        builder: (BuildContext context, Widget child, IndicatorController controller) {
+                          return Stack(
+                            alignment: Alignment.topCenter,
+                            children: <Widget>[
+                              if (controller.isDragging || controller.isArmed || controller.isLoading || isRefreshing)
+                                Positioned(
+                                  top: 35.0 * controller.value, // Indicator movement
+                                  child: Container(
+                                    height: 30,
+                                    width: 30,
+                                    child: CupertinoActivityIndicator(),
+                                  ),
+                                ),
+                              Transform.translate(
+                                offset: Offset(0, 100.0 * controller.value),
+                                child: child,
+                              ),
+                            ],
+                          );
+                        },
+                        child: SingleChildScrollView(
+                          primary: false,
+                          scrollDirection: Axis.vertical,
+                          padding: EdgeInsets.all(AppConstants.HP),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              PatientCard(patient: patient.first),
+                              SizedBox(height: 16),
+                              PatientExamCard(patientExam: patientExam),
+                              SizedBox(height: 16),
+                              PaymentSummary(),
+                              SizedBox(height: 16),
+                              Insurance(patientInsurance: patientInsurance, patient: patient.first)
+                            ],
+                          ),
+                        ))));
   }
 }

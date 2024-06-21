@@ -6,7 +6,8 @@ import 'package:ortho_pms_patient/app_constants/app_constants.dart';
 import '../../app_color/app_colors.dart';
 
 class DentistProfile extends StatefulWidget {
-  const DentistProfile({super.key});
+  final dentist;
+  const DentistProfile({super.key, this.dentist});
 
   @override
   State<DentistProfile> createState() => _DentistProfileState();
@@ -17,12 +18,12 @@ class _DentistProfileState extends State<DentistProfile> {
   Widget build(BuildContext context) {
     var brightness = Theme.of(context).brightness;
     List<Item> items = [
-      Item('Dentist Name', 'Patel, Ruchir'),
-      Item('Office', 'New Office'),
-      Item('Phone', ''),
-      Item('Email', ''),
-      Item('Specialization', ''),
-      Item('Notes', ''),
+      Item('Dentist Name', '${widget.dentist.first.dentistFullName??''}'),
+      Item('Office', '${widget.dentist.first.dentistOfficeName??''}'),
+      Item('Phone', '${widget.dentist.first.dentistPrimaryPhone??''}'),
+      Item('Email', '${widget.dentist.first.dentistPrimaryEmailAddress??''}'),
+      Item('Specialization', '${widget.dentist.first.specializationName??''}'),
+      Item('Notes', '${widget.dentist.first.dentistNotes??''}'),
     ];
     return AlertDialog(
       insetPadding: EdgeInsets.all(AppConstants.HP),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ortho_pms_patient/responses/get_dentist_response.dart';
-import 'package:ortho_pms_patient/responses/get_referral_categories_Response.dart';
 
 @immutable
 abstract class GetDentistState {}

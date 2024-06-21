@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
+import 'package:ortho_pms_patient/bloc/dentist/dentist_profile_cubit.dart';
+import 'package:ortho_pms_patient/bloc/dentist/dentist_profile_state.dart';
 import 'package:ortho_pms_patient/screens/dentist/dentist_profile.dart';
 import 'package:ortho_pms_patient/screens/patient_screen/forms/chief_complaint.dart';
 import 'package:ortho_pms_patient/screens/patient_screen/forms/frp.dart';
@@ -21,7 +24,13 @@ class PatientCard extends StatefulWidget {
 
 class _PatientCardState extends State<PatientCard> {
   String abbreviation = '';
+  List dentist = [];
 
+  @override
+  void initState() {
+    super.initState();
+
+  }
   @override
   Widget build(BuildContext context) {
     var brightness = Theme.of(context).brightness;
@@ -57,7 +66,7 @@ class _PatientCardState extends State<PatientCard> {
                       style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: AppConstants.NORMAL, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor),
                     ),
                     Text(
-                      '${widget.patient.patientGender} - ${widget.patient.patientAge} years',
+                      '${widget.patient.patientGender} - ${widget.patient.patientAge} years ${AppConstants.calculateDateDifference(widget.patient.patientDob.toString())}',
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.w500,
                         fontSize: AppConstants.SMALL,
@@ -97,8 +106,20 @@ class _PatientCardState extends State<PatientCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     GestureDetector(
-                      onTap: () {
-                        showDialog(context: context, builder: (context) => DentistProfile());
+                      onTap: () async{
+                      await  BlocProvider.of<DentistProfileCubit>(context).dentistProfile(widget.patient.primaryDentistId);
+                        showDialog(context: context, builder: (context) =>
+                            BlocConsumer<DentistProfileCubit, DentistProfileState>(listener: (context, state) async {
+                              if (state is DentistProfileSuccess) {
+
+                              }},builder: (context,state){
+                              if (state is DentistProfileSuccess) {
+                                return DentistProfile(dentist: state.dentistProfileResponse.dentist);
+                              }else {
+                                return SizedBox();
+                              }
+                            },
+                            ));
                         //  Navigator.of(context).push(MaterialPageRoute(builder: (context) => DentistProfile()));
                       },
                       child: Text('${widget.patient.primaryDentistName}',
