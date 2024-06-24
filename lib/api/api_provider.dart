@@ -5,17 +5,20 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:ortho_pms_patient/responses/change_password_response.dart';
 import 'package:ortho_pms_patient/responses/dentist_profile_response.dart';
+import 'package:ortho_pms_patient/responses/get_allergies.dart';
 import 'package:ortho_pms_patient/responses/get_chief_complaint_types.dart';
 import 'package:ortho_pms_patient/responses/get_dentist_response.dart';
 import 'package:ortho_pms_patient/responses/get_insurance_companies.dart';
 import 'package:ortho_pms_patient/responses/get_patient_chief_complaint_detail.dart';
 import 'package:ortho_pms_patient/responses/get_patient_contact_response.dart';
 import 'package:ortho_pms_patient/responses/get_patient_frp_response.dart';
+import 'package:ortho_pms_patient/responses/get_patient_medical_history.dart';
 import 'package:ortho_pms_patient/responses/get_patient_referral_detail_response.dart';
 import 'package:ortho_pms_patient/responses/get_referral_categories_Response.dart';
 import 'package:ortho_pms_patient/responses/get_referral_sub_categories_response.dart';
 import 'package:ortho_pms_patient/responses/insurance_response.dart';
 import 'package:ortho_pms_patient/responses/login_response.dart';
+import 'package:ortho_pms_patient/responses/medical_condition_response.dart';
 import 'package:ortho_pms_patient/responses/patient_appointment_history_response.dart';
 import 'package:ortho_pms_patient/responses/patient_by_id_response.dart';
 import 'package:ortho_pms_patient/responses/patient_contact_response.dart';
@@ -191,6 +194,29 @@ class ApiProvider {
     }
   }
 
+
+
+  Future<GetMedicalHistoryResponse> getPatientMedicalHistory() async {
+    SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    final token = sharedPreference.getString('token').toString();
+    final practiceId = sharedPreference.getString('practiceId').toString();
+    final patientId = sharedPreference.getString('patientId').toString();
+    final practiceGuid = sharedPreference.getString('practiceGuid').toString();
+
+    try {
+      dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', 'Practiceid': '$practiceId', 'Practiceguid': '$practiceGuid'};
+      final response = await dio.get(
+        "https://patientapi.orthopms.com/api/Patient/GetPatientConsolidatedMedicalHistory?patientId=$patientId",
+      );
+      log(jsonEncode(response.data));
+      return GetMedicalHistoryResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw e.response!.data['message'];
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
   Future<GetChiefCompliantTypesResponse> getChiefCompliantTypes() async {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
     final token = sharedPreference.getString('token').toString();
@@ -224,6 +250,51 @@ class ApiProvider {
       );
       log(jsonEncode(response.data));
       return StatesResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw e.response!.data['message'];
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+
+
+  Future<GetAllergyResponse> getAllergies() async {
+    SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    final token = sharedPreference.getString('token').toString();
+    final practiceId = sharedPreference.getString('practiceId').toString();
+    final practiceGuid = sharedPreference.getString('practiceGuid').toString();
+
+    try {
+      dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', 'Practiceid': '$practiceId', 'Practiceguid': '$practiceGuid'};
+      final response = await dio.get(
+        "https://practiceapi.orthopms.com/api/Core/GetAllergies",
+      );
+      log(jsonEncode(response.data));
+      return GetAllergyResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw e.response!.data['message'];
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+
+
+
+  Future<MedicalConditionResponse> getMedicalConditions() async {
+    SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    final token = sharedPreference.getString('token').toString();
+    final practiceId = sharedPreference.getString('practiceId').toString();
+    final practiceGuid = sharedPreference.getString('practiceGuid').toString();
+
+    try {
+      dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', 'Practiceid': '$practiceId', 'Practiceguid': '$practiceGuid'};
+      final response = await dio.get(
+        "https://practiceapi.orthopms.com/api/Core/GetMedicalConditions",
+      );
+      log(jsonEncode(response.data));
+      return MedicalConditionResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw e.response!.data['message'];
     } catch (e) {

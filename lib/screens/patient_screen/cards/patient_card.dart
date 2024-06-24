@@ -10,6 +10,7 @@ import 'package:ortho_pms_patient/screens/dentist/dentist_profile.dart';
 import 'package:ortho_pms_patient/screens/patient_screen/forms/chief_complaint.dart';
 import 'package:ortho_pms_patient/screens/patient_screen/forms/frp.dart';
 import 'package:ortho_pms_patient/screens/patient_screen/forms/insurance.dart';
+import 'package:ortho_pms_patient/screens/patient_screen/forms/medical_history.dart';
 import 'package:ortho_pms_patient/screens/patient_screen/forms/patient_info/patient_info.dart';
 import 'package:ortho_pms_patient/screens/patient_screen/forms/referral.dart';
 import 'package:ortho_pms_patient/utils/constant_widgets.dart';
@@ -153,6 +154,8 @@ class _PatientCardState extends State<PatientCard> {
                             Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => PatientInfo(patient:widget.patient)));
                           } else if (index == 1) {
                             Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => FRP(dob:AppConstants.checkAdult(widget.patient.patientDob.toString()))));
+                          } else if (index == 2) {
+                            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => MedicalHistoryForm()));
                           } else if (index == 3) {
                             Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChiefComplaint()));
                           }else if (index == 4) {

@@ -100,11 +100,11 @@ checkBox(isMark, title, size, height,width) {
             )
           : Icon(Icons.check_box_outline_blank_rounded, color: AppColor.secondarySeedColor,size: 18,),
       SizedBox(width: size),
-      Text(title,
-          style: GoogleFonts.inter(
-            fontSize: AppConstants.SMALL,
-            fontWeight: FontWeight.w500,
-          )),
+  Flexible(child:     Text(title,
+      style: GoogleFonts.inter(
+        fontSize: AppConstants.SMALL,
+        fontWeight: FontWeight.w500,
+      )),)
     ],
   );
 }

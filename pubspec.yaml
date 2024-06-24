@@ -37,6 +37,7 @@ dependencies:
   carousel_slider: ^4.1.1
   cupertino_icons: ^1.0.6
   custom_refresh_indicator: ^3.1.0
+  getwidget: ^4.0.0
   google_fonts:
   intl:
   animations: ^2.0.11

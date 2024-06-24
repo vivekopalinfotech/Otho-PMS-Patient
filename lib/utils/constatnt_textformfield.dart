@@ -142,30 +142,20 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
                     ),
                     SizedBox(width: 8),
                     Flexible(
-                      flex: 1,
+                        flex: 1,
                         child: TextFormField(
-                      controller: widget.extController,
-                      keyboardType: TextInputType.number,
-                      maxLength: 4,
-                      decoration: InputDecoration(
-                        hintText: 'Ext',
-                        isDense: true,
-                        counterText: '',
-                        border: OutlineInputBorder(borderSide: BorderSide(color: AppColor.secondarySeedColor)),
-                        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.secondarySeedColor)),
-                        focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.primaryColor)),
-                      ),
-                      // validator: (value) {
-                      //   if (value == null || value.isEmpty) {
-                      //     return 'Please enter a 4-digit extension';
-                      //   }
-                      //   if (value.length != 4) {
-                      //     return 'Extension must be exactly 4 digits';
-                      //   }
-                      //   return null;
-                      // },
-                    )
-                    )
+                          controller: widget.extController,
+                          keyboardType: TextInputType.number,
+                          maxLength: 4,
+                          decoration: InputDecoration(
+                            hintText: 'Ext',
+                            isDense: true,
+                            counterText: '',
+                            border: OutlineInputBorder(borderSide: BorderSide(color: AppColor.secondarySeedColor)),
+                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.secondarySeedColor)),
+                            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.primaryColor)),
+                          ),
+                        ))
                   ],
                 )
               : TextFormField(
@@ -231,9 +221,15 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
                       enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.secondarySeedColor)),
                       focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.primaryColor))),
                 ),
-          widget.alertText == true ?   Padding(padding: EdgeInsets.only(top: 4),
-          child: Text('${widget.title} is required.',style: GoogleFonts.inter(fontSize:AppConstants.SMALL,color:Colors.redAccent),),
-          ):SizedBox()
+          widget.alertText == true
+              ? Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Text(
+                    '${widget.title} is required.',
+                    style: GoogleFonts.inter(fontSize: AppConstants.SMALL, color: Colors.redAccent),
+                  ),
+                )
+              : SizedBox()
         ],
       ),
     );

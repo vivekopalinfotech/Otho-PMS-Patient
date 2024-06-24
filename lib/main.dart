@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ortho_pms_patient/api/api_provider.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
+import 'package:ortho_pms_patient/bloc/allergies/get_allergies_cubit.dart';
 import 'package:ortho_pms_patient/bloc/auth/change_password_cubit.dart';
 import 'package:ortho_pms_patient/bloc/auth/logiut_cubit.dart';
 import 'package:ortho_pms_patient/bloc/dentist/dentist_profile_cubit.dart';
 import 'package:ortho_pms_patient/bloc/dentist/get_dentist_cubit.dart';
+import 'package:ortho_pms_patient/bloc/medical_condition/medical_condition_cubit.dart';
+import 'package:ortho_pms_patient/bloc/medical_history/get_medical_history_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/chief_complaint/get_chief_complaint_detail_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/chief_complaint/save_chief_complaint_detail_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/frp/get_patient_frp_cubit.dart';
@@ -123,6 +126,15 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => DentistProfileCubit(repository),
+          ),
+          BlocProvider(
+            create: (context) => GetAllergiesCubit(repository),
+          ),
+          BlocProvider(
+            create: (context) => MedicalConditionCubit(repository),
+          ),
+          BlocProvider(
+            create: (context) => MedicalHistoryCubit(repository),
           ),
         ],
         child: MaterialApp(
