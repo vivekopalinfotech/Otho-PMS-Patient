@@ -13,6 +13,8 @@ import 'package:ortho_pms_patient/bloc/medical_condition/medical_condition_cubit
 import 'package:ortho_pms_patient/bloc/medical_condition/medical_condition_state.dart';
 import 'package:ortho_pms_patient/bloc/medical_history/get_medical_history_cubit.dart';
 import 'package:ortho_pms_patient/bloc/medical_history/get_medical_history_state.dart';
+import 'package:ortho_pms_patient/bloc/medical_history/save_medical_history_cubit.dart';
+import 'package:ortho_pms_patient/bloc/medical_history/save_medical_history_state.dart';
 import 'package:ortho_pms_patient/bloc/patient/insurance_company/save_patient_insurance_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/insurance_company/save_patient_insurance_state.dart';
 import 'package:ortho_pms_patient/bloc/patient/patient_by_id_cubit.dart';
@@ -21,6 +23,8 @@ import 'package:ortho_pms_patient/utils/constatnt_textformfield.dart';
 import 'package:ortho_pms_patient/utils/loader/loading_widget.dart';
 import 'package:riff_switch/riff_switch.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'dental_history.dart';
 
 class MedicalHistoryForm extends StatefulWidget {
   const MedicalHistoryForm({
@@ -32,7 +36,6 @@ class MedicalHistoryForm extends StatefulWidget {
 
 class _MedicalHistoryFormState extends State<MedicalHistoryForm> {
   TextEditingController currentMedicationsController = TextEditingController();
-
   TextEditingController patientAllergiesController = TextEditingController();
   TextEditingController patientMedicalProblemsController = TextEditingController();
   TextEditingController patientAllergies2Controller = TextEditingController();
@@ -41,7 +44,8 @@ class _MedicalHistoryFormState extends State<MedicalHistoryForm> {
   List<String> birthControl = ['Yes', 'No'];
   List<String> pregnant = ['Unsure', 'No', 'Yes'];
   List<String> dentalAppointment = ['Less than 6 Months', 'Between 6 Months and 12 Months', 'Between 12 Months and 18 Months', 'Between 18 Months and 24 Months', 'Longer than 24 Months'];
-  List<String> medication = ['Boniva', 'Actonel', 'Fosamax', 'None of the above'];
+  List<Medications> medication = [];
+
   var patientId;
   var selectedPhysicalHealth;
   var selectedBirthControl;
@@ -56,6 +60,10 @@ class _MedicalHistoryFormState extends State<MedicalHistoryForm> {
 
   bool isPrimary = false;
   bool isLoading = true;
+  bool hasPatientTakenBoniva = false;
+  bool hasPatientTakenActonel = false;
+  bool hasPatientTakenFosamax = false;
+  bool hasPatientTakenOther = false;
 
   String? selectedDentist;
   int? selectedDentistId;
@@ -64,37 +72,61 @@ class _MedicalHistoryFormState extends State<MedicalHistoryForm> {
   List dentists = [];
   List allergies = [];
   List medicalConditions = [];
-
+  List conditions = [];
+  var newList = [];
+  var paasAllergies = [];
+  var paasMedicalConditions = [];
+  Set paas = {};
   String allergy = '';
   String medicalCondition = '';
   String selectedMed = '';
 
-  void _itemChange(itemValue, bool isSelected) {
+  void _itemChange(int allergyId, bool isChecked, bool isActive) {
     setState(() {
-      if (isSelected) {
-        selectedAllergies.add(itemValue);
+      if (isChecked) {
+        if (!selectedAllergies.contains(allergyId)) {
+          selectedAllergies.add(allergyId);
+        }
+
+        bool alreadyAdded = paasAllergies.any((allergy) => allergy["allergyId"] == allergyId);
+        if (!alreadyAdded) {
+          paasAllergies.add({
+            "patientAllergyId": 0,
+            "patientId": patientId,
+            "allergyId": allergyId,
+            "otherAllergies": "",
+            "isActive": isActive,
+          });
+        }
       } else {
-        selectedAllergies.remove(itemValue);
+        selectedAllergies.remove(allergyId);
+        paasAllergies.removeWhere((allergy) => allergy["allergyId"] == allergyId);
       }
     });
   }
 
-  void _medicationChange(itemValue, bool isSelected) {
+  void _medicalConditionsChange(int medicalConditionsId, bool isChecked, bool isActive) {
     setState(() {
-      if (isSelected) {
-        selectedMedication.add(itemValue);
-      } else {
-        selectedMedication.remove(itemValue);
-      }
-    });
-  }
+      if (isChecked) {
+        if (!selectedMedicalConditions.contains(medicalConditionsId)) {
+          selectedMedicalConditions.add(medicalConditionsId);
+        }
 
-  void _medicalConditionsChange(itemValue, bool isSelected) {
-    setState(() {
-      if (isSelected) {
-        selectedMedicalConditions.add(itemValue);
+        bool alreadyAdded = paasMedicalConditions.any((medicalConditions) => medicalConditions["medicalConditionId"] == medicalConditionsId);
+        if (!alreadyAdded) {
+          paasMedicalConditions.add({
+            "patientMedicalConditionId": 0,
+            "patientId": patientId,
+            "medicalConditionId": medicalConditionsId,
+            "otherMedicalConditions": "",
+            "isAnythingPrivate": false,
+            "patientMedicalConditionNotes": "",
+            "isActive": isActive,
+          });
+        }
       } else {
-        selectedMedicalConditions.remove(itemValue);
+        selectedMedicalConditions.remove(medicalConditionsId);
+        paasMedicalConditions.removeWhere((medicalConditions) => medicalConditions["medicalConditionId"] == medicalConditionsId);
       }
     });
   }
@@ -109,7 +141,6 @@ class _MedicalHistoryFormState extends State<MedicalHistoryForm> {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     patientId = preferences.getString('patientId');
     BlocProvider.of<GetAllergiesCubit>(context).getAllergies();
-
     BlocProvider.of<MedicalConditionCubit>(context).getMedicalConditions();
     BlocProvider.of<MedicalHistoryCubit>(context).getMedicalHistory();
   }
@@ -137,15 +168,62 @@ class _MedicalHistoryFormState extends State<MedicalHistoryForm> {
                   isLoading = false;
                   medicalHistory.addAll(state.medicalHistoryResponse.medicalHistory);
                   medicalAllergies.addAll(state.medicalHistoryResponse.allergies);
+                  conditions.addAll(state.medicalHistoryResponse.medicalConditions);
                   isPrimary = medicalHistory.first.hasPrimaryDentist;
                   selectedDentistId = medicalHistory.first.primaryDentistId;
                   selectedDentalAppointment = medicalHistory.first.lastDentalAppointment;
                   selectedPhysicalHealth = medicalHistory.first.currentPhysicalHealth;
-                  selectedBirthControl = medicalHistory.first.isPatientOnBirthControl == false?birthControl[1]:birthControl[0];
-                  selectedProblems = medicalHistory.first.isPatientUnderPhysicianCareForMedicalProblems == false?birthControl[1]:birthControl[0];
+                  selectedBirthControl = medicalHistory.first.isPatientOnBirthControl == false ? birthControl[1] : birthControl[0];
+                  selectedProblems = medicalHistory.first.isPatientUnderPhysicianCareForMedicalProblems == false ? birthControl[1] : birthControl[0];
                   selectedPregnant = medicalHistory.first.patientPregnant;
                   currentMedicationsController.text = medicalHistory.first.currentMedications;
+                  doctorDiscussion = conditions.first.isAnythingPrivate == false ? birthControl[1] : birthControl[0];
+                  hasPatientTakenBoniva = medicalHistory.first.hasPatientTakenBoniva;
+                  hasPatientTakenActonel = medicalHistory.first.hasPatientTakenActonel;
+                  hasPatientTakenFosamax = medicalHistory.first.hasPatientTakenFosamax;
+                  hasPatientTakenOther = medicalHistory.first.hasPatientTakenOther;
+                  paasAllergies.clear();
+                  for (var allergy in medicalAllergies) {
+                    selectedAllergies.add(allergy.allergyId);
+                    print(selectedAllergies);
 
+                    paasAllergies.addAll([
+                      {"patientAllergyId": allergy.patientAllergyId, "patientId": patientId, "allergyId": allergy.allergyId, "otherAllergies": allergy.otherAllergies, "isActive": allergy.isActive}
+                    ]);
+                  }
+                  print('--> ${paasAllergies}');
+
+                  for (var medicalConditions in conditions) {
+                    selectedMedicalConditions.add(medicalConditions.medicalConditionId);
+
+                    selectedMedicalConditions.add(medicalConditions.medicalConditionId);
+                    print(selectedMedicalConditions);
+
+                    paasMedicalConditions.addAll([
+                      {
+                        "patientMedicalConditionId": medicalConditions.patientMedicalConditionId,
+                        "patientId": patientId,
+                        "medicalConditionId": medicalConditions.medicalConditionId,
+                        "otherMedicalConditions": medicalConditions.otherMedicalConditions,
+                        "isAnythingPrivate": medicalConditions.isAnythingPrivate,
+                        "patientMedicalConditionNotes": medicalConditions.patientMedicalConditionNotes,
+                        "isActive": medicalConditions.isActive,
+                      }
+                    ]);
+                  }
+                  print('--> ${paasMedicalConditions}');
+                  medication = [
+                    Medications(
+                      "Boniva",
+                      hasPatientTakenBoniva,
+                    ),
+                    Medications(
+                      "Actonel",
+                      hasPatientTakenActonel,
+                    ),
+                    Medications("Fosamax", hasPatientTakenFosamax),
+                    Medications("None of the above", hasPatientTakenOther),
+                  ];
                 });
                 BlocProvider.of<GetDentistCubit>(context).GetDentist();
               }
@@ -185,20 +263,18 @@ class _MedicalHistoryFormState extends State<MedicalHistoryForm> {
               if (state is GetAllergiesLoading) {}
               if (state is GetAllergiesError) {}
             }),
-            BlocListener<SavePatientInsuranceCubit, SavePatientInsuranceState>(listener: (context, state) async {
-              if (state is SavePatientInsuranceSuccess) {
-                setState(() {
-                  isLoading = false;
-                  Navigator.of(context).pop(true);
-                  BlocProvider.of<PatientByIdCubit>(context).getPatientById(patientId);
-                });
+            BlocListener<SaveMedicalHistoryCubit, SaveMedicalHistoryState>(listener: (context, state) async {
+              if (state is SaveMedicalHistorySuccess) {
+                Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => DentalHistoryForm())).whenComplete(() => setState(() {
+                      isLoading = false;
+                    }));
               }
-              if (state is SavePatientInsuranceLoading) {
+              if (state is SaveMedicalHistoryLoading) {
                 setState(() {
                   isLoading = true;
                 });
               }
-              if (state is SavePatientInsuranceError) {
+              if (state is SaveMedicalHistoryError) {
                 setState(() {
                   isLoading = false;
                 });
@@ -375,138 +451,70 @@ class _MedicalHistoryFormState extends State<MedicalHistoryForm> {
                                 margin: EdgeInsets.zero,
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(vertical: AppConstants.HP),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: AppConstants.HP),
-                                          child: Text('Allergies(Click all that apply)',
-                                              style: GoogleFonts.inter(
-                                                  fontSize: AppConstants.LARGE, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor))),
-                                      SizedBox(height: 16),
-                                      GridView.builder(
-                                        shrinkWrap: true,
-                                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 2,
-                                          childAspectRatio: 2.5,
-                                        ),
-                                        padding: EdgeInsets.zero,
-                                        physics: NeverScrollableScrollPhysics(),
-                                        itemCount: allergies.length,
-                                        itemBuilder: (context, index) {
-                                          return Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              GFCheckbox(
-                                                type: GFCheckboxType.basic,
-                                                activeBgColor: Colors.transparent,
-                                                inactiveBgColor: Colors.transparent,
-                                                activeBorderColor: Colors.transparent,
-                                                inactiveBorderColor: Colors.transparent,
-                                                size: 24,
-                                                activeIcon: Image.asset(
-                                                  'assets/images/mark.png',
-                                                ),
-                                                onChanged: (isChecked) async {
+                                  child: multipleSelect('Allergies(Click all that apply)', allergies, (context, index) {
+                                    return multipleSelectItem((isChecked) async {
+                                      _itemChange(allergies[index].allergyId, isChecked, allergies[index].isActive);
+                                      if (selectedAllergies.contains(9)) {
+                                        setState(() {
+                                          selectedAllergies.clear();
+                                          paasAllergies.clear();
 
-                                                  _itemChange(allergies[index].allergyId, isChecked);
-                                                  allergy = selectedAllergies
-                                                      .toString()
-                                                      .replaceAll(
-                                                        '[',
-                                                        '',
-                                                      )
-                                                      .replaceAll(']', '');
-                                                  print(allergy);
-                                                },
-                                                value: selectedAllergies.contains(allergies[index].allergyId),
-                                                inactiveIcon: Image.asset(
-                                                  'assets/images/unchecked.png',
-                                                ),
-                                              ),
-                                              Flexible(
-                                                  child: Padding(
-                                                padding: EdgeInsets.only(top: 10),
-                                                child: Text(allergies[index].allergyName),
-                                              ))
-                                            ],
-                                          );
-                                        },
-                                      ),
-                                      Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: AppConstants.HP),
-                                          child: ConstantTextFormField('Please list any other allergies that the patient has:', patientAllergiesController, TextInputType.text)),
-                                    ],
-                                  ),
+                                          if (index == 8) {
+                                            selectedAllergies.add(9);
+                                          } else {
+                                            selectedAllergies.remove(9);
+                                          }
+                                        });
+                                      }
+
+                                      print(paasAllergies);
+                                    }, selectedAllergies.contains(allergies[index].allergyId), allergies[index].allergyName);
+                                  }, patientAllergiesController, 'Please list any other allergies that the patient has:'),
                                 )),
                             SizedBox(height: 16),
                             Card(
                                 margin: EdgeInsets.zero,
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(vertical: AppConstants.HP),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: AppConstants.HP),
-                                          child: Text('Medication',
-                                              style: GoogleFonts.inter(
-                                                  fontSize: AppConstants.LARGE, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor))),
-                                      SizedBox(height: 16),
-                                      GridView.builder(
-                                        shrinkWrap: true,
-                                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 2,
-                                          childAspectRatio: 2.5,
-                                        ),
-                                        padding: EdgeInsets.zero,
-                                        physics: NeverScrollableScrollPhysics(),
-                                        itemCount: medication.length,
-                                        itemBuilder: (context, index) {
-                                          return Row(
+                                  child: multipleSelect('Medication', medication, (context, index) {
+                                    return Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: AppConstants.HP),
+                                      child: InkWell(
+                                          splashColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          onTap: () {
+                                            setState(() {
+                                              medication[index].value = !medication[index].value;
+
+                                              if (index == 3) {
+                                                setState(() {
+                                                  medication[0].value = false;
+                                                  medication[1].value = false;
+                                                  medication[2].value = false;
+                                                });
+                                              } else {
+                                                medication[3].value = false;
+                                              }
+                                              print(medication[0].value);
+                                            });
+                                          },
+                                          child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              GFCheckbox(
-                                                type: GFCheckboxType.basic,
-                                                activeBgColor: Colors.transparent,
-                                                inactiveBgColor: Colors.transparent,
-                                                activeBorderColor: Colors.transparent,
-                                                inactiveBorderColor: Colors.transparent,
-                                                size: 24,
-                                                activeIcon: Image.asset(
-                                                  'assets/images/mark.png',
-                                                ),
-                                                onChanged: (isChecked) async {
-                                                  _medicationChange(medication[index], isChecked);
-
-                                                  selectedMed = selectedMedication
-                                                      .toString()
-                                                      .replaceAll(
-                                                        '[',
-                                                        '',
-                                                      )
-                                                      .replaceAll(']', '');
-                                                  print(selectedMed);
-                                                },
-                                                value: selectedMedication.contains(medication[index]),
-                                                inactiveIcon: Image.asset(
-                                                  'assets/images/unchecked.png',
-                                                ),
+                                              Row(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  medication[index].value ? activeIcon() : inactiveIcon(),
+                                                  SizedBox(width: 16),
+                                                  Flexible(
+                                                    child: Text(medication[index].title),
+                                                  )
+                                                ],
                                               ),
-                                              Flexible(
-                                                  child: Padding(
-                                                padding: EdgeInsets.only(top: 10),
-                                                child: Text(medication[index]),
-                                              ))
                                             ],
-                                          );
-                                        },
-                                      ),
-                                      Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: AppConstants.HP),
-                                          child: ConstantTextFormField('Please list any other allergies that the patient has:', patientAllergies2Controller, TextInputType.text)),
-                                    ],
-                                  ),
+                                          )),
+                                    );
+                                  }, patientAllergies2Controller, 'Please list any other allergies that the patient has:'),
                                 )),
                             SizedBox(height: 16),
                             Card(
@@ -514,84 +522,45 @@ class _MedicalHistoryFormState extends State<MedicalHistoryForm> {
                                 child: Padding(
                                     padding: EdgeInsets.symmetric(vertical: AppConstants.HP),
                                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                      multipleSelect('Does the patient have any of the following medical conditions?(click all that apply)', medicalConditions, (context, index) {
+                                        return multipleSelectItem((isChecked) async {
+                                          _medicalConditionsChange(medicalConditions[index].medicalConditionId, isChecked, medicalConditions[index].isActive);
+
+                                          if (selectedMedicalConditions.contains(31)) {
+                                            selectedMedicalConditions.clear();
+                                            paasMedicalConditions.clear();
+                                            if (index == 30) {
+                                              setState(() {
+                                                selectedMedicalConditions.add(31);
+                                              });
+                                            } else {
+                                              setState(() {
+                                                selectedMedicalConditions.remove(31);
+                                              });
+                                            }
+                                          }
+                                          print(paasMedicalConditions);
+                                        }, selectedMedicalConditions.contains(medicalConditions[index].medicalConditionId), medicalConditions[index].medicalConditionName);
+                                      }, patientMedicalProblemsController, 'Please describe any serious medical problems the patient has experienced:'),
+                                      SizedBox(height: 16),
                                       Padding(
                                         padding: EdgeInsets.symmetric(horizontal: AppConstants.HP),
-                                        child: Text('Does the patient have any of the following medical conditions?(click all that apply)',
-                                            style: GoogleFonts.inter(
-                                                fontSize: AppConstants.LARGE, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
-                                      ),
-                                      SizedBox(height: 16),
-                                      GridView.builder(
-                                        shrinkWrap: true,
-                                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 2,
-                                          childAspectRatio: 2.5,
-                                        ),
-                                        padding: EdgeInsets.zero,
-                                        physics: NeverScrollableScrollPhysics(),
-                                        itemCount: medicalConditions.length,
-                                        itemBuilder: (context, index) {
-                                          return Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              GFCheckbox(
-                                                activeBgColor: Colors.transparent,
-                                                inactiveBgColor: Colors.transparent,
-                                                activeBorderColor: Colors.transparent,
-                                                inactiveBorderColor: Colors.transparent,
-                                                size: 24,
-                                                activeIcon: Image.asset(
-                                                  'assets/images/mark.png',
-                                                ),
-                                                onChanged: (isChecked) async {
-                                                  _medicalConditionsChange(medicalConditions[index].medicalConditionId, isChecked);
-
-                                                  medicalCondition = selectedAllergies
-                                                      .toString()
-                                                      .replaceAll(
-                                                        '[',
-                                                        '',
-                                                      )
-                                                      .replaceAll(']', '');
-                                                  print(medicalCondition);
-                                                },
-                                                value: selectedMedicalConditions.contains(medicalConditions[index].medicalConditionId),
-                                                inactiveIcon: Image.asset(
-                                                  'assets/images/unchecked.png',
-                                                ),
-                                              ),
-                                              Flexible(
-                                                  child: Padding(
-                                                padding: EdgeInsets.only(top: 10),
-                                                child: Text(medicalConditions[index].medicalConditionName),
-                                              ))
-                                            ],
+                                        child: subCategories("Is there anything you would like to discuss with the doctor in private?", birthControl, (context, index) {
+                                          return InkWell(
+                                            splashColor: Colors.transparent,
+                                            highlightColor: Colors.transparent,
+                                            onTap: () {
+                                              setState(() {
+                                                doctorDiscussion = birthControl[index];
+                                              });
+                                            },
+                                            child: radioButton(
+                                              doctorDiscussion == birthControl[index],
+                                              birthControl[index],
+                                            ),
                                           );
-                                        },
+                                        }),
                                       ),
-                                      Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: AppConstants.HP),
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              ConstantTextFormField('Please describe any serious medical problems the patient has experienced:', patientMedicalProblemsController, TextInputType.text),
-                                              subCategories("Is there anything you would like to discuss with the doctor in private?", birthControl, (context, index) {
-                                                return InkWell(
-                                                  splashColor: Colors.transparent,
-                                                  highlightColor: Colors.transparent,
-                                                  onTap: () {
-                                                    setState(() {
-                                                      doctorDiscussion = birthControl[index];
-                                                    });
-                                                  },
-                                                  child: radioButton(
-                                                    doctorDiscussion == birthControl[index],
-                                                    birthControl[index],
-                                                  ),
-                                                );
-                                              }),
-                                            ],
-                                          )),
                                     ]))),
                             SizedBox(height: 16),
                             Align(
@@ -600,7 +569,45 @@ class _MedicalHistoryFormState extends State<MedicalHistoryForm> {
                                 style: ButtonStyle(
                                   backgroundColor: MaterialStatePropertyAll(colorScheme.primaryContainer),
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  BlocProvider.of<SaveMedicalHistoryCubit>(context).savePatientMedicalHistory(
+                                      medicalHistory.first.patientMedicalHistoryId,
+                                      selectedDentalAppointment ?? '',
+                                      selectedPhysicalHealth ?? '',
+                                      currentMedicationsController.text,
+                                      selectedBirthControl == 'No' ? false : true,
+                                      selectedPregnant ?? '',
+                                      medicalHistory.first.patientPregnantWeekAlong,
+                                      isPrimary,
+                                      selectedDentistId,
+                                      selectedProblems == 'No' ? false : true,
+                                      medicalHistory.first.patientUnderPhysicianCareForMedicalProblemsDescription1,
+                                      medicalHistory.first.patientUnderPhysicianCareForMedicalProblemsDescription2,
+                                      medicalHistory.first.patientUnderPhysicianCareForMedicalProblemsDescription3,
+                                      medicalHistory.first.patientUnderPhysicianCareForMedicalProblemsDescription4,
+                                      medication[0].value,
+                                      medication[1].value,
+                                      medication[2].value,
+                                      medication[3].value,
+                                      medication[3].value,
+                                      patientAllergies2Controller.text,
+                                      medicalHistory.first.hasPatientBeenEvaluatedForOrthodonticTreatment,
+                                      medicalHistory.first.patientBeenEvaluatedForOrthodonticTreatmentNotes,
+                                      medicalHistory.first.hasPatientEverHadInjuryOnFaceMouthChin,
+                                      medicalHistory.first.hasPatientEverHadInjuryOnFaceMouthChinNotes,
+                                      medicalHistory.first.hasPatientEverHadAdenoidsOrTonsilsRemoved,
+                                      medicalHistory.first.hasPatientEverHadAdenoidsOrTonsilsRemovedNotes,
+                                      medicalHistory.first.hasPatientEverInformedAboutPermanentTooth,
+                                      medicalHistory.first.hasPatientEverInformedAboutPermanentToothNotes,
+                                      medicalHistory.first.hasPatientEverHasTenderness,
+                                      medicalHistory.first.hasPatientEverHasTendernessNotes,
+                                      medicalHistory.first.hasPatientTakenAntibioticPriorToDenalVisit,
+                                      medicalHistory.first.hasPatientTakenAntibioticPriorToDenalVisitNotes,
+                                      medicalHistory.first.hasPatientEverHadProblemsWithDentalWork,
+                                      medicalHistory.first.hasPatientEverHadProblemsWithDentalWorkNotes,
+                                      paasAllergies,
+                                      paasMedicalConditions);
+                                },
                                 child: Text('Save & Continue'),
                               ),
                             ),
@@ -612,5 +619,30 @@ class _MedicalHistoryFormState extends State<MedicalHistoryForm> {
                   ],
                 ),
         ));
+  }
+
+  Widget multipleSelectItem(onChanged, value, listTitle) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GFCheckbox(
+          type: GFCheckboxType.basic,
+          activeBgColor: Colors.transparent,
+          inactiveBgColor: Colors.transparent,
+          activeBorderColor: Colors.transparent,
+          inactiveBorderColor: Colors.transparent,
+          size: 24,
+          activeIcon: activeIcon(),
+          onChanged: onChanged,
+          value: value,
+          inactiveIcon: inactiveIcon(),
+        ),
+        Flexible(
+            child: Padding(
+          padding: EdgeInsets.only(top: 10, right: 16),
+          child: Text(listTitle),
+        ))
+      ],
+    );
   }
 }

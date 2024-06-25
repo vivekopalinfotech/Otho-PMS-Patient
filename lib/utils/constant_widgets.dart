@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:getwidget/components/checkbox/gf_checkbox.dart';
+import 'package:getwidget/types/gf_checkbox_type.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
 import 'package:riff_switch/riff_switch.dart';
+
+import 'constatnt_textformfield.dart';
 
 loader(BuildContext context) {
   Loader.show(context,
@@ -66,11 +70,12 @@ radioButton(selected, list) {
             ),
           ),
           SizedBox(width: 16),
-         Flexible(child:  Text(list,
-             style: GoogleFonts.inter(
-               fontSize: AppConstants.SMALL,
-               fontWeight: FontWeight.w500,
-             )))
+          Flexible(
+              child: Text(list,
+                  style: GoogleFonts.inter(
+                    fontSize: AppConstants.SMALL,
+                    fontWeight: FontWeight.w500,
+                  )))
         ],
       ));
 }
@@ -89,7 +94,7 @@ circleTitle(abbreviation, double height, double width, double fontSize, Color co
   );
 }
 
-checkBox(isMark, title, size, height,width) {
+checkBox(isMark, title, size, height, width) {
   return Row(
     children: [
       isMark
@@ -98,13 +103,19 @@ checkBox(isMark, title, size, height,width) {
               height: height,
               width: width,
             )
-          : Icon(Icons.check_box_outline_blank_rounded, color: AppColor.secondarySeedColor,size: 18,),
+          : Icon(
+              Icons.check_box_outline_blank_rounded,
+              color: AppColor.secondarySeedColor,
+              size: 18,
+            ),
       SizedBox(width: size),
-  Flexible(child:     Text(title,
-      style: GoogleFonts.inter(
-        fontSize: AppConstants.SMALL,
-        fontWeight: FontWeight.w500,
-      )),)
+      Flexible(
+        child: Text(title,
+            style: GoogleFonts.inter(
+              fontSize: AppConstants.SMALL,
+              fontWeight: FontWeight.w500,
+            )),
+      )
     ],
   );
 }
@@ -112,10 +123,10 @@ checkBox(isMark, title, size, height,width) {
 class ConstantSwitch extends StatefulWidget {
   bool val;
   final RiffSwitchType riffSwitchType;
-  final  width;
-  final  height;
+  final width;
+  final height;
   final onChange;
-  ConstantSwitch({super.key, required this.val,  this.width,  this.height, required this.riffSwitchType, this.onChange});
+  ConstantSwitch({super.key, required this.val, this.width, this.height, required this.riffSwitchType, this.onChange});
 
   @override
   State<ConstantSwitch> createState() => _ConstantSwitchState();
@@ -136,8 +147,8 @@ class _ConstantSwitchState extends State<ConstantSwitch> {
       activeText: Text(''),
       inactiveText: Text(''),
       enableSlide: true,
-      width: widget.width??40,
-      height: widget.height??18,
+      width: widget.width ?? 40,
+      height: widget.height ?? 18,
       thumbMargin: 2,
       activeTrackColor: AppColor.primaryColor,
       animateToggle: true,
@@ -168,8 +179,8 @@ class SelectedOptions extends StatelessWidget {
                     backgroundColor: MaterialStatePropertyAll(selected1
                         ? AppColor.primaryColor
                         : brightness == Brightness.dark
-                        ? AppColor.secondaryDarkColor
-                        : AppColor.secondaryLightColor),
+                            ? AppColor.secondaryDarkColor
+                            : AppColor.secondaryLightColor),
                     padding: MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: AppConstants.HP))),
                 onPressed: onPressed1,
                 child: Row(
@@ -186,24 +197,24 @@ class SelectedOptions extends StatelessWidget {
                             color: selected1
                                 ? AppColor.whiteColor
                                 : brightness == Brightness.dark
-                                ? AppColor.whiteColor
-                                : AppColor.blackColor),
+                                    ? AppColor.whiteColor
+                                    : AppColor.blackColor),
                       ),
                     ),
                     icon1
                         ? Padding(
-                      padding: EdgeInsets.only(left: 16),
-                      child: Image.asset(
-                        'assets/images/edit.png',
-                        height: 18,
-                        width: 18,
-                        color: selected1
-                            ? AppColor.whiteColor
-                            : brightness == Brightness.dark
-                            ? AppColor.whiteColor
-                            : AppColor.blackColor,
-                      ),
-                    )
+                            padding: EdgeInsets.only(left: 16),
+                            child: Image.asset(
+                              'assets/images/edit.png',
+                              height: 18,
+                              width: 18,
+                              color: selected1
+                                  ? AppColor.whiteColor
+                                  : brightness == Brightness.dark
+                                      ? AppColor.whiteColor
+                                      : AppColor.blackColor,
+                            ),
+                          )
                         : SizedBox()
                   ],
                 ))),
@@ -213,8 +224,8 @@ class SelectedOptions extends StatelessWidget {
               backgroundColor: MaterialStatePropertyAll(selected2
                   ? AppColor.primaryColor
                   : brightness == Brightness.dark
-                  ? AppColor.secondaryDarkColor
-                  : AppColor.secondaryLightColor),
+                      ? AppColor.secondaryDarkColor
+                      : AppColor.secondaryLightColor),
               padding: MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: AppConstants.HP))),
           onPressed: onPressed2,
           child: Row(
@@ -228,20 +239,20 @@ class SelectedOptions extends StatelessWidget {
                     color: selected2
                         ? AppColor.whiteColor
                         : brightness == Brightness.dark
-                        ? AppColor.whiteColor
-                        : AppColor.blackColor),
+                            ? AppColor.whiteColor
+                            : AppColor.blackColor),
               ),
               icon2
                   ? Padding(
-                padding: EdgeInsets.only(left: 12),
-                child: Icon(Icons.add_rounded,
-                    size: 20,
-                    color: selected2
-                        ? AppColor.whiteColor
-                        : brightness == Brightness.dark
-                        ? AppColor.whiteColor
-                        : AppColor.blackColor),
-              )
+                      padding: EdgeInsets.only(left: 12),
+                      child: Icon(Icons.add_rounded,
+                          size: 20,
+                          color: selected2
+                              ? AppColor.whiteColor
+                              : brightness == Brightness.dark
+                                  ? AppColor.whiteColor
+                                  : AppColor.blackColor),
+                    )
                   : SizedBox()
             ],
           ),
@@ -251,11 +262,13 @@ class SelectedOptions extends StatelessWidget {
   }
 }
 
-
 subCategories(title, list, itemBuilder) {
-
   return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    Text(title, style: GoogleFonts.inter(fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold,)),
+    Text(title,
+        style: GoogleFonts.inter(
+          fontSize: AppConstants.NORMAL,
+          fontWeight: FontWeight.bold,
+        )),
     SizedBox(height: 16),
     GridView.builder(
       shrinkWrap: true,
@@ -277,19 +290,71 @@ insuranceCompany(icon, title, subtitle) {
       SizedBox(width: 16),
       Flexible(
           child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: GoogleFonts.inter(fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold)),
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: GoogleFonts.inter(fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold)),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 4),
-                  Text(subtitle, style: GoogleFonts.inter(fontSize: AppConstants.SMALL, fontWeight: FontWeight.w500)),
-                ],
-              )
+              SizedBox(height: 4),
+              Text(subtitle, style: GoogleFonts.inter(fontSize: AppConstants.SMALL, fontWeight: FontWeight.w500)),
             ],
-          ))
+          )
+        ],
+      ))
     ],
   );
 }
 
+multipleSelect(title, list, itemBuilder, controller, hint) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(padding: EdgeInsets.symmetric(horizontal: AppConstants.HP), child: Text(title, style: GoogleFonts.inter(fontSize: AppConstants.LARGE, fontWeight: FontWeight.bold))),
+      SizedBox(height: 16),
+      GridView.builder(
+        shrinkWrap: true,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 2.5,
+        ),
+        padding: EdgeInsets.zero,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: list.length,
+        itemBuilder: itemBuilder,
+      ),
+      Padding(padding: EdgeInsets.symmetric(horizontal: AppConstants.HP), child: ConstantTextFormField(hint, controller, TextInputType.text)),
+    ],
+  );
+}
+
+activeIcon() {
+  return Image.asset(
+    'assets/images/mark.png',
+    height: 24,
+    width: 24,
+  );
+}
+
+inactiveIcon() {
+  return Image.asset(
+    'assets/images/unchecked.png',
+    height: 24,
+    width: 24,
+    color: AppColor.secondarySeedColor,
+  );
+}
+
+class PatientHas {
+  final title;
+  bool value;
+  TextEditingController controller;
+  PatientHas(this.title, this.value, this.controller);
+}
+
+class Medications {
+  final title;
+  bool value;
+
+  Medications(this.title, this.value);
+}

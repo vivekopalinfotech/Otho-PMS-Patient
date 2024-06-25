@@ -6,6 +6,7 @@ import 'package:ortho_pms_patient/app_constants/app_constants.dart';
 
 class ConstantTextFormField extends StatefulWidget {
   final title;
+  final hint;
   final readOnly;
   final formKey;
   final maxLines;
@@ -24,7 +25,7 @@ class ConstantTextFormField extends StatefulWidget {
     this.maxLines,
     this.hideTitle,
     this.alertText,
-    this.extController,
+    this.extController, this.hint,
   });
 
   @override
@@ -134,7 +135,7 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
                                       });
                                     })
                                 : SizedBox(),
-                            hintText: widget.title,
+                            hintText: widget.hint?? widget.title,
                             border: OutlineInputBorder(borderSide: BorderSide(color: AppColor.secondarySeedColor)),
                             enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.secondarySeedColor)),
                             focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.primaryColor))),
@@ -216,7 +217,7 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
                                 });
                               })
                           : SizedBox(),
-                      hintText: widget.title,
+                      hintText:  widget.hint?? widget.title,
                       border: OutlineInputBorder(borderSide: BorderSide(color: AppColor.secondarySeedColor)),
                       enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.secondarySeedColor)),
                       focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.primaryColor))),

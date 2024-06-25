@@ -7,7 +7,10 @@ import 'package:ortho_pms_patient/responses/change_password_response.dart';
 import 'package:ortho_pms_patient/responses/dentist_profile_response.dart';
 import 'package:ortho_pms_patient/responses/get_allergies.dart';
 import 'package:ortho_pms_patient/responses/get_chief_complaint_types.dart';
+import 'package:ortho_pms_patient/responses/get_dental_history_response.dart';
+import 'package:ortho_pms_patient/responses/get_dental_hygiens_response.dart';
 import 'package:ortho_pms_patient/responses/get_dentist_response.dart';
+import 'package:ortho_pms_patient/responses/get_habits_response.dart';
 import 'package:ortho_pms_patient/responses/get_insurance_companies.dart';
 import 'package:ortho_pms_patient/responses/get_patient_chief_complaint_detail.dart';
 import 'package:ortho_pms_patient/responses/get_patient_contact_response.dart';
@@ -90,7 +93,6 @@ class ApiProvider {
       throw e.toString();
     }
   }
-
 
   Future<PracticeInsuranceCompanyResponse> getPracticeInsuranceCompanies() async {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
@@ -194,8 +196,6 @@ class ApiProvider {
     }
   }
 
-
-
   Future<GetMedicalHistoryResponse> getPatientMedicalHistory() async {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
     final token = sharedPreference.getString('token').toString();
@@ -210,6 +210,27 @@ class ApiProvider {
       );
       log(jsonEncode(response.data));
       return GetMedicalHistoryResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw e.response!.data['message'];
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+  Future<GetDentalHistoryResponse> getPatientDentalHistory() async {
+    SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    final token = sharedPreference.getString('token').toString();
+    final practiceId = sharedPreference.getString('practiceId').toString();
+    final patientId = sharedPreference.getString('patientId').toString();
+    final practiceGuid = sharedPreference.getString('practiceGuid').toString();
+
+    try {
+      dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', 'Practiceid': '$practiceId', 'Practiceguid': '$practiceGuid'};
+      final response = await dio.get(
+        "https://patientapi.orthopms.com/api/Patient/GetPatientDentalHistory?patientId=$patientId",
+      );
+      log(jsonEncode(response.data));
+      return GetDentalHistoryResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw e.response!.data['message'];
     } catch (e) {
@@ -257,8 +278,6 @@ class ApiProvider {
     }
   }
 
-
-
   Future<GetAllergyResponse> getAllergies() async {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
     final token = sharedPreference.getString('token').toString();
@@ -279,9 +298,6 @@ class ApiProvider {
     }
   }
 
-
-
-
   Future<MedicalConditionResponse> getMedicalConditions() async {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
     final token = sharedPreference.getString('token').toString();
@@ -301,8 +317,6 @@ class ApiProvider {
       throw e.toString();
     }
   }
-
-
 
   Future<DentistProfileResponse> getDentistById(dentistId) async {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
@@ -357,6 +371,46 @@ class ApiProvider {
       );
       log(jsonEncode(response.data));
       return GetReferralSubCategoryResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw e.response!.data['message'];
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+  Future<GetDentalHygieneResponse> getDentalHygienes() async {
+    SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    final token = sharedPreference.getString('token').toString();
+    final practiceId = sharedPreference.getString('practiceId').toString();
+    final practiceGuid = sharedPreference.getString('practiceGuid').toString();
+
+    try {
+      dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', 'Practiceid': '$practiceId', 'Practiceguid': '$practiceGuid'};
+      final response = await dio.get(
+        "https://practiceapi.orthopms.com/api/Core/GetDentalHygienes",
+      );
+      log(jsonEncode(response.data));
+      return GetDentalHygieneResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw e.response!.data['message'];
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+  Future<GetHabitsResponse> getHabits() async {
+    SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    final token = sharedPreference.getString('token').toString();
+    final practiceId = sharedPreference.getString('practiceId').toString();
+    final practiceGuid = sharedPreference.getString('practiceGuid').toString();
+
+    try {
+      dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', 'Practiceid': '$practiceId', 'Practiceguid': '$practiceGuid'};
+      final response = await dio.get(
+        "https://practiceapi.orthopms.com/api/Core/GetHabits",
+      );
+      log(jsonEncode(response.data));
+      return GetHabitsResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw e.response!.data['message'];
     } catch (e) {
@@ -464,17 +518,43 @@ class ApiProvider {
     }
   }
 
-
-
-
-  Future<SavePatientInsuranceResponse> savePatientInsurance(
-      patientInsuranceId,practiceInsuranceCompanyId,subscriberPrefix,subscriberFirstName,subscriberMiddleName,subscriberLastName,
-      subscriberSuffix,subscriberPrimaryPhone,subscriberPrimaryPhoneExt,subscriberPrimaryPhoneType,subscriberSecondaryPhone,subscriberSecondaryPhoneExt,subscriberSecondaryPhoneType,
-      subscriberDob,subscriberGender,subscriberRelationshipToPatient,subscriberSsn,subscriberAddress1,subscriberAddress2,subscriberCity,subscriberState,subscriberZip,
-      subscriberGroupPlanNumber,subscriberMemberNumber,networkType,groupEmployerName,isPrimary,isActive,isPolicyHolderSameAsPatient,isPolicyHolderAddressSameAsPatient,deactivateInsuranceReason,
-      practiceInsuranceCompanyName,practiceInsuranceCompanyPhone,practiceInsuranceCompanyPhoneExt,practiceInsuranceCompanyAddress1,practiceInsuranceCompanyAddress2,
-      practiceInsuranceCompanyCity,practiceInsuranceCompanyState,practiceInsuranceCompanyZipcode
-      ) async {
+  Future<GetMedicalHistoryResponse> SavePatientMedicalHistory(
+      patientMedicalHistoryId,
+      lastDentalAppointment,
+      currentPhysicalHealth,
+      currentMedications,
+      isPatientOnBirthControl,
+      patientPregnant,
+      patientPregnantWeekAlong,
+      hasPrimaryDentist,
+      primaryDentistId,
+      isPatientUnderPhysicianCareForMedicalProblems,
+      patientUnderPhysicianCareForMedicalProblemsDescription1,
+      patientUnderPhysicianCareForMedicalProblemsDescription2,
+      patientUnderPhysicianCareForMedicalProblemsDescription3,
+      patientUnderPhysicianCareForMedicalProblemsDescription4,
+      hasPatientTakenBoniva,
+      hasPatientTakenActonel,
+      hasPatientTakenFosamax,
+      hasPatientTakenOther,
+      noneOfTheAboveMedications,
+      patientTakenAnyOtherBisphosphonate,
+      hasPatientBeenEvaluatedForOrthodonticTreatment,
+      patientBeenEvaluatedForOrthodonticTreatmentNotes,
+      hasPatientEverHadInjuryOnFaceMouthChin,
+      hasPatientEverHadInjuryOnFaceMouthChinNotes,
+      hasPatientEverHadAdenoidsOrTonsilsRemoved,
+      hasPatientEverHadAdenoidsOrTonsilsRemovedNotes,
+      hasPatientEverInformedAboutPermanentTooth,
+      hasPatientEverInformedAboutPermanentToothNotes,
+      hasPatientEverHasTenderness,
+      hasPatientEverHasTendernessNotes,
+      hasPatientTakenAntibioticPriorToDenalVisit,
+      hasPatientTakenAntibioticPriorToDenalVisitNotes,
+      hasPatientEverHadProblemsWithDentalWork,
+      hasPatientEverHadProblemsWithDentalWorkNotes,
+      allergies,
+      medicalConditions) async {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
     final token = sharedPreference.getString('token').toString();
     final practiceId = sharedPreference.getString('practiceId').toString();
@@ -483,56 +563,50 @@ class ApiProvider {
 
     try {
       dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', 'Practiceid': '$practiceId', 'Practiceguid': '$practiceGuid'};
-      final response = await dio.post("https://patientapi.orthopms.com/api/Patient/SavePatientInsurance",
-          data: {
-            "patientInsuranceId": patientInsuranceId,
-            "patientId": patientId,
-            "practiceInsuranceCompanyId": practiceInsuranceCompanyId,
-            "subscriberPrefix": subscriberPrefix, //null
-            "subscriberFirstName": subscriberFirstName,
-            "subscriberMiddleName": subscriberMiddleName,
-            "subscriberLastName": subscriberLastName,
-            "subscriberSuffix": subscriberSuffix,
-            "subscriberPrimaryPhone": subscriberPrimaryPhone,
-            "subscriberPrimaryPhoneExt": subscriberPrimaryPhoneExt,
-            "subscriberPrimaryPhoneType": subscriberPrimaryPhoneType,
-            "subscriberSecondaryPhone": subscriberSecondaryPhone,
-            "subscriberSecondaryPhoneExt": subscriberSecondaryPhoneExt,
-            "subscriberSecondaryPhoneType": subscriberSecondaryPhoneType,
-            "subscriberDob": subscriberDob,  //null
-            "subscriberGender": subscriberGender,
-            "subscriberRelationshipToPatient": subscriberRelationshipToPatient, // "Self"
-            "subscriberSsn": subscriberSsn, //null
-            "subscriberAddress1": subscriberAddress1,
-            "subscriberAddress2": subscriberAddress2,
-            "subscriberCity": subscriberCity,
-            "subscriberState": subscriberState,
-            "subscriberZip": subscriberZip,
-            "subscriberGroupPlanNumber": subscriberGroupPlanNumber,
-            "subscriberMemberNumber": subscriberMemberNumber,
-            "networkType": networkType,
-            "groupEmployerName": groupEmployerName,
-            "isPrimary": isPrimary,
-            "isActive": isActive,
-            "isPolicyHolderSameAsPatient": isPolicyHolderSameAsPatient,
-            "isPolicyHolderAddressSameAsPatient": isPolicyHolderAddressSameAsPatient,
-            "deactivateInsuranceReason": deactivateInsuranceReason,
-            "insuranceCompany": {
-              "practiceInsuranceCompanyId": practiceInsuranceCompanyId,
-              "practiceId": practiceId,
-              "practiceInsuranceCompanyName": practiceInsuranceCompanyName,
-              "practiceInsuranceCompanyPhone": practiceInsuranceCompanyPhone,
-              "practiceInsuranceCompanyPhoneExt": practiceInsuranceCompanyPhoneExt,
-              "practiceInsuranceCompanyAddress1": practiceInsuranceCompanyAddress1,
-              "practiceInsuranceCompanyAddress2": practiceInsuranceCompanyAddress2, //null
-              "practiceInsuranceCompanyCity": practiceInsuranceCompanyCity,
-              "practiceInsuranceCompanyState": practiceInsuranceCompanyState,
-              "practiceInsuranceCompanyZipcode": practiceInsuranceCompanyZipcode,
-              "isPrimary": isPrimary
-            }
-          });
+      final response = await dio.post("https://patientapi.orthopms.com/api/Patient/SavePatientConsolidatedMedicalHistory", data: {
+        "patientId": patientId,
+        "generalInformation": {
+          "patientMedicalHistoryId": patientMedicalHistoryId,
+          "patientId": patientId,
+          "lastDentalAppointment": lastDentalAppointment,
+          "currentPhysicalHealth": currentPhysicalHealth,
+          "currentMedications": currentMedications,
+          "isPatientOnBirthControl": isPatientOnBirthControl,
+          "patientPregnant": patientPregnant,
+          "patientPregnantWeekAlong": patientPregnantWeekAlong,
+          "hasPrimaryDentist": hasPrimaryDentist,
+          "primaryDentistId": primaryDentistId,
+          "isPatientUnderPhysicianCareForMedicalProblems": isPatientUnderPhysicianCareForMedicalProblems,
+          "patientUnderPhysicianCareForMedicalProblemsDescription1": patientUnderPhysicianCareForMedicalProblemsDescription1,
+          "patientUnderPhysicianCareForMedicalProblemsDescription2": patientUnderPhysicianCareForMedicalProblemsDescription2,
+          "patientUnderPhysicianCareForMedicalProblemsDescription3": patientUnderPhysicianCareForMedicalProblemsDescription3,
+          "patientUnderPhysicianCareForMedicalProblemsDescription4": patientUnderPhysicianCareForMedicalProblemsDescription4,
+          "hasPatientTakenBoniva": hasPatientTakenBoniva,
+          "hasPatientTakenActonel": hasPatientTakenActonel,
+          "hasPatientTakenFosamax": hasPatientTakenFosamax,
+          "hasPatientTakenOther": hasPatientTakenOther,
+          "noneOfTheAboveMedications": noneOfTheAboveMedications,
+          "patientTakenAnyOtherBisphosphonate": patientTakenAnyOtherBisphosphonate,
+          "hasPatientBeenEvaluatedForOrthodonticTreatment": hasPatientBeenEvaluatedForOrthodonticTreatment,
+          "patientBeenEvaluatedForOrthodonticTreatmentNotes": patientBeenEvaluatedForOrthodonticTreatmentNotes,
+          "hasPatientEverHadInjuryOnFaceMouthChin": hasPatientEverHadInjuryOnFaceMouthChin,
+          "hasPatientEverHadInjuryOnFaceMouthChinNotes": hasPatientEverHadInjuryOnFaceMouthChinNotes,
+          "hasPatientEverHadAdenoidsOrTonsilsRemoved": hasPatientEverHadAdenoidsOrTonsilsRemoved,
+          "hasPatientEverHadAdenoidsOrTonsilsRemovedNotes": hasPatientEverHadAdenoidsOrTonsilsRemovedNotes,
+          "hasPatientEverInformedAboutPermanentTooth": hasPatientEverInformedAboutPermanentTooth,
+          "hasPatientEverInformedAboutPermanentToothNotes": hasPatientEverInformedAboutPermanentToothNotes,
+          "hasPatientEverHasTenderness": hasPatientEverHasTenderness,
+          "hasPatientEverHasTendernessNotes": hasPatientEverHasTendernessNotes,
+          "hasPatientTakenAntibioticPriorToDenalVisit": hasPatientTakenAntibioticPriorToDenalVisit,
+          "hasPatientTakenAntibioticPriorToDenalVisitNotes": hasPatientTakenAntibioticPriorToDenalVisitNotes,
+          "hasPatientEverHadProblemsWithDentalWork": hasPatientEverHadProblemsWithDentalWork,
+          "hasPatientEverHadProblemsWithDentalWorkNotes": hasPatientEverHadProblemsWithDentalWorkNotes
+        },
+        "allergies": allergies,
+        "medicalConditions": medicalConditions
+      });
       log(jsonEncode(response.data));
-      return SavePatientInsuranceResponse.fromJson(response.data);
+      return GetMedicalHistoryResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw e.response!.data['message'];
     } catch (e) {
@@ -542,7 +616,42 @@ class ApiProvider {
 
 
 
-  Future<SavePatientEmergencyContactDetailResponse> savePatientEmergencyContactDetails(dob, firstName, lastName,phone,phoneExt,phoneType,relationship) async {
+  Future<GetDentalHistoryResponse> SavePatientDentalHistory(
+      patientMedicalHistoryId,
+      lastDentalAppointment,
+      currentPhysicalHealth,
+      currentMedications,
+      isPatientOnBirthControl,
+      patientPregnant,
+      patientPregnantWeekAlong,
+      hasPrimaryDentist,
+      primaryDentistId,
+      isPatientUnderPhysicianCareForMedicalProblems,
+      patientUnderPhysicianCareForMedicalProblemsDescription1,
+      patientUnderPhysicianCareForMedicalProblemsDescription2,
+      patientUnderPhysicianCareForMedicalProblemsDescription3,
+      patientUnderPhysicianCareForMedicalProblemsDescription4,
+      hasPatientTakenBoniva,
+      hasPatientTakenActonel,
+      hasPatientTakenFosamax,
+      hasPatientTakenOther,
+      patientTakenAnyOtherBisphosphonate,
+      hasPatientBeenEvaluatedForOrthodonticTreatment,
+      patientBeenEvaluatedForOrthodonticTreatmentNotes,
+      hasPatientEverHadInjuryOnFaceMouthChin,
+      hasPatientEverHadInjuryOnFaceMouthChinNotes,
+      hasPatientEverHadAdenoidsOrTonsilsRemoved,
+      hasPatientEverHadAdenoidsOrTonsilsRemovedNotes,
+      hasPatientEverInformedAboutPermanentTooth,
+      hasPatientEverInformedAboutPermanentToothNotes,
+      hasPatientEverHasTenderness,
+      hasPatientEverHasTendernessNotes,
+      hasPatientTakenAntibioticPriorToDenalVisit,
+      hasPatientTakenAntibioticPriorToDenalVisitNotes,
+      hasPatientEverHadProblemsWithDentalWork,
+      hasPatientEverHadProblemsWithDentalWorkNotes,
+      dentalHygienes,
+      habits) async {
     SharedPreferences sharedPreference = await SharedPreferences.getInstance();
     final token = sharedPreference.getString('token').toString();
     final practiceId = sharedPreference.getString('practiceId').toString();
@@ -551,9 +660,170 @@ class ApiProvider {
 
     try {
       dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', 'Practiceid': '$practiceId', 'Practiceguid': '$practiceGuid'};
-      final response = await dio.post(
-          "https://patientapi.orthopms.com/api/Patient/SavePatientEmergencyContactDetails",
-          data: {
+      final response = await dio.post("https://patientapi.orthopms.com/api/Patient/SavePatientDentalHistory", data: {
+        "patientId": patientId,
+        "generalInformation": {
+          "patientMedicalHistoryId": patientMedicalHistoryId,
+          "patientId": patientId,
+          "lastDentalAppointment": lastDentalAppointment,
+          "currentPhysicalHealth": currentPhysicalHealth,
+          "currentMedications": currentMedications,
+          "isPatientOnBirthControl": isPatientOnBirthControl,
+          "patientPregnant": patientPregnant,
+          "patientPregnantWeekAlong": patientPregnantWeekAlong,
+          "hasPrimaryDentist": hasPrimaryDentist,
+          "primaryDentistId": primaryDentistId,
+          "isPatientUnderPhysicianCareForMedicalProblems": isPatientUnderPhysicianCareForMedicalProblems,
+          "patientUnderPhysicianCareForMedicalProblemsDescription1": patientUnderPhysicianCareForMedicalProblemsDescription1,
+          "patientUnderPhysicianCareForMedicalProblemsDescription2": patientUnderPhysicianCareForMedicalProblemsDescription2,
+          "patientUnderPhysicianCareForMedicalProblemsDescription3": patientUnderPhysicianCareForMedicalProblemsDescription3,
+          "patientUnderPhysicianCareForMedicalProblemsDescription4": patientUnderPhysicianCareForMedicalProblemsDescription4,
+          "hasPatientTakenBoniva": hasPatientTakenBoniva,
+          "hasPatientTakenActonel": hasPatientTakenActonel,
+          "hasPatientTakenFosamax": hasPatientTakenFosamax,
+          "hasPatientTakenOther": hasPatientTakenOther,
+          "patientTakenAnyOtherBisphosphonate": patientTakenAnyOtherBisphosphonate,
+          "hasPatientBeenEvaluatedForOrthodonticTreatment": hasPatientBeenEvaluatedForOrthodonticTreatment,
+          "patientBeenEvaluatedForOrthodonticTreatmentNotes": patientBeenEvaluatedForOrthodonticTreatmentNotes,
+          "hasPatientEverHadInjuryOnFaceMouthChin": hasPatientEverHadInjuryOnFaceMouthChin,
+          "hasPatientEverHadInjuryOnFaceMouthChinNotes": hasPatientEverHadInjuryOnFaceMouthChinNotes,
+          "hasPatientEverHadAdenoidsOrTonsilsRemoved": hasPatientEverHadAdenoidsOrTonsilsRemoved,
+          "hasPatientEverHadAdenoidsOrTonsilsRemovedNotes": hasPatientEverHadAdenoidsOrTonsilsRemovedNotes,
+          "hasPatientEverInformedAboutPermanentTooth": hasPatientEverInformedAboutPermanentTooth,
+          "hasPatientEverInformedAboutPermanentToothNotes": hasPatientEverInformedAboutPermanentToothNotes,
+          "hasPatientEverHasTenderness": hasPatientEverHasTenderness,
+          "hasPatientEverHasTendernessNotes": hasPatientEverHasTendernessNotes,
+          "hasPatientTakenAntibioticPriorToDenalVisit": hasPatientTakenAntibioticPriorToDenalVisit,
+          "hasPatientTakenAntibioticPriorToDenalVisitNotes": hasPatientTakenAntibioticPriorToDenalVisitNotes,
+          "hasPatientEverHadProblemsWithDentalWork": hasPatientEverHadProblemsWithDentalWork,
+          "hasPatientEverHadProblemsWithDentalWorkNotes": hasPatientEverHadProblemsWithDentalWorkNotes
+        },
+        "dentalHygienes": dentalHygienes,
+        "habits": habits
+      });
+      log(jsonEncode(response.data));
+      return GetDentalHistoryResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw e.response!.data['message'];
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+  Future<SavePatientInsuranceResponse> savePatientInsurance(
+      patientInsuranceId,
+      practiceInsuranceCompanyId,
+      subscriberPrefix,
+      subscriberFirstName,
+      subscriberMiddleName,
+      subscriberLastName,
+      subscriberSuffix,
+      subscriberPrimaryPhone,
+      subscriberPrimaryPhoneExt,
+      subscriberPrimaryPhoneType,
+      subscriberSecondaryPhone,
+      subscriberSecondaryPhoneExt,
+      subscriberSecondaryPhoneType,
+      subscriberDob,
+      subscriberGender,
+      subscriberRelationshipToPatient,
+      subscriberSsn,
+      subscriberAddress1,
+      subscriberAddress2,
+      subscriberCity,
+      subscriberState,
+      subscriberZip,
+      subscriberGroupPlanNumber,
+      subscriberMemberNumber,
+      networkType,
+      groupEmployerName,
+      isPrimary,
+      isActive,
+      isPolicyHolderSameAsPatient,
+      isPolicyHolderAddressSameAsPatient,
+      deactivateInsuranceReason,
+      practiceInsuranceCompanyName,
+      practiceInsuranceCompanyPhone,
+      practiceInsuranceCompanyPhoneExt,
+      practiceInsuranceCompanyAddress1,
+      practiceInsuranceCompanyAddress2,
+      practiceInsuranceCompanyCity,
+      practiceInsuranceCompanyState,
+      practiceInsuranceCompanyZipcode) async {
+    SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    final token = sharedPreference.getString('token').toString();
+    final practiceId = sharedPreference.getString('practiceId').toString();
+    final patientId = int.parse(sharedPreference.getString('patientId').toString());
+    final practiceGuid = sharedPreference.getString('practiceGuid').toString();
+
+    try {
+      dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', 'Practiceid': '$practiceId', 'Practiceguid': '$practiceGuid'};
+      final response = await dio.post("https://patientapi.orthopms.com/api/Patient/SavePatientInsurance", data: {
+        "patientInsuranceId": patientInsuranceId,
+        "patientId": patientId,
+        "practiceInsuranceCompanyId": practiceInsuranceCompanyId,
+        "subscriberPrefix": subscriberPrefix, //null
+        "subscriberFirstName": subscriberFirstName,
+        "subscriberMiddleName": subscriberMiddleName,
+        "subscriberLastName": subscriberLastName,
+        "subscriberSuffix": subscriberSuffix,
+        "subscriberPrimaryPhone": subscriberPrimaryPhone,
+        "subscriberPrimaryPhoneExt": subscriberPrimaryPhoneExt,
+        "subscriberPrimaryPhoneType": subscriberPrimaryPhoneType,
+        "subscriberSecondaryPhone": subscriberSecondaryPhone,
+        "subscriberSecondaryPhoneExt": subscriberSecondaryPhoneExt,
+        "subscriberSecondaryPhoneType": subscriberSecondaryPhoneType,
+        "subscriberDob": subscriberDob, //null
+        "subscriberGender": subscriberGender,
+        "subscriberRelationshipToPatient": subscriberRelationshipToPatient, // "Self"
+        "subscriberSsn": subscriberSsn, //null
+        "subscriberAddress1": subscriberAddress1,
+        "subscriberAddress2": subscriberAddress2,
+        "subscriberCity": subscriberCity,
+        "subscriberState": subscriberState,
+        "subscriberZip": subscriberZip,
+        "subscriberGroupPlanNumber": subscriberGroupPlanNumber,
+        "subscriberMemberNumber": subscriberMemberNumber,
+        "networkType": networkType,
+        "groupEmployerName": groupEmployerName,
+        "isPrimary": isPrimary,
+        "isActive": isActive,
+        "isPolicyHolderSameAsPatient": isPolicyHolderSameAsPatient,
+        "isPolicyHolderAddressSameAsPatient": isPolicyHolderAddressSameAsPatient,
+        "deactivateInsuranceReason": deactivateInsuranceReason,
+        "insuranceCompany": {
+          "practiceInsuranceCompanyId": practiceInsuranceCompanyId,
+          "practiceId": practiceId,
+          "practiceInsuranceCompanyName": practiceInsuranceCompanyName,
+          "practiceInsuranceCompanyPhone": practiceInsuranceCompanyPhone,
+          "practiceInsuranceCompanyPhoneExt": practiceInsuranceCompanyPhoneExt,
+          "practiceInsuranceCompanyAddress1": practiceInsuranceCompanyAddress1,
+          "practiceInsuranceCompanyAddress2": practiceInsuranceCompanyAddress2, //null
+          "practiceInsuranceCompanyCity": practiceInsuranceCompanyCity,
+          "practiceInsuranceCompanyState": practiceInsuranceCompanyState,
+          "practiceInsuranceCompanyZipcode": practiceInsuranceCompanyZipcode,
+          "isPrimary": isPrimary
+        }
+      });
+      log(jsonEncode(response.data));
+      return SavePatientInsuranceResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw e.response!.data['message'];
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+  Future<SavePatientEmergencyContactDetailResponse> savePatientEmergencyContactDetails(dob, firstName, lastName, phone, phoneExt, phoneType, relationship) async {
+    SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    final token = sharedPreference.getString('token').toString();
+    final practiceId = sharedPreference.getString('practiceId').toString();
+    final patientId = int.parse(sharedPreference.getString('patientId').toString());
+    final practiceGuid = sharedPreference.getString('practiceGuid').toString();
+
+    try {
+      dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', 'Practiceid': '$practiceId', 'Practiceguid': '$practiceGuid'};
+      final response = await dio.post("https://patientapi.orthopms.com/api/Patient/SavePatientEmergencyContactDetails", data: {
         "patientEmergencyContactDob": dob,
         "patientEmergencyContactFirstName": firstName,
         "patientEmergencyContactLastName": lastName,
