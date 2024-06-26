@@ -36,7 +36,7 @@ class PatientById {
   String? patientDob;
   String? patientAge;
   String? patientLanguagePreference;
-  bool hasPrimaryDentist;
+  bool? hasPrimaryDentist;
   String? primaryDentistId;
   String? patientPrimaryPhone;
   String? patientPrimaryType;
@@ -60,11 +60,11 @@ class PatientById {
   String? patientEmergencyContactPhoneExt;
   bool? isAssociatedPatient;
   String? associatedPatientRelationship;
-  bool isPatientAgreedToContactViaEmail;
-  bool isPatientAgreedToContactViaText;
-  bool isPatientAgreedToMedicalConditions;
-  bool isPatientAgreedToPolicy;
-  bool isPatientAgreedToPracticePolicies;
+  bool? isPatientAgreedToContactViaEmail;
+  bool? isPatientAgreedToContactViaText;
+  bool? isPatientAgreedToMedicalConditions;
+  bool? isPatientAgreedToPolicy;
+  bool? isPatientAgreedToPracticePolicies;
   String? patientCreatedDate;
   String? providerLicenseNumber;
   String? providerNotes;
@@ -89,19 +89,19 @@ class PatientById {
   String? patientStudentStatus;
   String? patientStatusName;
   String? patientStatusDescription;
-  bool hasPrimaryContact;
-  bool hasFinancialResponsiblePerson;
-  bool hasMedicalConditions;
-  bool hasDentalHygiene;
-  bool hasHabits;
-  bool hasReferral;
-  bool hasChiefComplaint;
-  bool hasInsurance;
+  bool? hasPrimaryContact;
+  bool? hasFinancialResponsiblePerson;
+  bool? hasMedicalConditions;
+  bool? hasDentalHygiene;
+  bool? hasHabits;
+  bool? hasReferral;
+  bool? hasChiefComplaint;
+  bool? hasInsurance;
   String? medicalHistoryStatus;
-  bool isPatientFrp;
+  bool? isPatientFrp;
   dynamic hasPaymentPlan;
   dynamic hasTreatmentContract;
-  bool isPatientHasAllergy;
+  bool? isPatientHasAllergy;
   String? practicePrimaryLocationName;
   String? practicePrimaryLocationAddress;
   String? practicePrimaryLocationCity;
@@ -133,7 +133,7 @@ class PatientById {
   String? patientContactPrimaryPhone;
   String? patientFormattedDob;
   String? patientEligibilityStatusName;
-  bool isDdsnotOnFile;
+  bool? isDdsnotOnFile;
   String? ddsprimaryDentistName;
 
   PatientById({

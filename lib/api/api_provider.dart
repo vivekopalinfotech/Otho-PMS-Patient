@@ -17,6 +17,7 @@ import 'package:ortho_pms_patient/responses/get_patient_contact_response.dart';
 import 'package:ortho_pms_patient/responses/get_patient_frp_response.dart';
 import 'package:ortho_pms_patient/responses/get_patient_medical_history.dart';
 import 'package:ortho_pms_patient/responses/get_patient_referral_detail_response.dart';
+import 'package:ortho_pms_patient/responses/get_practice_policies_response.dart';
 import 'package:ortho_pms_patient/responses/get_referral_categories_Response.dart';
 import 'package:ortho_pms_patient/responses/get_referral_sub_categories_response.dart';
 import 'package:ortho_pms_patient/responses/insurance_response.dart';
@@ -28,6 +29,7 @@ import 'package:ortho_pms_patient/responses/patient_contact_response.dart';
 import 'package:ortho_pms_patient/responses/patient_exam_by_patient_id.dart';
 import 'package:ortho_pms_patient/responses/patient_exam_history_response.dart';
 import 'package:ortho_pms_patient/responses/patient_response.dart';
+import 'package:ortho_pms_patient/responses/policy_response.dart';
 import 'package:ortho_pms_patient/responses/save_patient_emergency_contact_detail_response.dart';
 import 'package:ortho_pms_patient/responses/save_patient_insurance_response.dart';
 import 'package:ortho_pms_patient/responses/save_patient_referral_detail_response.dart';
@@ -271,6 +273,47 @@ class ApiProvider {
       );
       log(jsonEncode(response.data));
       return StatesResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw e.response!.data['message'];
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+  Future<GetPracticePoliciesResponse> getPracticePolicies() async {
+    SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    final token = sharedPreference.getString('token').toString();
+    final practiceId = sharedPreference.getString('practiceId').toString();
+    final practiceGuid = sharedPreference.getString('practiceGuid').toString();
+
+    try {
+      dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', 'Practiceid': '$practiceId', 'Practiceguid': '$practiceGuid'};
+      final response = await dio.get(
+        "https://practiceapi.orthopms.com/api/Practice/GetPracticePolicies?practiceId=$practiceId",
+      );
+      log(jsonEncode(response.data));
+      return GetPracticePoliciesResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw e.response!.data['message'];
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+
+  Future<PolicyResponse> getPolicy(practicePolicyId) async {
+    SharedPreferences sharedPreference = await SharedPreferences.getInstance();
+    final token = sharedPreference.getString('token').toString();
+    final practiceId = sharedPreference.getString('practiceId').toString();
+    final practiceGuid = sharedPreference.getString('practiceGuid').toString();
+
+    try {
+      dio.options.headers = {'Content-Type': 'application/json', 'Authorization': 'Bearer $token', 'Practiceid': '$practiceId', 'Practiceguid': '$practiceGuid'};
+      final response = await dio.get(
+        "https://practiceapi.orthopms.com/api/Practice/GetPracticePolicy?practiceId=$practiceId&practicePolicyId=$practicePolicyId",
+      );
+      log(jsonEncode(response.data));
+      return PolicyResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw e.response!.data['message'];
     } catch (e) {
@@ -997,6 +1040,21 @@ class ApiProvider {
       });
       log(jsonEncode(response.data));
       return ChangePasswordResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw e.response!.data['message'];
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+  Future<String> forgotPassword(email) async {
+    try {
+
+      final response = await dio.post("https://usermanagementapi.orthopms.com/api/User/ForgotPassword", data: {
+        "email": email,
+      });
+      log(jsonEncode(response.data));
+      return response.data['message'];
     } on DioException catch (e) {
       throw e.response!.data['message'];
     } catch (e) {

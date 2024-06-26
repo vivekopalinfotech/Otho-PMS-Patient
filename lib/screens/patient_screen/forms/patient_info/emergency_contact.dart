@@ -93,12 +93,22 @@ class _EmergencyContactState extends State<EmergencyContact> {
               'First Name',
               firstNameController,
               TextInputType.text,
+              onchange: (value){
+                setState(() {
+                  firstNameController.text = value;
+                });
+              },
             ),
 
             ConstantTextFormField(
               'Last Name',
               lastNameController,
               TextInputType.text,
+              onchange: (value){
+                setState(() {
+                  lastNameController.text = value;
+                });
+              },
             ),
 
             ConstantTextFormField(
@@ -113,6 +123,11 @@ class _EmergencyContactState extends State<EmergencyContact> {
               phoneController,
               TextInputType.phone,
               extController: phoneExtController,
+              onchange: (value){
+                setState(() {
+                  phoneController.text = value;
+                });
+              },
             ),
             SizedBox(height: 16),
             Column(
@@ -178,9 +193,9 @@ class _EmergencyContactState extends State<EmergencyContact> {
             ),
             selectedPhoneType != null &&
                 selectedRelationship != null &&
-                firstNameController.text.isNotEmpty &&
-                lastNameController.text.isNotEmpty &&
-                phoneController.text.isNotEmpty
+                firstNameController.value.text.isNotEmpty &&
+                lastNameController.value.text.isNotEmpty &&
+                phoneController.value.text.isNotEmpty
                 ?  Align(
               alignment: AlignmentDirectional.bottomEnd,
               child:  ElevatedButton(

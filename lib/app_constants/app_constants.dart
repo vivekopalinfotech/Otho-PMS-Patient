@@ -19,6 +19,7 @@ class AppConstants {
   static const LARGE = 16.0;
   static const SMALL = 12.0;
   static const XSMALL = 10.0;
+  static const XXSMALL = 8.0;
 
   static String formatDate(String dateString) {
     DateTime dateTime = DateTime.parse(dateString);
@@ -62,9 +63,9 @@ class AppConstants {
   static String calculateDateDifference(String dynamicDateString) {
     DateTime dynamicDate = DateTime.parse(dynamicDateString);
     DateTime currentDate = DateTime.now();
-    int monthsDifference = (currentDate.year - dynamicDate.year) * 12 + (currentDate.month - dynamicDate.month);
-   String difference = monthsDifference>1 ?'$monthsDifference Months':'$monthsDifference Month';
-    return difference;
+    int monthsDifference =  (currentDate.month - dynamicDate.month);
+   String difference = monthsDifference>1 ?'${monthsDifference} Months':'$monthsDifference Month';
+    return difference.replaceAll('-', '');
   }
 
   static String convertCurrentDate(String originalDateStr) {
@@ -88,4 +89,9 @@ class AppConstants {
     }
     return input[0].toUpperCase() + input.substring(1);
   }
+}
+String removeAllHtmlTags(String htmlText) {
+  RegExp exp = RegExp(r"<[^>]*>", multiLine: true, caseSensitive: true);
+
+  return htmlText.replaceAll(exp, '');
 }

@@ -143,6 +143,7 @@ class _MedicalHistoryFormState extends State<MedicalHistoryForm> {
     BlocProvider.of<GetAllergiesCubit>(context).getAllergies();
     BlocProvider.of<MedicalConditionCubit>(context).getMedicalConditions();
     BlocProvider.of<MedicalHistoryCubit>(context).getMedicalHistory();
+    BlocProvider.of<GetDentistCubit>(context).GetDentist();
   }
 
   @override
@@ -169,6 +170,7 @@ class _MedicalHistoryFormState extends State<MedicalHistoryForm> {
                   medicalHistory.addAll(state.medicalHistoryResponse.medicalHistory);
                   medicalAllergies.addAll(state.medicalHistoryResponse.allergies);
                   conditions.addAll(state.medicalHistoryResponse.medicalConditions);
+                if(medicalHistory.isNotEmpty){
                   isPrimary = medicalHistory.first.hasPrimaryDentist;
                   selectedDentistId = medicalHistory.first.primaryDentistId;
                   selectedDentalAppointment = medicalHistory.first.lastDentalAppointment;
@@ -177,11 +179,15 @@ class _MedicalHistoryFormState extends State<MedicalHistoryForm> {
                   selectedProblems = medicalHistory.first.isPatientUnderPhysicianCareForMedicalProblems == false ? birthControl[1] : birthControl[0];
                   selectedPregnant = medicalHistory.first.patientPregnant;
                   currentMedicationsController.text = medicalHistory.first.currentMedications;
-                  doctorDiscussion = conditions.first.isAnythingPrivate == false ? birthControl[1] : birthControl[0];
+
                   hasPatientTakenBoniva = medicalHistory.first.hasPatientTakenBoniva;
                   hasPatientTakenActonel = medicalHistory.first.hasPatientTakenActonel;
                   hasPatientTakenFosamax = medicalHistory.first.hasPatientTakenFosamax;
                   hasPatientTakenOther = medicalHistory.first.hasPatientTakenOther;
+                }
+                if(conditions.isNotEmpty){
+                  doctorDiscussion = conditions.first.isAnythingPrivate == false ? birthControl[1] : birthControl[0];
+                }
                   paasAllergies.clear();
                   for (var allergy in medicalAllergies) {
                     selectedAllergies.add(allergy.allergyId);
@@ -225,7 +231,7 @@ class _MedicalHistoryFormState extends State<MedicalHistoryForm> {
                     Medications("None of the above", hasPatientTakenOther),
                   ];
                 });
-                BlocProvider.of<GetDentistCubit>(context).GetDentist();
+
               }
               if (state is MedicalHistoryError) {
                 print(state.message);
@@ -571,7 +577,7 @@ class _MedicalHistoryFormState extends State<MedicalHistoryForm> {
                                 ),
                                 onPressed: () {
                                   BlocProvider.of<SaveMedicalHistoryCubit>(context).savePatientMedicalHistory(
-                                      medicalHistory.first.patientMedicalHistoryId,
+                                      medicalHistory.isNotEmpty? medicalHistory.first.patientMedicalHistoryId:0,
                                       selectedDentalAppointment ?? '',
                                       selectedPhysicalHealth ?? '',
                                       currentMedicationsController.text,

@@ -28,8 +28,8 @@ class PatientFinancialResponsiblePerson {
   DateTime patientFinancialResponsiblePersonDob;
   String patientFinancialResponsiblePersonAddress1;
   dynamic patientFinancialResponsiblePersonAddress2;
-  String patientFinancialResponsiblePersonCity;
-  String patientFinancialResponsiblePersonState;
+  dynamic patientFinancialResponsiblePersonCity;
+  dynamic patientFinancialResponsiblePersonState;
   String patientFinancialResponsiblePersonStateAbbreviation;
   String patientFinancialResponsiblePersonZip;
   String patientFinancialResponsiblePersonPrimaryPhone;

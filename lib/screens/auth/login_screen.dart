@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
 import 'package:ortho_pms_patient/bloc/auth/login_cubit.dart';
 import 'package:ortho_pms_patient/bloc/auth/login_state.dart';
 import 'package:ortho_pms_patient/main_screen.dart';
 import 'package:ortho_pms_patient/utils/constant_widgets.dart';
+import 'package:ortho_pms_patient/utils/constatnt_textformfield.dart';
+import 'package:ortho_pms_patient/utils/dialogs/forgot_password_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -161,14 +164,14 @@ class _LoginScreenState extends State<LoginScreen> {
           sharedPreference.setString("email", state.logInResponse.email.toString());
           sharedPreference.setString("token", state.logInResponse.accessToken.toString());
         } else {
-          showSnackBar(context, 'Invalid Email or Password');
+          showSnackBar(context, 'Invalid Email or Password', 'Error');
         }
       }
       if (state is LogInError) {
         setState(() {
           _isLoading = false;
         });
-        showSnackBar(context, 'Invalid Email or Password');
+        showSnackBar(context, 'Invalid Email or Password', 'Error');
       }
       if (state is LogInLoading) {
         setState(() {
@@ -196,7 +199,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     right: 0,
                     child: Card(
                         margin: const EdgeInsets.symmetric(horizontal: AppConstants.HP),
-
                         child: Container(
                           padding: const EdgeInsets.all(AppConstants.HP),
                           child: Column(
@@ -210,151 +212,85 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                               const SizedBox(height: 24),
-                              Text(
+                              ConstantTextFormField(
                                 'Patient username',
-                                style: GoogleFonts.inter(
-                                  fontSize: AppConstants.NORMAL,
-                                  fontWeight: FontWeight.normal,
-                                ),
+                                usernameController,
+                                TextInputType.emailAddress,
+                                onchange: (value) {
+                                  setState(() {
+                                    usernameController.text = value;
+                                  });
+                                },
                               ),
-                              const SizedBox(height: 8),
-                              MediaQuery(
-                                  data: MediaQuery.of(context).copyWith(devicePixelRatio: 1, textScaler: const TextScaler.linear(1)),
-                                  child: TextFormField(
-                                    cursorColor: colorScheme.primary,
-                                    controller: usernameController,
-                                    keyboardType: TextInputType.emailAddress,
-                                    scrollPadding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        usernameController.text;
-                                      });
-                                    },
-                                    decoration: InputDecoration(
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: AppConstants.HP, vertical: AppConstants.VP),
-                                        hintText: 'Patient username',
-                                        hintStyle: GoogleFonts.inter(fontSize: AppConstants.LARGE, fontWeight: FontWeight.normal, color: colorScheme.outlineVariant),
-                                        border: OutlineInputBorder(
-                                          borderSide: BorderSide.none,
-                                          borderRadius: BorderRadius.circular(6),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide(color: colorScheme.primary)),
-                                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide(color: colorScheme.outlineVariant))),
-                                    style: GoogleFonts.inter(
-                                      fontSize: AppConstants.NORMAL,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                  )),
-                              const SizedBox(height: 20),
-                              Text(
+                              ConstantTextFormField(
                                 'Password',
-                                style: GoogleFonts.inter(
-                                  fontSize: AppConstants.NORMAL,
-                                  fontWeight: FontWeight.normal,
+                                passwordController,
+                                TextInputType.visiblePassword,
+                                onchange: (value) {
+                                  setState(() {
+                                    passwordController.text = value;
+                                  });
+                                },
+                              ),
+                              Align(
+                                alignment: AlignmentDirectional.bottomEnd,
+                                child: InkWell(
+                                  splashColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  onTap: () {
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return ForgotPasswordDialog();
+                                        });
+                                  },
+                                  child: Text(
+                                    'Forgot Password?',
+                                    textScaler: const TextScaler.linear(1),
+                                    style: GoogleFonts.inter(fontSize: AppConstants.SMALL, fontWeight: FontWeight.w500, color: AppColor.primaryColor),
+                                  ),
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              MediaQuery(
-                                  data: MediaQuery.of(context).copyWith(
-                                    textScaler: const TextScaler.linear(1),
-                                  ),
-                                  child: TextFormField(
-                                    cursorColor: colorScheme.primary,
-                                    obscureText: _isObscure,
-                                    controller: passwordController,
-                                    scrollPadding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        passwordController.text;
-                                      });
-                                    },
-                                    onTap: () {},
-                                    keyboardType: TextInputType.visiblePassword,
-                                    decoration: InputDecoration(
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: AppConstants.HP, vertical: AppConstants.VP),
-                                      hintText: 'Password',
-                                      hintStyle: GoogleFonts.inter(fontSize: AppConstants.NORMAL, fontWeight: FontWeight.normal, color: colorScheme.outlineVariant),
-                                      border: OutlineInputBorder(
-                                        borderSide: BorderSide.none,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide(color: colorScheme.primary)),
-                                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide(color: colorScheme.outlineVariant)),
-                                      suffixIcon: InkWell(
-                                          radius: 15,
-                                          child: Icon(
-                                            _isObscure ? Icons.visibility : Icons.visibility_off,
-                                            color: colorScheme.outlineVariant,
-                                          ),
-                                          onTap: () {
-                                            setState(() {
-                                              _isObscure = !_isObscure;
-                                            });
-                                          }),
-                                    ),
-                                    style: GoogleFonts.inter(
-                                      fontSize: AppConstants.SMALL,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                  )),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              Row(
-                                children: [
-                                  InkWell(
-                                    splashColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    onTap: () {
-                                      toggle();
-                                    },
-                                    child: Icon(
-                                      agree ? Icons.check_box : Icons.check_box_outline_blank,
-                                      color: agree ? colorScheme.primary : colorScheme.tertiary,
-                                      size: 18,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Flexible(
-                                    child: Text(
-                                      "I have read and understand the End User License Agreement and Privacy Policy",
-                                      textScaler: const TextScaler.linear(1),
-                                      style: GoogleFonts.inter(fontSize: AppConstants.SMALL, fontWeight: FontWeight.normal),
-                                    ),
-                                  )
-                                ],
-                              ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 10),
                               _isLoading
                                   ? Center(
+                                      child: Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 20),
                                       child: LinearProgressIndicator(
-                                      color: colorScheme.surfaceTint,
-                                      borderRadius: BorderRadius.circular(10),
+                                        color: colorScheme.surfaceTint,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
                                     ))
                                   : ElevatedButton(
                                       style: ButtonStyle(
-                                          backgroundColor: MaterialStatePropertyAll(agree ? colorScheme.primaryContainer : colorScheme.tertiaryContainer),
-                                          elevation: MaterialStatePropertyAll(agree ? 2 : 0)),
+                                          backgroundColor: MaterialStatePropertyAll(
+                                              usernameController.value.text.isNotEmpty && passwordController.value.text.isNotEmpty ? colorScheme.primaryContainer : colorScheme.tertiaryContainer),
+                                          elevation: MaterialStatePropertyAll(usernameController.value.text.isNotEmpty && passwordController.value.text.isNotEmpty ? 2 : 0)),
                                       onPressed: () {
-                                        if (agree) {
-                                          if (usernameController.text.isNotEmpty && passwordController.text.isNotEmpty) {
-                                            BlocProvider.of<LogInCubit>(context).logIn(
-                                              usernameController.text.toString(),
-                                              passwordController.text.toString(),
-                                            );
-                                          } else if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(usernameController.text.toString()) &&
-                                              usernameController.text.isNotEmpty &&
-                                              passwordController.text.isNotEmpty) {
-                                            showSnackBar(context, "Please check your Email Id");
-                                            return;
-                                          } else {
-                                            showSnackBar(context, usernameController.text.isEmpty ? 'Please enter your email address' : 'Please enter your password');
-                                          }
+                                        if (usernameController.value.text.isEmpty) {
+                                          return showSnackBar(context, 'Please enter your email address', 'Error');
+                                        } else if (passwordController.value.text.isEmpty) {
+                                          return showSnackBar(context, 'Please enter your password', 'Error');
+                                        } else if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(usernameController.value.text.toString())) {
+                                          return showSnackBar(context, "Please check your Email Id", 'Error');
+                                        } else if (!RegExp(r'^(?=.*[a-zA-Z])(?=.*\d)').hasMatch(passwordController.value.text)) {
+                                          return showSnackBar(context, 'Password must contain at least one letter and one digit', 'Error');
+                                        } else {
+                                          BlocProvider.of<LogInCubit>(context).logIn(
+                                            usernameController.text.toString(),
+                                            passwordController.text.toString(),
+                                          );
                                         }
                                       },
-                                      child: Text(
-                                        'Login',
-                                        style: GoogleFonts.inter(color: agree ? colorScheme.primary : colorScheme.tertiary),
+                                      child: Container(
+                                        width: double.maxFinite,
+                                        child: Center(
+                                          child: Text(
+                                            'Login',
+                                            style: GoogleFonts.inter(
+                                                color: usernameController.value.text.isNotEmpty && passwordController.value.text.isNotEmpty ? colorScheme.primary : colorScheme.tertiary),
+                                          ),
+                                        ),
                                       )),
                             ],
                           ),

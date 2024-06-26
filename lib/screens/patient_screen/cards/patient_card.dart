@@ -95,6 +95,25 @@ class _PatientCardState extends State<PatientCard> {
               ],
             ),
             SizedBox(height: 8),
+            widget.patient.patientAddress1!='null' && widget.patient.patientState!= 'null'?
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.location_on_outlined,
+                  size: 18,
+                ),
+                SizedBox(width: 8),
+                Flexible(child: Text(
+                  '${widget.patient.patientAddress1}, ${widget.patient.patientCity}, ${widget.patient.patientState}, ${widget.patient.patientZip}',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w500,
+                    fontSize: AppConstants.SMALL,
+                  ),
+                ))
+              ],
+            ):SizedBox(),
+            SizedBox(height: 8),
             Row(
               children: [
                 SvgPicture.asset(

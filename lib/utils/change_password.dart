@@ -49,7 +49,7 @@ class _ChangePasswordState extends State<ChangePassword> {
             listener: (context, state) async {
               if (state is ChangePasswordSuccess) {
                 setState(() {
-                  showSnackBar(context, 'Password Successfully Changed.');
+                  showSnackBar(context, 'Password Successfully Changed.','');
                   Navigator.pop(context);
                 });
               }
@@ -60,7 +60,7 @@ class _ChangePasswordState extends State<ChangePassword> {
               }
               if (state is ChangePasswordError) {
                 setState(() {
-                  showSnackBar(context, state.message);
+                  showSnackBar(context, state.message,'Error');
                 });
               }
             },
@@ -154,7 +154,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                                 : ElevatedButton(
                                     onPressed: () {
                                       if (newPasswordController.text != retypeNewPasswordController.text) {
-                                        showSnackBar(context, 'New Password & Re-Type New Password must be same.');
+                                        showSnackBar(context, 'New Password & Re-Type New Password must be same.','Error');
                                       } else {
                                         BlocProvider.of<ChangePasswordCubit>(context).ChangePassword(currentPasswordController.text, emailController.text, newPasswordController.text);
                                       }

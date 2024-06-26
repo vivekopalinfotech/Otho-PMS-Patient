@@ -139,15 +139,26 @@ class _InsuranceFormState extends State<InsuranceForm> {
                 setState(() {
                   patientInsurance.addAll(state.insuranceResponse.insurance);
 
-                  isPrimary = patientInsurance.first.isPrimary;
-                  selectedCompany =
-                      '${patientInsurance.first.practiceInsuranceCompanyName} - ${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
-                  selectedCompanyPhone = patientInsurance.first.practiceInsuranceCompanyPhone;
-                  selectedCompanyAddress =
-                      '${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
-                  selectedNetWorkType = patientInsurance.first.networkType;
-                  grpPlanController.text = patientInsurance.first.subscriberGroupPlanNumber;
-                  grpEmpNameController.text = patientInsurance.first.groupEmployerName;
+              if(patientInsurance.isNotEmpty){
+                isPrimary = patientInsurance.first.isPrimary;
+                selectedCompanyId = patientInsurance.first.practiceInsuranceCompanyId;
+                selectedCompany =
+                '${patientInsurance.first.practiceInsuranceCompanyName} - ${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
+                selectedCompanyPhone = patientInsurance.first.practiceInsuranceCompanyPhone;
+                selectedCompanyAddress =
+                '${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
+                selectedCompanyAddress1 = patientInsurance.first.practiceInsuranceCompanyAddress1;
+                selectedCompanyAddress2 = patientInsurance.first.practiceInsuranceCompanyAddress2;
+                selectedCompanyCity = patientInsurance.first.practiceInsuranceCompanyCity;
+                selectedCompanyState = patientInsurance.first.practiceInsuranceCompanyState;
+                selectedCompanyZipCode = patientInsurance.first.practiceInsuranceCompanyZipcode;
+                selectedNetWorkType = patientInsurance.first.networkType;
+                grpPlanController.text = patientInsurance.first.subscriberGroupPlanNumber;
+                grpEmpNameController.text = patientInsurance.first.groupEmployerName;
+              }else{
+                add = true;
+
+              }
                   isLoading = false;
                 });
               }
@@ -210,7 +221,7 @@ class _InsuranceFormState extends State<InsuranceForm> {
                             Text(widget.patientName, style: GoogleFonts.inter(fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, color: AppColor.primaryColor)),
                             SizedBox(height: 16),
                             SelectedOptions(
-                              title1: patientInsurance.first.practiceInsuranceCompanyName,
+                              title1:patientInsurance.isNotEmpty? patientInsurance.first.practiceInsuranceCompanyName:'',
                               selected1: currentCompany,
                               icon1: true,
                               onPressed1: () {
@@ -240,6 +251,8 @@ class _InsuranceFormState extends State<InsuranceForm> {
                               icon2: true,
                               onPressed2: () {
                                 setState(() {
+                                  isPatient = false;
+                                  isPatientAdd = false;
                                   currentCompany = false;
                                   selectedCompanyAddress1 = '';
                                   selectedCompanyAddress2 = null;
@@ -265,25 +278,25 @@ class _InsuranceFormState extends State<InsuranceForm> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Flexible(
-                                            child: Text('Insurance Company',
-                                                style: GoogleFonts.inter(
-                                                    fontSize: AppConstants.LARGE, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
-                                          ),
-                                          InkWell(
-                                              splashColor: Colors.transparent,
-                                              highlightColor: Colors.transparent,
-                                              onTap: () {
-                                                setState(() {
-                                                  isPrimary = !isPrimary;
-                                                });
-                                              },
-                                              child: checkBox(isPrimary, 'Primary', 8.0, 20.0, 20.0))
-                                        ],
-                                      ),
+                                     SizedBox(width: double.maxFinite,
+                                     child:  Row(
+                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                       children: [
+                                         Text('Insurance Company',
+                                             style: GoogleFonts.inter(
+                                                 fontSize: AppConstants.LARGE, fontWeight: FontWeight.bold, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor)),
+
+                                        InkWell(
+                                             splashColor: Colors.transparent,
+                                             highlightColor: Colors.transparent,
+                                             onTap: () {
+                                               setState(() {
+                                                 isPrimary = !isPrimary;
+                                               });
+                                             },
+                                             child: checkBox(isPrimary, 'Primary', 8.0, 20.0, 20.0))
+                                       ],
+                                     )),
                                       SizedBox(height: 16),
                                       Container(
                                           decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), border: Border.all(color: AppColor.secondarySeedColor)),
@@ -328,9 +341,9 @@ class _InsuranceFormState extends State<InsuranceForm> {
                                       SizedBox(height: 16),
                                       insuranceCompany('assets/images/property.svg', 'Insurance Company', selectedCompany ?? ''),
                                       Divider(height: 32),
-                                      insuranceCompany('assets/images/mobileinsurance.svg', 'Phone', selectedCompanyPhone),
+                                      insuranceCompany('assets/images/mobileinsurance.svg', 'Phone', selectedCompanyPhone??''),
                                       Divider(height: 32),
-                                      insuranceCompany('assets/images/address.svg', 'Address', selectedCompanyAddress),
+                                      insuranceCompany('assets/images/address.svg', 'Address', selectedCompanyAddress??''),
                                     ],
                                   ),
                                 )),
@@ -361,12 +374,14 @@ class _InsuranceFormState extends State<InsuranceForm> {
                                           setState(() {
                                             isPatient = true;
                                             BlocProvider.of<GetPatientInsuranceCompanyCubit>(context).getGetPatientInsuranceCompany(patientId);
+                                          if(patientInsurance.isNotEmpty){
                                             selectedCompany =
-                                                '${patientInsurance.first.practiceInsuranceCompanyName} - ${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
+                                            '${patientInsurance.first.practiceInsuranceCompanyName} - ${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
                                             selectedCompanyPhone = patientInsurance.first.practiceInsuranceCompanyPhone;
                                             selectedCompanyAddress =
-                                                '${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
+                                            '${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
                                             selectedGender = patientInsurance.first.subscriberGender;
+                                          }
                                           });
                                         },
                                         title2: 'Other',
@@ -543,12 +558,15 @@ class _InsuranceFormState extends State<InsuranceForm> {
                                             setState(() {
                                               isPatientAdd = true;
                                               BlocProvider.of<GetPatientInsuranceCompanyCubit>(context).getGetPatientInsuranceCompany(patientId);
-                                              selectedCompany =
-                                                  '${patientInsurance.first.practiceInsuranceCompanyName} - ${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
-                                              selectedCompanyPhone = patientInsurance.first.practiceInsuranceCompanyPhone;
-                                              selectedCompanyAddress =
-                                                  '${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
-                                              selectedGender = patientInsurance.first.subscriberGender;
+                                             if(patientInsurance.isNotEmpty)
+                                             {
+                                               selectedCompany =
+                                               '${patientInsurance.first.practiceInsuranceCompanyName} - ${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
+                                               selectedCompanyPhone = patientInsurance.first.practiceInsuranceCompanyPhone;
+                                               selectedCompanyAddress =
+                                               '${patientInsurance.first.practiceInsuranceCompanyAddress1},${patientInsurance.first.practiceInsuranceCompanyCity},${patientInsurance.first.practiceInsuranceCompanyState},${patientInsurance.first.practiceInsuranceCompanyZipcode}';
+                                               selectedGender = patientInsurance.first.subscriberGender;
+                                             }
                                             });
                                           },
                                           title2: 'Other',
@@ -700,7 +718,7 @@ class _InsuranceFormState extends State<InsuranceForm> {
                                         selectedState != null &&
                                         zipcodeController.text.isNotEmpty) {
                                       BlocProvider.of<SavePatientInsuranceCubit>(context).savePatientInsurance(
-                                          patientInsurance.first.patientInsuranceId,
+                                          patientInsurance.isNotEmpty?patientInsurance.first.patientInsuranceId:0,
                                           selectedCompanyId,
                                           prefixController.text,
                                           firstNameController.text,
@@ -727,7 +745,7 @@ class _InsuranceFormState extends State<InsuranceForm> {
                                           selectedNetWorkType,
                                           grpEmpNameController.text,
                                           isPrimary,
-                                          patientInsurance.first.isActive,
+                                          true,
                                           isPatient,
                                           isPatientAdd,
                                           "",
@@ -746,7 +764,7 @@ class _InsuranceFormState extends State<InsuranceForm> {
                                     }
                                   }else{
                                     BlocProvider.of<SavePatientInsuranceCubit>(context).savePatientInsurance(
-                                        patientInsurance.first.patientInsuranceId,
+                                        patientInsurance.isNotEmpty?patientInsurance.first.patientInsuranceId:0,
                                         selectedCompanyId,
                                         prefixController.text,
                                         firstNameController.text,
@@ -761,19 +779,19 @@ class _InsuranceFormState extends State<InsuranceForm> {
                                         secondaryPhoneType ?? '',
                                         dobController.text.isEmpty ? null : AppConstants.parsedDate(dobController.text),
                                         selectedGender ?? '',
-                                        selectedRelationship,
+                                        selectedRelationship??'Self',
                                         null,
                                         address1Controller.text,
                                         address2Controller.text,
                                         cityController.text,
-                                        selectedState,
+                                        selectedState??'',
                                         zipcodeController.text,
                                         grpPlanController.text,
                                         policyHolderMemberController.text,
                                         selectedNetWorkType,
                                         grpEmpNameController.text,
                                         isPrimary,
-                                        patientInsurance.first.isActive,
+                                        true,
                                         isPatient,
                                         isPatientAdd,
                                         "",

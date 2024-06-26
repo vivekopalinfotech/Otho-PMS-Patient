@@ -39,6 +39,8 @@ dependencies:
   custom_refresh_indicator: ^3.1.0
   getwidget: ^4.0.0
   google_fonts:
+  html_unescape:
+  flutter_html:
   intl:
   animations: ^2.0.11
   flutter_overlay_loader:
@@ -49,6 +51,8 @@ dependencies:
   flex_seed_scheme: ^1.5.0
   persistent_bottom_nav_bar:
   riff_switch: ^0.0.4
+  scribble: ^0.10.0+1
+  signature: ^5.5.0
   shared_preferences:
   shimmer:
   local_auth:

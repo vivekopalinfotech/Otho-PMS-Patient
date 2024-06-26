@@ -180,11 +180,11 @@ class _PatientScreenState extends State<PatientScreen> {
                             children: [
                               PatientCard(patient: patient.first),
                               SizedBox(height: 16),
-                              PatientExamCard(patientExam: patientExam),
+                              patientExam.isNotEmpty?PatientExamCard(patientExam: patientExam):SizedBox(),
                               SizedBox(height: 16),
                               PaymentSummary(),
                               SizedBox(height: 16),
-                              Insurance(patientInsurance: patientInsurance, patient: patient.first)
+                              patientInsurance.isNotEmpty? Insurance(patientInsurance: patientInsurance, patient: patient.first):SizedBox()
                             ],
                           ),
                         ))));

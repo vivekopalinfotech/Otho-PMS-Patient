@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
+import 'package:ortho_pms_patient/screens/policy_screen.dart';
 
 class PaymentSummary extends StatefulWidget {
 
@@ -40,9 +41,14 @@ class _PaymentSummaryState extends State<PaymentSummary> {
                           SvgPicture.asset('assets/images/payment_summary.svg', colorFilter: ColorFilter.srgbToLinearGamma(),),
                           SizedBox(width: 8),
                           Flexible(
-                              child: Text(
-                                'Payment Summary',
-                                style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: AppConstants.LARGE, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor,),
+                              child:InkWell(
+                                onTap: (){
+                                  Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => PolicyScreen()));
+                                },
+                                child:  Text(
+                                  'Payment Summary',
+                                  style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: AppConstants.LARGE, color: brightness == Brightness.dark ? AppColor.whiteColor : AppColor.blackColor,),
+                                ),
                               ))
                         ]),
                         SizedBox(height: 16),

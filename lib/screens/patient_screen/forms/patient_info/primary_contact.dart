@@ -54,7 +54,7 @@ class _PrimaryContactState extends State<PrimaryContact> {
     BlocProvider.of<GetPatientContactCubit>(context).GetPatientContact();
   }
 
-  List<String> prefixes = ['Dr.', 'Prof.', 'Miss.', 'Sir.'];
+  List<String> prefixes = ['Mr.', 'Dr.', 'Prof.', 'Miss.', 'Sir.'];
   @override
   Widget build(BuildContext context) {
     var brightness = Theme.of(context).brightness;
@@ -158,38 +158,69 @@ class _PrimaryContactState extends State<PrimaryContact> {
               'First Name',
               firstNameController,
               TextInputType.text,
+              onchange: (value){
+                setState(() {
+                  firstNameController.text = value;
+                });
+              },
             ),
             ConstantTextFormField(
               'Middle Name',
               middleNameController,
               TextInputType.text,
+              onchange: (value){
+                setState(() {
+                  middleNameController.text = value;
+                });
+              },
             ),
             ConstantTextFormField(
               'Last Name',
               lastNameController,
               TextInputType.text,
+              onchange: (value){
+                setState(() {
+                  lastNameController.text = value;
+                });
+              },
             ),
             ConstantTextFormField(
               'Suffix',
               suffixController,
               TextInputType.text,
+              onchange: (value){
+                setState(() {
+                  suffixController.text = value;
+                });
+              },
             ),
             ConstantTextFormField(
               'Date of Birth',
               dobController,
               TextInputType.datetime,
               readOnly: true,
+
             ),
             ConstantTextFormField(
               'Email Address',
               emailController,
               TextInputType.emailAddress,
+              onchange: (value){
+                setState(() {
+                  emailController.text = value;
+                });
+              },
             ),
             ConstantTextFormField(
               'Primary Phone',
               phoneController,
               TextInputType.phone,
               extController: phoneExtController,
+              onchange: (value){
+                setState(() {
+                  phoneController.text = value;
+                });
+              },
             ),
             SizedBox(height: 16),
             Column(
@@ -255,10 +286,10 @@ class _PrimaryContactState extends State<PrimaryContact> {
             ),
             selectedPhoneType != null &&
                 selectedRelationship != null &&
-                firstNameController.text.isNotEmpty &&
-                lastNameController.text.isNotEmpty &&
-                emailController.text.isNotEmpty &&
-                phoneController.text.isNotEmpty
+                firstNameController.value.text.isNotEmpty &&
+                lastNameController.value.text.isNotEmpty &&
+                emailController.value.text.isNotEmpty &&
+                phoneController.value.text.isNotEmpty
                 ?  Align(
               alignment: AlignmentDirectional.bottomEnd,
               child:  ElevatedButton(
@@ -271,18 +302,18 @@ class _PrimaryContactState extends State<PrimaryContact> {
                       primaryContact.first.isPrimary,
                       null,
                       AppConstants.parsedDate(dobController.text),
-                      firstNameController.text,
+                      firstNameController.value.text,
                       primaryContact.first.patientContactId,
-                      middleNameController.text,
-                      lastNameController.text,
+                      middleNameController.value.text,
+                      lastNameController.value.text,
                       primaryContact.first.patientContactPreferredName,
-                      phoneExtController.text,
+                      phoneExtController.value.text,
                       selectedPrefix,
-                      emailController.text,
-                      phoneController.text,
+                      emailController.value.text,
+                      phoneController.value.text,
                       selectedPhoneType ?? '',
                       selectedRelationship ?? '',
-                      suffixController.text);
+                      suffixController.value.text);
                 },
                 child: Text('Save Primary Contact'),
               ),

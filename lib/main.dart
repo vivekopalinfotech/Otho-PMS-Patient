@@ -4,6 +4,7 @@ import 'package:ortho_pms_patient/api/api_provider.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/bloc/allergies/get_allergies_cubit.dart';
 import 'package:ortho_pms_patient/bloc/auth/change_password_cubit.dart';
+import 'package:ortho_pms_patient/bloc/auth/forgot_password_cubit.dart';
 import 'package:ortho_pms_patient/bloc/auth/logiut_cubit.dart';
 import 'package:ortho_pms_patient/bloc/dental_history/get_dental_history_cubit.dart';
 import 'package:ortho_pms_patient/bloc/dental_history/get_dental_hygienes_cubit.dart';
@@ -31,6 +32,8 @@ import 'package:ortho_pms_patient/bloc/patient/referral/get_patient_referral_det
 import 'package:ortho_pms_patient/bloc/patient/referral/get_referral_categories_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/referral/get_referral_sub_category_cubit.dart';
 import 'package:ortho_pms_patient/bloc/patient/referral/save_patient_referral_detail_cubit.dart';
+import 'package:ortho_pms_patient/bloc/policy/get_policy_cubit.dart';
+import 'package:ortho_pms_patient/bloc/policy/get_practice_policies_cubit.dart';
 import 'package:ortho_pms_patient/bloc/states/get_states_cubit.dart';
 import 'package:ortho_pms_patient/habits/get_habits_cubit.dart';
 import 'package:ortho_pms_patient/screens/auth/login_screen.dart';
@@ -56,6 +59,9 @@ class MyApp extends StatelessWidget {
         providers: [
           BlocProvider(
             create: (context) => LogInCubit(repository),
+          ),
+          BlocProvider(
+            create: (context) => ForgotPasswordCubit(repository),
           ),
           BlocProvider(
             create: (context) => LogoutCubit(repository),
@@ -155,6 +161,12 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => SaveDentalHistoryCubit(repository),
+          ),
+          BlocProvider(
+            create: (context) => GetPolicyCubit(repository),
+          ),
+          BlocProvider(
+            create: (context) => GetPracticePoliciesCubit(repository),
           ),
         ],
         child: MaterialApp(

@@ -76,7 +76,7 @@ class _ChiefComplaintState extends State<ChiefComplaint> {
                   setState(() {
                     isLoading = false;
                   });
-                  showSnackBar(context, state.message);
+                  showSnackBar(context, state.message,'Error');
                 }
               }),
             ],
@@ -99,7 +99,7 @@ class _ChiefComplaintState extends State<ChiefComplaint> {
                   setState(() {
                     isLoading = false;
                   });
-                  showSnackBar(context, state.message);
+                  showSnackBar(context, state.message,'Error');
                 }
               },
               builder: (context, state) {

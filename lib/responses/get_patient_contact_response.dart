@@ -21,7 +21,7 @@ class PatientContact {
   String patientContactFirstName;
   String patientContactMiddleName;
   String patientContactLastName;
-  String patientContactSuffixName;
+  dynamic patientContactSuffixName;
   dynamic patientContactDisplayName;
   dynamic patientContactPreferredName;
   String patientContactGender;
@@ -77,13 +77,13 @@ class PatientContact {
       patientContactFirstName: json['patientContactFirstName'],
       patientContactMiddleName: json['patientContactMiddleName'],
       patientContactLastName: json['patientContactLastName'],
-      patientContactSuffixName: json['patientContactSuffixName'],
-      patientContactDisplayName: json['patientContactDisplayName'],
-      patientContactPreferredName: json['patientContactPreferredName'],
+      patientContactSuffixName: json['patientContactSuffixName']??'',
+      patientContactDisplayName: json['patientContactDisplayName']??'',
+      patientContactPreferredName: json['patientContactPreferredName']??'',
       patientContactGender: json['patientContactGender'],
       patientContactDob: DateTime.parse(json['patientContactDob']),
       patientContactPrimaryPhone: json['patientContactPrimaryPhone'],
-      patientContactPrimaryPhoneExt: json['patientContactPrimaryPhoneExt'],
+      patientContactPrimaryPhoneExt: json['patientContactPrimaryPhoneExt']??'',
       patientContactPrimaryType: json['patientContactPrimaryType'],
       patientContactPrimaryEmailAddress: json['patientContactPrimaryEmailAddress'],
       patientContactRelationToPatient: json['patientContactRelationToPatient'],

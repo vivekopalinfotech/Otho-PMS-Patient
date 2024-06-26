@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:getwidget/components/checkbox/gf_checkbox.dart';
-import 'package:getwidget/types/gf_checkbox_type.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ortho_pms_patient/app_color/app_colors.dart';
 import 'package:ortho_pms_patient/app_constants/app_constants.dart';
@@ -30,17 +28,18 @@ removeAllHtmlTags(String htmlText) {
   return htmlText.replaceAll(exp, '');
 }
 
-showSnackBar(BuildContext context, String message) {
+showSnackBar(BuildContext context, String message,String type) {
+  final ColorScheme colorScheme = Theme.of(context).colorScheme;
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: AppColor.primaryColor,
+      backgroundColor:colorScheme.background,
       duration: const Duration(milliseconds: 2000),
       content: Center(
           child: Text(
         message,
         textScaler: TextScaler.linear(1),
-        textAlign: TextAlign.center,
-        style: GoogleFonts.inter(color: AppColor.tertiarySeedColor),
+        textAlign: TextAlign.start,
+        style: GoogleFonts.inter(color:type == 'Error'?Colors.redAccent: AppColor.successColor),
       ))));
 }
 
@@ -98,23 +97,14 @@ checkBox(isMark, title, size, height, width) {
   return Row(
     children: [
       isMark
-          ? Image.asset(
-              'assets/images/mark.png',
-              height: height,
-              width: width,
-            )
-          : Icon(
-              Icons.check_box_outline_blank_rounded,
-              color: AppColor.secondarySeedColor,
-              size: 18,
-            ),
+          ? activeIcon()
+          : inactiveIcon(),
       SizedBox(width: size),
-      Flexible(
-        child: Text(title,
+       Text(title,
             style: GoogleFonts.inter(
-              fontSize: AppConstants.SMALL,
+              fontSize: AppConstants.NORMAL,
               fontWeight: FontWeight.w500,
-            )),
+            )
       )
     ],
   );
@@ -173,7 +163,7 @@ class SelectedOptions extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Flexible(
+        title1.isNotEmpty?     Flexible(
             child: ElevatedButton(
                 style: ButtonStyle(
                     backgroundColor: MaterialStatePropertyAll(selected1
@@ -217,7 +207,7 @@ class SelectedOptions extends StatelessWidget {
                           )
                         : SizedBox()
                   ],
-                ))),
+                ))):SizedBox(),
         SizedBox(width: 16),
         ElevatedButton(
           style: ButtonStyle(
@@ -324,6 +314,29 @@ multipleSelect(title, list, itemBuilder, controller, hint) {
         itemBuilder: itemBuilder,
       ),
       Padding(padding: EdgeInsets.symmetric(horizontal: AppConstants.HP), child: ConstantTextFormField(hint, controller, TextInputType.text)),
+    ],
+  );
+}
+
+formField(title, controller, TextInputType textInputType) {
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(title, style: GoogleFonts.inter(fontSize: AppConstants.NORMAL, fontWeight: FontWeight.bold, )),
+      SizedBox(height: 8),
+      TextFormField(
+        controller: controller,
+        onChanged: (value) {
+            controller.text;
+        },
+        keyboardType: textInputType,
+        decoration: InputDecoration(isDense: true,
+            hintText: title.replaceAll('*',''),
+            enabledBorder: OutlineInputBorder(),
+            focusedBorder: OutlineInputBorder()
+        ),
+      )
     ],
   );
 }

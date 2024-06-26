@@ -238,26 +238,27 @@ class _ReferralState extends State<Referral> {
                                                                       "What's the other way you heard about our practice?", "What's the other way you heard about our practice?", otherController)
                                                                   : SizedBox(),
                                         )),
-                                    SizedBox(height: 60),
-                                  ]))),
-                          Positioned(
-                            bottom: 16,
-                            left: 16,
-                            right: 16,
-                            child: ElevatedButton(
-                                onPressed: () {
-                                  print(state.patientReferralDetailResponse.patientReferralId);
-                                  print(selectedCategoryId);
-                                  referralSubCategoryIdPass = selectedCategoryId == 1 ? null : selectedSubCategoryId;
-                                  print(referralSubCategoryIdPass);
-                                  referredDentistIdPass = (selectedCategoryId == 1 ? selectedDentistId : null);
-                                  print(referredDentistIdPass);
+                                    SizedBox(height: 20),
+                                    Align(
+                                      alignment: AlignmentDirectional.bottomEnd,
 
-                                  BlocProvider.of<SavePatientReferralDetailCubit>(context).savePatientReferralDetails(
-                                      state.patientReferralDetailResponse.patientReferralId, selectedCategoryId, referralNotesController.text, referralSubCategoryIdPass, referredDentistIdPass);
-                                },
-                                child: Text('Save Referral Information')),
-                          )
+                                      child: ElevatedButton(
+                                          onPressed: () {
+                                            print(state.patientReferralDetailResponse.patientReferralId);
+                                            print(selectedCategoryId);
+                                            referralSubCategoryIdPass = selectedCategoryId == 1 ? null : selectedSubCategoryId;
+                                            print(referralSubCategoryIdPass);
+                                            referredDentistIdPass = (selectedCategoryId == 1 ? selectedDentistId : null);
+                                            print(referredDentistIdPass);
+
+                                            BlocProvider.of<SavePatientReferralDetailCubit>(context).savePatientReferralDetails(
+                                                state.patientReferralDetailResponse.patientReferralId, selectedCategoryId, referralNotesController.text, referralSubCategoryIdPass, referredDentistIdPass);
+                                          },
+                                          child: Text('Save Referral Information')),
+                                    ),
+                                    SizedBox(height: 40),
+                                  ]))),
+
                         ]);
                 } else {
                   return ReferralLoading();

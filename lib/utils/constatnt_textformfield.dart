@@ -13,9 +13,10 @@ class ConstantTextFormField extends StatefulWidget {
   final hideTitle;
   final alertText;
   final extController;
-  final TextEditingController controller;
+  final onchange;
+  TextEditingController controller;
   final TextInputType textInputType;
-  const ConstantTextFormField(
+  ConstantTextFormField(
     this.title,
     this.controller,
     this.textInputType, {
@@ -25,7 +26,9 @@ class ConstantTextFormField extends StatefulWidget {
     this.maxLines,
     this.hideTitle,
     this.alertText,
-    this.extController, this.hint,
+    this.extController,
+    this.hint,
+    this.onchange,
   });
 
   @override
@@ -81,12 +84,14 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
                         controller: widget.controller,
                         readOnly: widget.readOnly ?? false,
                         maxLines: widget.maxLines ?? 1,
-                        obscureText: widget.title == 'Current Password' || widget.title == 'New Password' || widget.title == 'Re-Type New Password' ? _isObscure : false,
-                        onChanged: (value) {
-                          setState(() {
-                            widget.controller.text;
-                          });
-                        },
+                        obscureText: widget.title == 'Current Password' || widget.title == 'New Password' || widget.title == 'Re-Type New Password' || widget.title == 'Password' ? _isObscure : false,
+                        onChanged: widget.onchange == null
+                            ? (value) {
+                                setState(() {
+                                  widget.controller.text = value;
+                                });
+                              }
+                            : widget.onchange,
                         onTap: () {
                           if (widget.title == 'Date of Birth') {
                             setState(() {
@@ -123,7 +128,7 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
                         },
                         decoration: InputDecoration(
                             isDense: true,
-                            suffixIcon: widget.title == 'Current Password' || widget.title == 'New Password' || widget.title == 'Re-Type New Password'
+                            suffixIcon: widget.title == 'Current Password' || widget.title == 'New Password' || widget.title == 'Re-Type New Password' || widget.title == 'Password'
                                 ? InkWell(
                                     radius: 15,
                                     child: Icon(
@@ -135,7 +140,7 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
                                       });
                                     })
                                 : SizedBox(),
-                            hintText: widget.hint?? widget.title,
+                            hintText: widget.hint ?? widget.title,
                             border: OutlineInputBorder(borderSide: BorderSide(color: AppColor.secondarySeedColor)),
                             enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.secondarySeedColor)),
                             focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.primaryColor))),
@@ -163,12 +168,14 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
                   controller: widget.controller,
                   readOnly: widget.readOnly ?? false,
                   maxLines: widget.maxLines ?? 1,
-                  obscureText: widget.title == 'Current Password' || widget.title == 'New Password' || widget.title == 'Re-Type New Password' ? _isObscure : false,
-                  onChanged: (value) {
-                    setState(() {
-                      widget.controller.text;
-                    });
-                  },
+                  obscureText: widget.title == 'Current Password' || widget.title == 'New Password' || widget.title == 'Re-Type New Password'  || widget.title == 'Password'? _isObscure: false,
+                  onChanged: widget.onchange == null
+                      ? (value) {
+                          setState(() {
+                            widget.controller.text = value;
+                          });
+                        }
+                      : widget.onchange,
                   onTap: () {
                     if (widget.title == 'Date of Birth') {
                       setState(() {
@@ -178,7 +185,7 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
                   },
                   keyboardType: widget.textInputType,
                   validator: (value) {
-                    if (widget.title == 'Current Password' || widget.title == 'New Password' || widget.title == 'Re-Type New Password') {
+                    if (widget.title == 'Current Password' || widget.title == 'New Password' || widget.title == 'Re-Type New Password' || widget.title == 'Password') {
                       if (widget.controller.text.isEmpty) {
                         return '${widget.title} is required';
                       }
@@ -205,7 +212,7 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
                   },
                   decoration: InputDecoration(
                       isDense: true,
-                      suffixIcon: widget.title == 'Current Password' || widget.title == 'New Password' || widget.title == 'Re-Type New Password'
+                      suffixIcon: widget.title == 'Current Password' || widget.title == 'New Password' || widget.title == 'Re-Type New Password' || widget.title == 'Password'
                           ? InkWell(
                               radius: 15,
                               child: Icon(
@@ -217,7 +224,7 @@ class _ConstantTextFormFieldState extends State<ConstantTextFormField> {
                                 });
                               })
                           : SizedBox(),
-                      hintText:  widget.hint?? widget.title,
+                      hintText: widget.hint ?? widget.title,
                       border: OutlineInputBorder(borderSide: BorderSide(color: AppColor.secondarySeedColor)),
                       enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.secondarySeedColor)),
                       focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.alertText == true ? Colors.redAccent : AppColor.primaryColor))),
